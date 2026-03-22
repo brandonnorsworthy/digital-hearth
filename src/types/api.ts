@@ -23,7 +23,6 @@ export interface Task {
   id: number
   householdId: number
   name: string
-  tier: TaskTier
   intervalDays: number
   lastCompletedAt: string | null
   lastCompletedBy: string | null
@@ -44,7 +43,7 @@ export interface WeeklyMeal {
   name: string
   mealLibraryId: number | null
   isFromLibrary: boolean
-  imageUrl: string | null
+  imageData: string | null
 }
 
 export interface LibraryMeal {
@@ -53,5 +52,5 @@ export interface LibraryMeal {
   createdBy: string
   createdAt: string
   tags: string[]
-  imageUrl: string | null
+  imageData: string | null
 }

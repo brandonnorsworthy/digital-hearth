@@ -1,5 +1,9 @@
 import { Link, useMatch, useResolvedPath, useNavigate } from 'react-router-dom'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+
+const PULL_THRESHOLD = 72
+const INDICATOR_HEIGHT = 52
 
 function NavItem({ to, label, icon, exact }: { to: string; label: string; icon: string; exact?: boolean }) {
   const resolved = useResolvedPath(to)
@@ -31,6 +35,7 @@ interface LayoutProps {
   focusMode?: boolean
   showFab?: boolean
   onFabClick?: () => void
+  onRefresh?: () => Promise<void>
 }
 
 export default function Layout({
@@ -40,8 +45,58 @@ export default function Layout({
   focusMode = false,
   showFab = false,
   onFabClick,
+  onRefresh,
 }: LayoutProps) {
   const navigate = useNavigate()
+  const mainRef = useRef<HTMLElement>(null)
+  const touchStartY = useRef(0)
+  const isPullingRef = useRef(false)
+
+  const [pullY, setPullY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  const indicatorH = isRefreshing || isAnimating
+    ? INDICATOR_HEIGHT
+    : Math.round((pullY / PULL_THRESHOLD) * INDICATOR_HEIGHT)
+
+  function handleTouchStart(e: React.TouchEvent) {
+    if (!onRefresh || isRefreshing) return
+    touchStartY.current = e.touches[0].clientY
+    isPullingRef.current = false
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    if (!onRefresh || isRefreshing) return
+    const main = mainRef.current
+    if (!main || main.scrollTop > 0) return
+
+    const deltaY = e.touches[0].clientY - touchStartY.current
+    if (deltaY <= 0) return
+
+    isPullingRef.current = true
+    setPullY(Math.min(deltaY * 0.5, PULL_THRESHOLD))
+  }
+
+  async function handleTouchEnd() {
+    if (!onRefresh || !isPullingRef.current) return
+    isPullingRef.current = false
+
+    if (pullY >= PULL_THRESHOLD) {
+      setIsAnimating(false)
+      setIsRefreshing(true)
+      setPullY(0)
+      try {
+        await onRefresh()
+      } finally {
+        setIsRefreshing(false)
+      }
+    } else {
+      setIsAnimating(true)
+      setPullY(0)
+      setTimeout(() => setIsAnimating(false), 300)
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-dvh bg-background text-on-surface">
@@ -73,7 +128,33 @@ export default function Layout({
       </header>
 
       {/* Scrollable content */}
-      <main className={`${subtitle ? 'pt-20' : 'pt-16'} flex-1 overflow-y-auto overscroll-y-contain ${focusMode ? 'pb-12' : 'pb-24'}`}>
+      <main
+        ref={mainRef}
+        className={`${subtitle ? 'pt-20' : 'pt-16'} flex-1 overflow-y-auto overscroll-y-contain ${focusMode ? 'pb-12' : 'pb-24'}`}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Pull-to-refresh indicator */}
+        {onRefresh && (
+          <div
+            className={`overflow-hidden flex items-center justify-center ${isAnimating || isRefreshing ? 'transition-[height] duration-300' : ''}`}
+            style={{ height: indicatorH }}
+          >
+            <span
+              className={`material-symbols-outlined text-primary ${isRefreshing ? 'animate-spin' : ''}`}
+              style={{
+                fontVariationSettings: "'FILL' 1",
+                transform: !isRefreshing
+                  ? `rotate(${Math.round((pullY / PULL_THRESHOLD) * 360)}deg)`
+                  : undefined,
+              }}
+            >
+              {isRefreshing ? 'progress_activity' : 'refresh'}
+            </span>
+          </div>
+        )}
+
         {children}
       </main>
 
@@ -91,7 +172,7 @@ export default function Layout({
       {showFab && (
         <button
           onClick={onFabClick}
-          className="fixed bottom-287 right-6 z-40 w-16 h-16 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/20 active:scale-95 transition-transform"
+          className="fixed bottom-28 right-6 z-40 w-16 h-16 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/20 active:scale-95 transition-transform"
         >
           <span className="material-symbols-outlined text-3xl">add</span>
         </button>

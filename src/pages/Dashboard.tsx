@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { mealService } from '../services/meals'
 import { getCurrentWeekOf } from '../utils/meals'
-import { getDueBadge, getTierIcon } from '../utils/task'
+import { getDueBadge, getTierIcon, getTierFromDays } from '../utils/task'
 import { useToast } from '../contexts/ToastContext'
 import type { Task } from '../types/api'
 import type { WeeklyMeal } from '../types/api'
@@ -37,14 +37,18 @@ export default function Dashboard() {
   const [tonightsDinner, setTonightsDinner] = useState<WeeklyMeal | undefined>()
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
 
-  useEffect(() => {
+  async function loadData() {
     if (!user?.householdId) return
-    taskService.list(user.householdId).then(setTasks).catch(console.error)
-    mealService.weeklyList(user.householdId, getCurrentWeekOf())
-      .then(data => {
-        if (data.length) setTonightsDinner(data[Math.floor(Math.random() * data.length)])
-      })
-      .catch(console.error)
+    const [taskData, mealData] = await Promise.all([
+      taskService.list(user.householdId),
+      mealService.weeklyList(user.householdId, getCurrentWeekOf()),
+    ])
+    setTasks(taskData)
+    if (mealData.length) setTonightsDinner(mealData[Math.floor(Math.random() * mealData.length)])
+  }
+
+  useEffect(() => {
+    loadData().catch(console.error)
   }, [user?.householdId])
 
   const hour = new Date().getHours()
@@ -76,7 +80,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Layout showFab onFabClick={() => navigate('/tasks/new')}>
+    <Layout onRefresh={loadData}>
       <div className="px-6 pb-4 space-y-8 pt-6">
 
         {/* Welcome */}
@@ -112,9 +116,9 @@ export default function Dashboard() {
             onClick={() => navigate('/meals')}
           >
             <div className="aspect-16/10 w-full">
-              {tonightsDinner?.imageUrl ? (
+              {tonightsDinner?.imageData ? (
                 <img
-                  src={tonightsDinner.imageUrl}
+                  src={tonightsDinner.imageData}
                   alt={tonightsDinner.name}
                   className="w-full h-full object-cover"
                 />
@@ -152,7 +156,7 @@ export default function Dashboard() {
           </div>
           <div className="grid gap-3">
             {glanceTasks.map(task => {
-              const colors = TIER_COLORS[task.tier]
+              const colors = TIER_COLORS[getTierFromDays(task.intervalDays)]
               const checked = completedIds.has(task.id)
               return (
                 <div
@@ -161,7 +165,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`${colors.bg} p-3 rounded-full`}>
-                      <span className={`material-symbols-outlined ${colors.icon}`}>{getTierIcon(task.tier)}</span>
+                      <span className={`material-symbols-outlined ${colors.icon}`}>{getTierIcon(getTierFromDays(task.intervalDays))}</span>
                     </div>
                     <div>
                       <span className={`text-[10px] font-bold ${colors.label} uppercase tracking-wider`}>

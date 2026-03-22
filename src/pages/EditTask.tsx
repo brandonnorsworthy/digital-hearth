@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Layout from '../components/Layout'
+import SelectSheet from '../components/SelectSheet'
 import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
-import { INTERVAL_LABELS, labelToDays, daysToLabel } from '../utils/intervals'
-import type { TaskTier } from '../types/api'
-
-const TIER_OPTIONS: { tier: TaskTier; label: string; icon: string }[] = [
-  { tier: 'long', label: 'Long', icon: 'auto_awesome_motion' },
-  { tier: 'medium', label: 'Medium', icon: 'waves' },
-  { tier: 'short', label: 'Short', icon: 'bolt' },
-]
+import { INTERVAL_UNITS, daysToNUnit, nUnitToDays } from '../utils/intervals'
+import { getTierFromDays } from '../utils/task'
+import type { IntervalUnit } from '../utils/intervals'
 
 export default function EditTask() {
   const { id } = useParams<{ id: string }>()
@@ -19,10 +15,11 @@ export default function EditTask() {
   const isNew = id === 'new'
 
   const [name, setName] = useState('')
-  const [tier, setTier] = useState<TaskTier>('medium')
-  const [intervalLabel, setIntervalLabel] = useState('1 Week')
+  const [intervalN, setIntervalN] = useState(1)
+  const [intervalUnit, setIntervalUnit] = useState<IntervalUnit>('Week')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [unitSheetOpen, setUnitSheetOpen] = useState(false)
 
   useEffect(() => {
     if (isNew || !user?.householdId) return
@@ -30,8 +27,9 @@ export default function EditTask() {
       const task = tasks.find(t => t.id === Number(id))
       if (task) {
         setName(task.name)
-        setTier(task.tier)
-        setIntervalLabel(daysToLabel(task.intervalDays))
+        const { n, unit } = daysToNUnit(task.intervalDays)
+        setIntervalN(n)
+        setIntervalUnit(unit)
       }
     }).catch(console.error)
   }, [id, isNew, user?.householdId])
@@ -41,7 +39,8 @@ export default function EditTask() {
     setSaving(true)
     setError(null)
     try {
-      const intervalDays = labelToDays(intervalLabel)
+      const intervalDays = nUnitToDays(intervalN, intervalUnit)
+      const tier = getTierFromDays(intervalDays)
       if (isNew) {
         await taskService.create(user.householdId, { name: name.trim(), tier, intervalDays })
       } else {
@@ -65,6 +64,8 @@ export default function EditTask() {
     }
   }
 
+  const intervalDaysPreview = nUnitToDays(intervalN, intervalUnit)
+
   return (
     <Layout
       title="Digital Hearth"
@@ -73,7 +74,7 @@ export default function EditTask() {
       <div className="pt-8 px-6 max-w-2xl mx-auto">
 
         {/* Editorial header */}
-        <header className="mb-10">
+        <header className="mb-8">
           <span className="text-primary font-semibold tracking-widest text-xs uppercase mb-2 block">
             Task Management
           </span>
@@ -82,11 +83,11 @@ export default function EditTask() {
           </h2>
         </header>
 
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Task Name */}
           <div className="space-y-3">
             <label className="font-headline font-bold text-on-surface-variant text-sm ml-1">Task Name</label>
-            <div className="bg-surface-container-high rounded-xl p-1 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <div className="bg-surface-container-high rounded-xl p-1 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all mt-3">
               <input
                 type="text"
                 value={name}
@@ -97,75 +98,48 @@ export default function EditTask() {
             </div>
           </div>
 
-          {/* Tier */}
-          <div className="space-y-4">
-            <label className="font-headline font-bold text-on-surface-variant text-sm ml-1">Recurrence Tier</label>
-            <div className="grid grid-cols-3 gap-3">
-              {TIER_OPTIONS.map(opt => {
-                const isActive = tier === opt.tier
-                return (
-                  <button
-                    key={opt.tier}
-                    onClick={() => setTier(opt.tier)}
-                    className={`flex flex-col items-center justify-center p-5 rounded-xl transition-all ${
-                      isActive
-                        ? 'bg-primary-container border-2 border-primary/20 shadow-sm scale-105'
-                        : 'bg-surface-container-low border-2 border-transparent hover:bg-surface-container-high'
-                    }`}
-                  >
-                    <span
-                      className={`material-symbols-outlined mb-2 ${isActive ? 'text-primary' : 'text-secondary'}`}
-                      style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                    >
-                      {opt.icon}
-                    </span>
-                    <span className={`font-headline font-bold text-sm ${isActive ? 'text-primary' : 'text-on-surface'}`}>
-                      {opt.label}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Interval */}
+          {/* Frequency Schedule */}
           <div className="space-y-3">
-            <label className="font-headline font-bold text-on-surface-variant text-sm ml-1">Interval</label>
-            <div className="flex items-center bg-surface-container-high rounded-xl p-1 gap-2">
-              <div className="flex-1 px-5 py-4">
-                <span className="text-on-surface font-medium">Every</span>
-              </div>
-              <div className="flex-2 bg-surface-container-lowest rounded-lg">
-                <select
-                  value={intervalLabel}
-                  onChange={e => setIntervalLabel(e.target.value)}
-                  className="w-full bg-transparent border-none focus:outline-none focus:ring-0 px-4 py-4 text-on-surface font-bold text-center cursor-pointer"
+            <label className="font-headline font-bold text-on-surface-variant text-sm ml-1">Frequency Schedule</label>
+            <div className="bg-surface-container-high rounded-xl p-2 shadow-sm mt-3">
+              <div className="flex items-center gap-2">
+                <div className="flex-[0.8] pl-4">
+                  <span className="text-on-surface-variant font-headline font-bold text-sm uppercase tracking-wider">Every</span>
+                </div>
+                <div className="flex-1 bg-surface-container-lowest rounded-lg">
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={intervalN}
+                    onChange={e => setIntervalN(Math.max(1, Math.min(12, parseInt(e.target.value) || 1)))}
+                    className="w-full bg-transparent border-none focus:outline-none focus:ring-0 px-4 py-4 text-on-surface font-bold text-center text-lg"
+                  />
+                </div>
+                <button
+                  onClick={() => setUnitSheetOpen(true)}
+                  className="flex-2 bg-surface-container-lowest rounded-lg px-4 py-4 text-on-surface font-bold text-lg text-left flex items-center justify-between gap-2"
                 >
-                  {INTERVAL_LABELS.map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
+                  <span>{intervalUnit}{intervalN !== 1 ? 's' : ''}</span>
+                  <span className="material-symbols-outlined text-on-surface-variant text-base">expand_more</span>
+                </button>
               </div>
             </div>
+            <p className="text-xs text-outline font-medium px-2 mt-4">Set how often this task should repeat.</p>
           </div>
 
           {/* Visual context card */}
-          <div className="relative overflow-hidden rounded-xl bg-linear-to-br from-primary-container/50 to-secondary-container/30 h-48 flex items-end p-6 mt-2">
-            <div className="absolute inset-0 flex items-center justify-end pr-8 opacity-10">
-              <span className="material-symbols-outlined text-[6rem] text-primary rotate-12">
-                {TIER_OPTIONS.find(o => o.tier === tier)?.icon ?? 'task_alt'}
-              </span>
-            </div>
-            <div className="relative z-10 bg-white/80 backdrop-blur-md p-4 rounded-lg flex items-center gap-4 shadow-sm max-w-xs">
+          <div className="relative overflow-hidden rounded-xl bg-linear-to-br from-primary-container/50 to-secondary-container/30 h-48 flex items-center p-6 mt-2">
+            <div className="relative z-10 bg-white/80 backdrop-blur-md p-4 rounded-lg flex items-center gap-4 shadow-sm max-w-xs w-full">
               <div className="bg-primary-container p-2 rounded-full">
                 <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
                   schedule
                 </span>
               </div>
               <div>
-                <p className="text-[10px] text-primary font-bold uppercase tracking-wider">Recurrence</p>
+                <p className="text-[10px] text-primary font-bold uppercase tracking-wider">Upcoming Task</p>
                 <p className="text-sm font-headline font-bold text-on-surface leading-tight">
-                  Every {intervalLabel} · {tier.charAt(0).toUpperCase() + tier.slice(1)} tier
+                  {name} · {intervalN} {intervalUnit}{intervalN !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
@@ -199,6 +173,15 @@ export default function EditTask() {
           </div>
         </div>
       </div>
+      {unitSheetOpen && (
+        <SelectSheet
+          title="Repeat every..."
+          options={INTERVAL_UNITS.map(u => u)}
+          value={intervalUnit}
+          onSelect={v => setIntervalUnit(v as IntervalUnit)}
+          onClose={() => setUnitSheetOpen(false)}
+        />
+      )}
     </Layout>
   )
 }

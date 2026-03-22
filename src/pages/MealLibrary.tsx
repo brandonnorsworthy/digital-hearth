@@ -18,9 +18,14 @@ export default function MealLibrary() {
 
   const weekOf = getCurrentWeekOf()
 
-  useEffect(() => {
+  async function loadData() {
     if (!user?.householdId) return
-    mealService.library(user.householdId).then(setLibrary).catch(console.error)
+    const data = await mealService.library(user.householdId)
+    setLibrary(data)
+  }
+
+  useEffect(() => {
+    loadData().catch(console.error)
   }, [user?.householdId])
 
   const filtered = library.filter(m => {
@@ -55,7 +60,7 @@ export default function MealLibrary() {
   }
 
   return (
-    <Layout title="Meal Library" focusMode>
+    <Layout title="Meal Library" focusMode onRefresh={loadData}>
       <div className="pt-8 px-6 max-w-2xl mx-auto pb-8">
 
         {/* Hero search */}
@@ -131,9 +136,9 @@ export default function MealLibrary() {
               >
                 {/* Image / color block */}
                 <div className="h-48 relative overflow-hidden">
-                  {meal.imageUrl ? (
+                  {meal.imageData ? (
                     <img
-                      src={meal.imageUrl}
+                      src={meal.imageData}
                       alt={meal.name}
                       className="w-full h-full object-cover"
                     />

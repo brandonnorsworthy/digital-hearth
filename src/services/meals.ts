@@ -25,7 +25,7 @@ export const mealService = {
     api.post<LibraryMeal>(`/households/${householdId}/meals/library`, { name, tags }),
 
   generateImage: (mealName: string) =>
-    api.post<{ imageUrl: string }>('/meals/generate-image', { mealName }),
+    api.post<{ imageData: string }>('/meals/generate-image', { mealName }),
 
   removeFromLibrary: (id: number) =>
     api.delete(`/meals/library/${id}`),

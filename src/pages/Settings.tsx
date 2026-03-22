@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import SelectSheet from '../components/SelectSheet'
+import Toggle from '../components/Toggle'
 import { useAuth } from '../contexts/AuthContext'
 import { useHousehold } from '../contexts/HouseholdContext'
 import { householdService } from '../services/household'
@@ -10,18 +11,6 @@ import { notificationService } from '../services/notifications'
 import { urlBase64ToUint8Array } from '../utils/encoding'
 
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <div
-      role="switch"
-      aria-checked={checked}
-      className={`toggle-track ${checked ? 'checked' : ''}`}
-      onClick={() => onChange(!checked)}
-    >
-      <div className="toggle-thumb" />
-    </div>
-  )
-}
 
 export default function Settings() {
   const { user, logout } = useAuth()

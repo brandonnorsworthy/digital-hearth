@@ -5,33 +5,16 @@ import { HouseholdProvider } from './contexts/HouseholdContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ToastProvider } from './contexts/ToastContext'
 import { Toast } from './components/Toast'
-import Login from './pages/Login'
+import ProtectedRoute from './components/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import Tasks from './pages/Tasks'
 import EditTask from './pages/EditTask'
 import MealPlanner from './pages/MealPlanner'
 import MealLibrary from './pages/MealLibrary'
+import TaskLibrary from './pages/TaskLibrary'
 import Settings from './pages/Settings'
 import { notificationService } from './services/notifications'
 
-// Renders the login screen IN PLACE (no URL change) when not authenticated.
-// This keeps the PWA in standalone mode on iOS — redirecting to /login would
-// cause Safari to exit standalone and show browser chrome.
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth()
-
-  if (isLoading) {
-    return (
-      <div className="h-dvh bg-background flex items-center justify-center">
-        <span className="material-symbols-outlined text-primary text-4xl animate-spin" style={{ fontVariationSettings: "'FILL' 1" }}>
-          progress_activity
-        </span>
-      </div>
-    )
-  }
-
-  return user ? <>{children}</> : <Login />
-}
 
 function AppRoutes() {
   const { user } = useAuth()
@@ -48,6 +31,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+      <Route path="/tasks/library" element={<ProtectedRoute><TaskLibrary /></ProtectedRoute>} />
       <Route path="/tasks/:id" element={<ProtectedRoute><EditTask /></ProtectedRoute>} />
       <Route path="/meals" element={<ProtectedRoute><MealPlanner /></ProtectedRoute>} />
       <Route path="/meals/library" element={<ProtectedRoute><MealLibrary /></ProtectedRoute>} />

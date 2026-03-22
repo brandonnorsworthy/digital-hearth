@@ -36,10 +36,18 @@ export default function MealPlanner() {
   const weekOf = getCurrentWeekOf()
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
+  async function loadData() {
     if (!user?.householdId) return
-    mealService.weeklyList(user.householdId, weekOf).then(setMeals).catch(console.error)
-    mealService.library(user.householdId).then(setLibrary).catch(console.error)
+    const [mealData, libraryData] = await Promise.all([
+      mealService.weeklyList(user.householdId, weekOf),
+      mealService.library(user.householdId),
+    ])
+    setMeals(mealData)
+    setLibrary(libraryData)
+  }
+
+  useEffect(() => {
+    loadData().catch(console.error)
   }, [user?.householdId, weekOf])
 
   async function addMeal(name: string, libraryId?: number) {
@@ -86,7 +94,7 @@ export default function MealPlanner() {
   }
 
   return (
-    <Layout title="Weekly Meals" subtitle={getWeekRange()}>
+    <Layout title="Weekly Meals" subtitle={getWeekRange()} onRefresh={loadData}>
       <div className="pt-6 px-6 max-w-2xl mx-auto space-y-8 pb-4">
         {/* Quick Add */}
         <section className="bg-surface-container rounded-lg p-5 shadow-sm border border-outline-variant/10">
@@ -130,8 +138,8 @@ export default function MealPlanner() {
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
                     {meal.isFromLibrary ? (
-                      meal.imageUrl ? (
-                        <img src={meal.imageUrl} alt={meal.name} className="w-full h-full object-cover" />
+                      meal.imageData ? (
+                        <img src={meal.imageData} alt={meal.name} className="w-full h-full object-cover" />
                       ) : (
                         <span className="font-headline font-black text-on-surface/40 text-xl">
                           {meal.name[0]}
@@ -204,8 +212,8 @@ export default function MealPlanner() {
                 className="shrink-0 w-32 bg-surface-container-low rounded-lg p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
               >
                 <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                  {item.imageData ? (
+                    <img src={item.imageData} alt={item.name} className="w-full h-full object-cover" />
                   ) : (
                     <span className="font-headline font-black text-on-surface/40 text-xl">
                       {item.name[0]}

@@ -17,3 +17,18 @@ export function daysToLabel(days: number): string {
 export function labelToDays(label: string): number {
   return INTERVAL_MAP.find(i => i.label === label)?.days ?? 7
 }
+
+export type IntervalUnit = 'Day' | 'Week' | 'Month' | 'Year'
+export const INTERVAL_UNITS: IntervalUnit[] = ['Day', 'Week', 'Month', 'Year']
+const UNIT_DAYS: Record<IntervalUnit, number> = { Day: 1, Week: 7, Month: 30, Year: 365 }
+
+export function daysToNUnit(days: number): { n: number; unit: IntervalUnit } {
+  if (days % 365 === 0) return { n: days / 365, unit: 'Year' }
+  if (days % 30 === 0) return { n: days / 30, unit: 'Month' }
+  if (days % 7 === 0) return { n: days / 7, unit: 'Week' }
+  return { n: days, unit: 'Day' }
+}
+
+export function nUnitToDays(n: number, unit: IntervalUnit): number {
+  return n * UNIT_DAYS[unit]
+}

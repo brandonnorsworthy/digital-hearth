@@ -1,4 +1,4 @@
-import type { Task } from '../types/api'
+import type { Task, TaskTier } from '../types/api'
 
 export type DueBadgeVariant = 'urgent' | 'soon' | 'ok'
 
@@ -35,4 +35,10 @@ export function getTierIcon(tier: string): string {
 
 export function formatCompletedAt(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+export function getTierFromDays(intervalDays: number): TaskTier {
+  if (intervalDays < 7) return 'short'
+  if (intervalDays < 30) return 'medium'
+  return 'long'
 }
