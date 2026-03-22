@@ -182,22 +182,6 @@ export default function Dashboard() {
             View all tasks →
           </button>
         </section>
-
-        {/* Household Pulse */}
-        <section className="bg-secondary-container/30 rounded-xl p-5 flex items-center gap-4 border border-secondary-container/20">
-          <span className="material-symbols-outlined text-secondary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-            energy_savings_leaf
-          </span>
-          <div>
-            <p className="text-on-secondary-container font-bold text-sm">Household Efficiency</p>
-            <p className="text-on-secondary-container/70 text-xs">
-              {pendingCount === 0
-                ? 'Everything is up to date — great work!'
-                : `${pendingCount} task${pendingCount > 1 ? 's' : ''} coming up soon.`}
-            </p>
-          </div>
-        </section>
-
       </div>
     </Layout>
   )

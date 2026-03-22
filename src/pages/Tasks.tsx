@@ -161,22 +161,8 @@ export default function Tasks() {
   const [heroTask, secondTask] = longTasks
 
   return (
-    <Layout showFab onFabClick={() => navigate('/tasks/new')}>
+    <Layout showFab onFabClick={() => navigate('/tasks/new')}  title="Household Tasks">
       <div className="pt-6 px-6 max-w-md mx-auto pb-4">
-
-        {/* Glass nudge */}
-        <div className="mb-10 p-5 rounded-xl flex items-center justify-between shadow-sm bg-secondary-container/80 backdrop-blur-xl border border-on-secondary-container/5">
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold uppercase tracking-widest text-secondary mb-1">Weekly Pulse</span>
-            <p className="font-headline font-bold text-lg text-on-surface">
-              {totalPending} Task{totalPending !== 1 ? 's' : ''} Pending
-            </p>
-          </div>
-          <div className="bg-primary-container text-on-primary-container rounded-full w-12 h-12 flex items-center justify-center">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-          </div>
-        </div>
-
         {/* Short — Weekly Rhythm */}
         {shortTasks.length > 0 && (
           <section className="mb-12">

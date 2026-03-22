@@ -41,7 +41,6 @@ export default function Layout({
   showFab = false,
   onFabClick,
 }: LayoutProps) {
-  const { user } = useAuth()
   const navigate = useNavigate()
 
   return (
@@ -64,12 +63,6 @@ export default function Layout({
         >
           {title}
         </h1>
-
-        <div className="w-10 h-10 rounded-full bg-secondary-container border-2 border-primary-container flex items-center justify-center">
-          <span className="text-on-secondary-container font-headline font-bold text-sm">
-            {user?.username?.[0]?.toUpperCase() ?? 'U'}
-          </span>
-        </div>
       </header>
 
       {/* Scrollable content */}

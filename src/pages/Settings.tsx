@@ -126,14 +126,10 @@ export default function Settings() {
                       </p>
                     </div>
                   </div>
-                  {isMe ? (
+                  {isMe && (
                     <span className="text-xs font-bold px-2 py-1 bg-primary-container text-on-primary-container rounded-md">
                       YOU
                     </span>
-                  ) : (
-                    <button className="material-symbols-outlined text-on-surface-variant hover:text-error transition-colors">
-                      more_vert
-                    </button>
                   )}
                 </div>
               )
@@ -152,16 +148,6 @@ export default function Settings() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-on-surface-variant text-sm">{household?.weekResetDay ?? 'Monday'}</span>
-                <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-              </div>
-            </div>
-            <div className="p-4 flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">language</span>
-                <span className="font-medium">Language &amp; Region</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-on-surface-variant text-sm">English (US)</span>
                 <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
               </div>
             </div>

@@ -78,7 +78,7 @@ export default function EditTask() {
             Task Management
           </span>
           <h2 className="font-headline text-4xl font-extrabold text-on-surface leading-tight tracking-tight">
-            {isNew ? 'Add Household' : 'Edit Household'}<br />Task
+            {isNew ? 'Add Household' : 'Edit Household'}&nbsp;Task
           </h2>
         </header>
 

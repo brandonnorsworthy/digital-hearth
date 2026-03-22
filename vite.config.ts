@@ -8,6 +8,7 @@ const API_TARGET = process.env.API_URL ?? 'http://localhost:5125'
 
 export default defineConfig({
   server: {
+    port: 5173,
     proxy: {
       '/api': {
         target: API_TARGET,
@@ -22,6 +23,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      workbox: {
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/],
+      },
       manifest: {
         name: 'Digital Hearth',
         short_name: 'Hearth',
