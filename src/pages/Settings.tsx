@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
+import SelectSheet from '../components/SelectSheet'
 import { useAuth } from '../contexts/AuthContext'
 import { useHousehold } from '../contexts/HouseholdContext'
+import { householdService } from '../services/household'
+import { WEEK_DAYS } from '../constants/household'
 import { notificationService } from '../services/notifications'
 import { urlBase64ToUint8Array } from '../utils/encoding'
+
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -23,6 +27,23 @@ export default function Settings() {
   const { user, logout } = useAuth()
   const { household, members } = useHousehold()
   const navigate = useNavigate()
+
+  const [weekDaySheetOpen, setWeekDaySheetOpen] = useState(false)
+  const [weekResetDay, setWeekResetDay] = useState<string | null>(null)
+
+  const currentWeekDay = weekResetDay ?? household?.weekResetDay ?? 'Monday'
+
+  async function handleWeekDaySelect(day: string) {
+    setWeekResetDay(day)
+    if (user?.householdId) {
+      try {
+        await householdService.update(user.householdId, { weekResetDay: day })
+      } catch (err) {
+        console.error('Failed to update week reset day', err)
+        setWeekResetDay(null)
+      }
+    }
+  }
 
   const [mealReminders, setMealReminders] = useState(true)
   const [taskAssignments, setTaskAssignments] = useState(true)
@@ -84,7 +105,10 @@ export default function Settings() {
         <section className="space-y-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-headline font-bold text-xl text-on-surface">Household Members</h2>
-            <button className="text-primary font-semibold text-sm flex items-center gap-1 bg-primary-container/30 px-4 py-2 rounded-full hover:bg-primary-container/50 transition-colors active:scale-95">
+            <button
+              onClick={() => household?.joinCode && navigator.clipboard.writeText(household.joinCode)}
+              className="text-primary font-semibold text-sm flex items-center gap-1 bg-primary-container/30 px-4 py-2 rounded-full hover:bg-primary-container/50 transition-colors active:scale-95"
+            >
               <span className="material-symbols-outlined text-lg">share</span>
               Invite Code
             </button>
@@ -141,16 +165,19 @@ export default function Settings() {
         <section className="space-y-4">
           <h2 className="font-headline font-bold text-xl text-on-surface">General Settings</h2>
           <div className="bg-surface-container rounded-xl overflow-hidden">
-            <div className="p-4 flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer border-b border-outline-variant/10">
+            <button
+              onClick={() => setWeekDaySheetOpen(true)}
+              className="w-full p-4 flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer border-b border-outline-variant/10"
+            >
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">calendar_month</span>
                 <span className="font-medium">Week Start Day</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-on-surface-variant text-sm">{household?.weekResetDay ?? 'Monday'}</span>
+                <span className="text-on-surface-variant text-sm">{currentWeekDay}</span>
                 <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
               </div>
-            </div>
+            </button>
           </div>
         </section>
 
@@ -236,6 +263,15 @@ export default function Settings() {
         </section>
 
       </div>
+      {weekDaySheetOpen && (
+        <SelectSheet
+          title="Select Week Start Day"
+          options={WEEK_DAYS}
+          value={currentWeekDay}
+          onSelect={handleWeekDaySelect}
+          onClose={() => setWeekDaySheetOpen(false)}
+        />
+      )}
     </Layout>
   )
 }

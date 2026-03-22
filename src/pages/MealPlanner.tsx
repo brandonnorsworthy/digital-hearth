@@ -82,16 +82,10 @@ export default function MealPlanner() {
   }
 
   return (
-    <Layout title="Weekly Meals">
+    <Layout title="Weekly Meals" subtitle={getWeekRange()}>
       <div className="pt-6 px-6 max-w-2xl mx-auto space-y-8 pb-4">
-
-        {/* Week range subtitle */}
-        <p className="text-[10px] font-semibold tracking-wider text-on-surface-variant uppercase -mt-2 text-center">
-          {getWeekRange()}
-        </p>
-
         {/* Quick Add */}
-        <section className="bg-surface-container rounded-xl p-5 shadow-sm border border-outline-variant/10">
+        <section className="bg-surface-container rounded-lg p-5 shadow-sm border border-outline-variant/10">
           <label className="block text-on-surface font-headline font-bold text-sm mb-3">
             What's cooking?
           </label>
@@ -150,7 +144,7 @@ export default function MealPlanner() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-headline font-bold text-lg text-on-surface">Meals for the Week</h2>
-            <span className="text-[10px] font-bold text-on-surface-variant/60 tracking-widest uppercase">
+            <span className="text-[12px] font-bold text-on-surface-variant/60 tracking-widest uppercase">
               {meals.length} Planned
             </span>
           </div>
@@ -210,14 +204,14 @@ export default function MealPlanner() {
               <button
                 key={item.id}
                 onClick={() => addMeal(item.name, item.id)}
-                className="shrink-0 w-32 bg-surface-container-low rounded-xl p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
+                className="shrink-0 w-32 bg-surface-container-low rounded-lg p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
               >
                 <div className={`w-16 h-16 mx-auto rounded-full ${mealColor(i)} flex items-center justify-center`}>
-                  <span className="font-headline font-black text-on-surface/40 text-2xl">
+                  <span className="font-headline font-black text-on-surface/40 text-xl">
                     {item.name[0]}
                   </span>
                 </div>
-                <p className="text-[10px] font-bold text-on-surface leading-tight">{item.name}</p>
+                <p className="text-[12px] font-bold text-on-surface leading-tight">{item.name}</p>
               </button>
             ))}
           </div>

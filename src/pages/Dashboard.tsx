@@ -34,13 +34,17 @@ export default function Dashboard() {
   const { showToast } = useToast()
 
   const [tasks, setTasks] = useState<Task[]>([])
-  const [meals, setMeals] = useState<WeeklyMeal[]>([])
+  const [tonightsDinner, setTonightsDinner] = useState<WeeklyMeal | undefined>()
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     if (!user?.householdId) return
     taskService.list(user.householdId).then(setTasks).catch(console.error)
-    mealService.weeklyList(user.householdId, getCurrentWeekOf()).then(setMeals).catch(console.error)
+    mealService.weeklyList(user.householdId, getCurrentWeekOf())
+      .then(data => {
+        if (data.length) setTonightsDinner(data[Math.floor(Math.random() * data.length)])
+      })
+      .catch(console.error)
   }, [user?.householdId])
 
   const hour = new Date().getHours()
@@ -54,7 +58,6 @@ export default function Dashboard() {
   const { text: headlineText, emphasis } = getHeadline(pendingCount)
 
   const glanceTasks = tasks.slice(0, 3)
-  const tonightsDinner = meals[0]
 
   async function toggleCheck(task: Task) {
     if (completedIds.has(task.id)) return
@@ -96,7 +99,7 @@ export default function Dashboard() {
         {/* Tonight's Dinner */}
         <section>
           <div className="flex justify-between items-end mb-4">
-            <h3 className="font-headline font-bold text-xl tracking-tight">Tonight's Dinner</h3>
+            <h3 className="font-headline font-bold text-xl tracking-tight">Tonight's Suggestion</h3>
             <button
               onClick={() => navigate('/meals')}
               className="text-sm font-semibold text-primary underline"
@@ -117,9 +120,9 @@ export default function Dashboard() {
             <div className="absolute bottom-0 left-0 p-5 w-full">
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
-                  <span className="bg-primary-container/90 backdrop-blur-md text-on-primary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                  {/* <span className="bg-primary-container/90 backdrop-blur-md text-on-primary-container text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                     Main Course
-                  </span>
+                  </span> */}
                   <h4 className="text-white font-headline font-bold text-2xl">{tonightsDinner?.name ?? 'Nothing planned'}</h4>
                   <p className="text-white/80 text-sm font-medium">Tap to plan the week</p>
                 </div>

@@ -1,5 +1,4 @@
 import { Link, useMatch, useResolvedPath, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
 import type { ReactNode } from 'react'
 
 function NavItem({ to, label, icon, exact }: { to: string; label: string; icon: string; exact?: boolean }) {
@@ -9,11 +8,10 @@ function NavItem({ to, label, icon, exact }: { to: string; label: string; icon: 
   return (
     <Link
       to={to}
-      className={`flex flex-col items-center justify-center px-5 py-2 rounded-full transition-all active:scale-90 ${
-        match
-          ? 'bg-primary-container text-on-surface'
-          : 'text-on-surface-variant hover:opacity-80'
-      }`}
+      className={`flex flex-col items-center justify-center px-5 py-2 rounded-full transition-all active:scale-90 ${match
+        ? 'bg-primary-container text-on-surface'
+        : 'text-on-surface-variant hover:opacity-80'
+        }`}
     >
       <span
         className="material-symbols-outlined"
@@ -29,6 +27,7 @@ function NavItem({ to, label, icon, exact }: { to: string; label: string; icon: 
 interface LayoutProps {
   children: ReactNode
   title?: string
+  subtitle?: string
   focusMode?: boolean
   showFab?: boolean
   onFabClick?: () => void
@@ -37,6 +36,7 @@ interface LayoutProps {
 export default function Layout({
   children,
   title = 'Digital Hearth',
+  subtitle,
   focusMode = false,
   showFab = false,
   onFabClick,
@@ -46,7 +46,7 @@ export default function Layout({
   return (
     <div className="flex flex-col min-h-dvh bg-background text-on-surface">
       {/* Top App Bar */}
-      <header className="fixed top-0 w-full z-50 flex items-center justify-between px-6 h-16 bg-surface-container-low">
+      <header className={`fixed top-0 w-full z-50 flex items-center justify-between px-6 bg-surface-container-low ${subtitle ? 'h-20' : 'h-16'}`}>
         {focusMode ? (
           <button
             onClick={() => navigate(-1)}
@@ -58,15 +58,22 @@ export default function Layout({
           <div className="w-10" />
         )}
 
-        <h1
-          className="absolute left-1/2 -translate-x-1/2 text-primary font-headline font-extrabold text-xl tracking-tight whitespace-nowrap"
-        >
-          {title}
-        </h1>
+        <div className="flex flex-col items-center">
+          <h1 className="text-primary font-headline font-extrabold text-xl tracking-tight whitespace-nowrap">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="text-on-surface-variant text-xs font-semibold tracking-widest uppercase mt-0.5">
+              {subtitle}
+            </p>
+          )}
+        </div>
+
+        <div className="w-10" />
       </header>
 
       {/* Scrollable content */}
-      <main className={`pt-16 flex-1 overflow-y-auto overscroll-y-contain ${focusMode ? 'pb-12' : 'pb-36'}`}>
+      <main className={`${subtitle ? 'pt-20' : 'pt-16'} flex-1 overflow-y-auto overscroll-y-contain ${focusMode ? 'pb-12' : 'pb-24'}`}>
         {children}
       </main>
 
@@ -84,7 +91,7 @@ export default function Layout({
       {showFab && (
         <button
           onClick={onFabClick}
-          className="fixed bottom-24 right-6 z-40 w-16 h-16 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/20 active:scale-95 transition-transform"
+          className="fixed bottom-287 right-6 z-40 w-16 h-16 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/20 active:scale-95 transition-transform"
         >
           <span className="material-symbols-outlined text-3xl">add</span>
         </button>
