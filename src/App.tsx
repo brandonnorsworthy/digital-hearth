@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { HouseholdProvider } from './contexts/HouseholdContext'
@@ -7,6 +8,7 @@ import Tasks from './pages/Tasks'
 import EditTask from './pages/EditTask'
 import MealPlanner from './pages/MealPlanner'
 import Settings from './pages/Settings'
+import { notificationService } from './services/notifications'
 
 // Renders the login screen IN PLACE (no URL change) when not authenticated.
 // This keeps the PWA in standalone mode on iOS — redirecting to /login would
@@ -28,6 +30,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (!user || !('serviceWorker' in navigator)) return
+    navigator.serviceWorker.ready.then(async (reg) => {
+      const sub = await reg.pushManager.getSubscription()
+      if (sub) await notificationService.subscribe(sub.toJSON()).catch(() => {})
+    })
+  }, [user])
+
   return (
     <Routes>
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 const API_TARGET = process.env.API_URL ?? 'http://localhost:5125'
 
@@ -15,6 +16,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    basicSsl(),
     react(),
     tailwindcss(),
     VitePWA({

@@ -1,8 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { useHousehold } from '../contexts/HouseholdContext'
+import { notificationService } from '../services/notifications'
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const raw = atob(base64)
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)))
+}
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -25,6 +33,45 @@ export default function Settings() {
   const [mealReminders, setMealReminders] = useState(true)
   const [taskAssignments, setTaskAssignments] = useState(true)
   const [completedNotifs, setCompletedNotifs] = useState(false)
+
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const [pushPending, setPushPending] = useState(false)
+
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+    navigator.serviceWorker.ready.then(async (reg) => {
+      const sub = await reg.pushManager.getSubscription()
+      setPushEnabled(sub !== null)
+    })
+  }, [])
+
+  async function handlePushToggle(enable: boolean) {
+    if (pushPending) return
+    setPushPending(true)
+    try {
+      const reg = await navigator.serviceWorker.ready
+      if (enable) {
+        const { publicKey } = await notificationService.vapidPublicKey()
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey),
+        })
+        await notificationService.subscribe(sub.toJSON())
+        setPushEnabled(true)
+      } else {
+        const sub = await reg.pushManager.getSubscription()
+        if (sub) {
+          await sub.unsubscribe()
+          await notificationService.unsubscribe()
+        }
+        setPushEnabled(false)
+      }
+    } catch (err) {
+      console.error('Push toggle failed', err)
+    } finally {
+      setPushPending(false)
+    }
+  }
 
   async function handleLogout() {
     try {
@@ -131,6 +178,13 @@ export default function Settings() {
         <section className="space-y-4">
           <h2 className="font-headline font-bold text-xl text-on-surface">Notification Preferences</h2>
           <div className="space-y-3">
+            <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>
+              <div className="flex flex-col">
+                <span className="font-bold text-on-surface">Push Notifications</span>
+                <span className="text-xs text-on-surface-variant">Allow alerts on this device</span>
+              </div>
+              <Toggle checked={pushEnabled} onChange={handlePushToggle} />
+            </div>
             {[
               {
                 label: 'Meal Prep Reminders',
