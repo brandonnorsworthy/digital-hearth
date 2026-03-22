@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { MOCK_WEEKLY_MEALS, MOCK_LIBRARY } from '../mock/data'
-import type { Meal } from '../mock/data'
+import { useAuth } from '../contexts/AuthContext'
+import { mealService } from '../services/meals'
+import { getCurrentWeekOf } from '../utils/meals'
+import type { WeeklyMeal, LibraryMeal } from '../types/api'
 
 const MEAL_COLORS = ['bg-primary-container', 'bg-secondary-container', 'bg-tertiary-container/60', 'bg-surface-container-high']
 
@@ -20,24 +22,57 @@ function getWeekRange() {
 }
 
 export default function MealPlanner() {
-  const [meals, setMeals] = useState<Meal[]>(MOCK_WEEKLY_MEALS)
+  const { user } = useAuth()
+
+  const [meals, setMeals] = useState<WeeklyMeal[]>([])
+  const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [input, setInput] = useState('')
   const [pendingName, setPendingName] = useState<string | null>(null)
 
-  function addMeal(name: string, source: Meal['source'] = 'manual') {
-    if (!name.trim()) return
-    setMeals(prev => [...prev, { id: Date.now(), name: name.trim(), source }])
-    setInput('')
-    if (source === 'manual') setPendingName(name.trim())
+  const weekOf = getCurrentWeekOf()
+
+  useEffect(() => {
+    if (!user?.householdId) return
+    mealService.weeklyList(user.householdId, weekOf).then(setMeals).catch(console.error)
+    mealService.library(user.householdId).then(setLibrary).catch(console.error)
+  }, [user?.householdId])
+
+  async function addMeal(name: string, libraryId?: number) {
+    if (!name.trim() || !user?.householdId) return
+    const payload = libraryId
+      ? { weekOf, mealLibraryId: libraryId }
+      : { weekOf, name: name.trim() }
+    try {
+      const added = await mealService.addWeekly(user.householdId, payload)
+      setMeals(prev => [...prev, added])
+      setInput('')
+      if (!libraryId) setPendingName(name.trim())
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  function removeMeal(id: number) {
+  async function removeMeal(id: number) {
     setMeals(prev => prev.filter(m => m.id !== id))
     setPendingName(null)
+    try {
+      await mealService.removeWeekly(id)
+    } catch {
+      // revert optimistic removal
+      mealService.weeklyList(user!.householdId, weekOf).then(setMeals).catch(console.error)
+    }
   }
 
-  function handleSaveToLibrary() {
-    setPendingName(null)
+  async function handleSaveToLibrary() {
+    if (!pendingName || !user?.householdId) return
+    try {
+      const saved = await mealService.addToLibrary(user.householdId, pendingName)
+      setLibrary(prev => [...prev, saved])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setPendingName(null)
+    }
   }
 
   return (
@@ -120,7 +155,7 @@ export default function MealPlanner() {
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
-                    {meal.source === 'library' ? (
+                    {meal.isFromLibrary ? (
                       <span className="font-headline font-black text-on-surface/40 text-xl">
                         {meal.name[0]}
                       </span>
@@ -131,7 +166,7 @@ export default function MealPlanner() {
                   <div>
                     <p className="font-headline font-bold text-on-surface">{meal.name}</p>
                     <p className="text-xs text-on-surface-variant capitalize">
-                      {meal.source === 'library' ? 'From library' : 'Manual entry'}
+                      {meal.isFromLibrary ? 'From library' : 'Manual entry'}
                     </p>
                   </div>
                 </div>
@@ -164,10 +199,10 @@ export default function MealPlanner() {
             </button>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-4 -mx-2 px-2 scrollbar-hide">
-            {MOCK_LIBRARY.map((item, i) => (
+            {library.map((item, i) => (
               <button
                 key={item.id}
-                onClick={() => addMeal(item.name, 'library')}
+                onClick={() => addMeal(item.name, item.id)}
                 className="shrink-0 w-32 bg-surface-container-low rounded-xl p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
               >
                 <div className={`w-16 h-16 mx-auto rounded-full ${mealColor(i)} flex items-center justify-center`}>

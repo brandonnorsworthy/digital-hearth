@@ -5,12 +5,22 @@ export default function Login() {
   const { login } = useAuth()
   const [username, setUsername] = useState('')
   const [pin, setPin] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: { preventDefault(): void }) {
+  async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
-    // No navigate() call — auth state change causes ProtectedRoute to
-    // re-render in-place, keeping the URL stable and the PWA in standalone mode.
-    login(username, pin)
+    setError(null)
+    setLoading(true)
+    try {
+      await login(username, pin)
+      // No navigate() call — auth state change causes ProtectedRoute to
+      // re-render in-place, keeping the URL stable and the PWA in standalone mode.
+    } catch {
+      setError('Invalid username or PIN.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -66,20 +76,21 @@ export default function Login() {
             />
           </div>
 
+          {error && (
+            <p className="text-sm text-error font-medium text-center -mt-1">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-primary-dim text-on-primary font-headline font-bold text-base shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-1"
+            disabled={loading}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-primary-dim text-on-primary font-headline font-bold text-base shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-1 disabled:opacity-60"
           >
             <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-              login
+              {loading ? 'progress_activity' : 'login'}
             </span>
-            Sign In
+            {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
-
-        <p className="text-center text-xs text-on-surface-variant/60 mt-4">
-          Demo mode — any username &amp; PIN works
-        </p>
       </div>
     </div>
   )

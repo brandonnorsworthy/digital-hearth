@@ -1,34 +1,47 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
-import { MOCK_USER } from '../mock/data'
-
-interface User {
-  id: number
-  username: string
-  householdId: number
-}
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { authService } from '../services/auth'
+import { ApiError } from '../services/api'
+import type { User } from '../types/api'
 
 interface AuthContextValue {
   user: User | null
-  login: (username: string, pin: string) => void
-  logout: () => void
+  isLoading: boolean
+  login: (username: string, pin: string) => Promise<void>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  function login(_username: string, _pin: string) {
-    // Demo: any credentials succeed, loads mock user
-    setUser(MOCK_USER)
+  useEffect(() => {
+    authService
+      .me()
+      .then(setUser)
+      .catch((err) => {
+        // 401 means no active session — expected on first visit
+        if (!(err instanceof ApiError && err.status === 401)) {
+          console.error('Session restore failed:', err)
+        }
+        setUser(null)
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  async function login(username: string, pin: string) {
+    const u = await authService.login(username, pin)
+    setUser(u)
   }
 
-  function logout() {
+  async function logout() {
+    await authService.logout()
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

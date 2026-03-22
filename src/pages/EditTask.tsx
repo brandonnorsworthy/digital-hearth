@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Layout from '../components/Layout'
-import { MOCK_TASKS, INTERVALS } from '../mock/data'
-import type { TaskTier } from '../mock/data'
+import { useAuth } from '../contexts/AuthContext'
+import { taskService } from '../services/tasks'
+import { INTERVAL_LABELS, labelToDays, daysToLabel } from '../utils/intervals'
+import type { TaskTier } from '../types/api'
 
 const TIER_OPTIONS: { tier: TaskTier; label: string; icon: string }[] = [
   { tier: 'long', label: 'Long', icon: 'auto_awesome_motion' },
@@ -13,21 +15,54 @@ const TIER_OPTIONS: { tier: TaskTier; label: string; icon: string }[] = [
 export default function EditTask() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const isNew = id === 'new'
 
-  const existing = isNew ? null : MOCK_TASKS.find(t => t.id === Number(id))
+  const [name, setName] = useState('')
+  const [tier, setTier] = useState<TaskTier>('medium')
+  const [intervalLabel, setIntervalLabel] = useState('1 Week')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const [name, setName] = useState(existing?.name ?? '')
-  const [tier, setTier] = useState<TaskTier>(existing?.tier ?? 'medium')
-  const [interval, setInterval] = useState(existing?.intervalLabel?.replace('Every ', '') ?? '1 Week')
+  useEffect(() => {
+    if (isNew || !user?.householdId) return
+    taskService.list(user.householdId).then(tasks => {
+      const task = tasks.find(t => t.id === Number(id))
+      if (task) {
+        setName(task.name)
+        setTier(task.tier)
+        setIntervalLabel(daysToLabel(task.intervalDays))
+      }
+    }).catch(console.error)
+  }, [id, isNew, user?.householdId])
 
-  function handleSave() {
-    // Demo: just navigate back
-    navigate(-1)
+  async function handleSave() {
+    if (!name.trim() || !user?.householdId) return
+    setSaving(true)
+    setError(null)
+    try {
+      const intervalDays = labelToDays(intervalLabel)
+      if (isNew) {
+        await taskService.create(user.householdId, { name: name.trim(), tier, intervalDays })
+      } else {
+        await taskService.update(Number(id), { name: name.trim(), tier, intervalDays })
+      }
+      navigate(-1)
+    } catch {
+      setError('Failed to save task. Please try again.')
+      setSaving(false)
+    }
   }
 
-  function handleDelete() {
-    navigate('/tasks')
+  async function handleDelete() {
+    setSaving(true)
+    try {
+      await taskService.delete(Number(id))
+      navigate('/tasks')
+    } catch {
+      setError('Failed to delete task. Please try again.')
+      setSaving(false)
+    }
   }
 
   return (
@@ -102,11 +137,11 @@ export default function EditTask() {
               </div>
               <div className="flex-2 bg-surface-container-lowest rounded-lg">
                 <select
-                  value={interval}
-                  onChange={e => setInterval(e.target.value)}
+                  value={intervalLabel}
+                  onChange={e => setIntervalLabel(e.target.value)}
                   className="w-full bg-transparent border-none focus:outline-none focus:ring-0 px-4 py-4 text-on-surface font-bold text-center cursor-pointer"
                 >
-                  {INTERVALS.map(opt => (
+                  {INTERVAL_LABELS.map(opt => (
                     <option key={opt} value={opt}>{opt}</option>
                   ))}
                 </select>
@@ -130,17 +165,21 @@ export default function EditTask() {
               <div>
                 <p className="text-[10px] text-primary font-bold uppercase tracking-wider">Recurrence</p>
                 <p className="text-sm font-headline font-bold text-on-surface leading-tight">
-                  Every {interval} · {tier.charAt(0).toUpperCase() + tier.slice(1)} tier
+                  Every {intervalLabel} · {tier.charAt(0).toUpperCase() + tier.slice(1)} tier
                 </p>
               </div>
             </div>
           </div>
 
+          {error && (
+            <p className="text-sm text-error font-medium text-center">{error}</p>
+          )}
+
           {/* Actions */}
           <div className="pt-4 space-y-4 pb-8">
             <button
               onClick={handleSave}
-              disabled={!name.trim()}
+              disabled={!name.trim() || saving}
               className="w-full py-5 rounded-xl bg-linear-to-r from-primary to-primary-dim text-on-primary font-headline font-extrabold text-lg shadow-xl shadow-primary/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40"
             >
               <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -150,7 +189,8 @@ export default function EditTask() {
             {!isNew && (
               <button
                 onClick={handleDelete}
-                className="w-full py-4 rounded-xl text-error font-semibold text-sm hover:bg-error/5 transition-colors flex items-center justify-center gap-2"
+                disabled={saving}
+                className="w-full py-4 rounded-xl text-error font-semibold text-sm hover:bg-error/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
               >
                 <span className="material-symbols-outlined text-lg">delete</span>
                 Delete Task

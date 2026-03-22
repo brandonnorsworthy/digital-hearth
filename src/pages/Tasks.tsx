@@ -1,32 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
-import { MOCK_TASKS } from '../mock/data'
-import type { Task } from '../mock/data'
+import { useAuth } from '../contexts/AuthContext'
+import { taskService } from '../services/tasks'
+import { getDueBadge, getProgress, formatCompletedAt } from '../utils/task'
+import { daysToLabel } from '../utils/intervals'
+import type { Task } from '../types/api'
+import type { DueBadgeVariant } from '../utils/task'
 
-function DueBadge({ task }: { task: Task }) {
-  if (task.dueBadgeVariant === 'urgent') {
+function DueBadge({ variant, label }: { variant: DueBadgeVariant; label: string }) {
+  if (variant === 'urgent') {
     return (
       <span className="text-xs font-bold text-primary bg-primary-container px-2 py-1 rounded-full">
-        {task.dueLabel}
+        {label}
       </span>
     )
   }
-  if (task.dueBadgeVariant === 'soon') {
+  if (variant === 'soon') {
     return (
       <span className="text-xs font-bold text-tertiary bg-tertiary-container/20 px-2 py-1 rounded-full">
-        {task.dueLabel}
+        {label}
       </span>
     )
   }
   return (
     <span className="text-xs font-bold text-on-surface-variant bg-surface-variant px-2 py-1 rounded-full">
-      {task.dueLabel}
+      {label}
     </span>
   )
 }
 
-function ProgressBar({ pct, variant }: { pct: number; variant: Task['dueBadgeVariant'] }) {
+function ProgressBar({ pct, variant }: { pct: number; variant: DueBadgeVariant }) {
   const barColor = variant === 'urgent' ? 'bg-error-container' : 'bg-primary'
   return (
     <div className="w-full bg-surface-container rounded-full h-1.5 mb-6 overflow-hidden">
@@ -44,6 +48,8 @@ function ProgressBar({ pct, variant }: { pct: number; variant: Task['dueBadgeVar
 
 function ShortTaskCard({ task, onComplete }: { task: Task; onComplete: () => void }) {
   const navigate = useNavigate()
+  const { variant, label } = getDueBadge(task)
+  const pct = getProgress(task)
   return (
     <div
       className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/5 cursor-pointer active:bg-surface-container-high transition-colors relative"
@@ -54,15 +60,15 @@ function ShortTaskCard({ task, onComplete }: { task: Task; onComplete: () => voi
           <h3 className="font-headline font-bold text-lg text-on-surface">{task.name}</h3>
           <p className="text-sm text-on-surface-variant flex items-center gap-1 mt-1">
             <span className="material-symbols-outlined text-sm">event_repeat</span>
-            {task.intervalLabel}
+            Every {daysToLabel(task.intervalDays)}
           </p>
         </div>
         <span className="material-symbols-outlined text-on-surface-variant/30 mx-2">chevron_right</span>
         <div className="text-right shrink-0">
-          <DueBadge task={task} />
+          <DueBadge variant={variant} label={label} />
         </div>
       </div>
-      <ProgressBar pct={task.progressPct} variant={task.dueBadgeVariant} />
+      <ProgressBar pct={pct} variant={variant} />
       <button
         onClick={e => { e.stopPropagation(); onComplete() }}
         className="w-full bg-linear-to-r from-primary to-primary-dim text-on-primary py-3.5 rounded-xl font-headline font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform"
@@ -76,6 +82,7 @@ function ShortTaskCard({ task, onComplete }: { task: Task; onComplete: () => voi
 
 function MediumTaskCard({ task, onComplete }: { task: Task; onComplete: () => void }) {
   const navigate = useNavigate()
+  const { variant, label } = getDueBadge(task)
   return (
     <div
       className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10 cursor-pointer active:bg-surface-container-high transition-colors relative"
@@ -86,18 +93,18 @@ function MediumTaskCard({ task, onComplete }: { task: Task; onComplete: () => vo
           <h3 className="font-headline font-bold text-lg text-on-surface">{task.name}</h3>
           <p className="text-sm text-on-surface-variant flex items-center gap-1 mt-1">
             <span className="material-symbols-outlined text-sm">calendar_month</span>
-            {task.intervalLabel}
+            Every {daysToLabel(task.intervalDays)}
           </p>
         </div>
         <span className="material-symbols-outlined text-on-surface-variant/30 mx-2">chevron_right</span>
         <div className="text-right shrink-0">
-          <DueBadge task={task} />
+          <DueBadge variant={variant} label={label} />
         </div>
       </div>
-      {task.lastCompletedBy && (
+      {task.lastCompletedAt && (
         <div className="flex items-center gap-3 text-sm text-on-surface-variant mb-6 italic">
           <span className="material-symbols-outlined text-sm">history</span>
-          Last: {task.lastCompletedDate} by {task.lastCompletedBy}
+          Last: {formatCompletedAt(task.lastCompletedAt)}{task.lastCompletedBy ? ` by ${task.lastCompletedBy}` : ''}
         </div>
       )}
       <button
@@ -112,17 +119,41 @@ function MediumTaskCard({ task, onComplete }: { task: Task; onComplete: () => vo
 }
 
 export default function Tasks() {
+  const { user } = useAuth()
   const navigate = useNavigate()
+
+  const [tasks, setTasks] = useState<Task[]>([])
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
 
-  function complete(id: number) {
-    setCompletedIds(prev => new Set([...prev, id]))
+  useEffect(() => {
+    if (!user?.householdId) return
+    taskService.list(user.householdId).then(setTasks).catch(console.error)
+  }, [user?.householdId])
+
+  async function complete(task: Task) {
+    setCompletedIds(prev => new Set([...prev, task.id]))
+    try {
+      const updated = await taskService.complete(task.id)
+      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t))
+      setCompletedIds(prev => {
+        const next = new Set(prev)
+        next.delete(task.id)
+        return next
+      })
+    } catch {
+      setCompletedIds(prev => {
+        const next = new Set(prev)
+        next.delete(task.id)
+        return next
+      })
+    }
   }
 
-  const shortTasks = MOCK_TASKS.filter(t => t.tier === 'short' && !completedIds.has(t.id))
-  const mediumTasks = MOCK_TASKS.filter(t => t.tier === 'medium' && !completedIds.has(t.id))
-  const longTasks = MOCK_TASKS.filter(t => t.tier === 'long' && !completedIds.has(t.id))
-  const totalPending = shortTasks.length + mediumTasks.length + longTasks.length
+  const visible = tasks.filter(t => !completedIds.has(t.id))
+  const shortTasks = visible.filter(t => t.tier === 'short')
+  const mediumTasks = visible.filter(t => t.tier === 'medium')
+  const longTasks = visible.filter(t => t.tier === 'long')
+  const totalPending = visible.length
 
   const [heroTask, secondTask] = longTasks
 
@@ -152,7 +183,7 @@ export default function Tasks() {
             </div>
             <div className="space-y-6">
               {shortTasks.map(task => (
-                <ShortTaskCard key={task.id} task={task} onComplete={() => complete(task.id)} />
+                <ShortTaskCard key={task.id} task={task} onComplete={() => complete(task)} />
               ))}
             </div>
           </section>
@@ -167,7 +198,7 @@ export default function Tasks() {
             </div>
             <div className="space-y-6">
               {mediumTasks.map(task => (
-                <MediumTaskCard key={task.id} task={task} onComplete={() => complete(task.id)} />
+                <MediumTaskCard key={task.id} task={task} onComplete={() => complete(task)} />
               ))}
             </div>
           </section>
@@ -192,16 +223,13 @@ export default function Tasks() {
                       SPRING / AUTUMN
                     </div>
                     <h3 className="font-headline font-extrabold text-2xl text-on-surface mb-2">{heroTask.name}</h3>
-                    {heroTask.description && (
-                      <p className="text-on-surface-variant mb-8 max-w-50 text-sm">{heroTask.description}</p>
-                    )}
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase tracking-tighter text-on-surface-variant">Frequency</span>
-                        <span className="text-sm font-bold text-on-surface">{heroTask.intervalLabel}</span>
+                        <span className="text-sm font-bold text-on-surface">Every {daysToLabel(heroTask.intervalDays)}</span>
                       </div>
                       <button
-                        onClick={e => { e.stopPropagation(); complete(heroTask.id) }}
+                        onClick={e => { e.stopPropagation(); complete(heroTask) }}
                         className="bg-on-surface text-surface px-6 py-3 rounded-full font-bold shadow-lg active:scale-90 transition-transform"
                       >
                         Complete
@@ -225,15 +253,15 @@ export default function Tasks() {
                       <span className="material-symbols-outlined absolute top-6 right-6 text-on-surface-variant/30">chevron_right</span>
                       <p className="text-sm text-on-surface-variant flex items-center gap-1 mt-1">
                         <span className="material-symbols-outlined text-sm">verified</span>
-                        {secondTask.intervalLabel}
+                        Every {daysToLabel(secondTask.intervalDays)}
                       </p>
                     </div>
                     <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary flex items-center justify-center ml-2">
-                      <span className="text-[10px] font-bold">{secondTask.progressPct}%</span>
+                      <span className="text-[10px] font-bold">{getProgress(secondTask)}%</span>
                     </div>
                   </div>
                   <button
-                    onClick={e => { e.stopPropagation(); complete(secondTask.id) }}
+                    onClick={e => { e.stopPropagation(); complete(secondTask) }}
                     className="mt-6 w-full bg-surface-container-high text-on-surface-variant py-3 rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform"
                   >
                     <span className="material-symbols-outlined">history</span>
@@ -245,7 +273,7 @@ export default function Tasks() {
           </section>
         )}
 
-        {totalPending === 0 && (
+        {totalPending === 0 && tasks.length > 0 && (
           <div className="text-center py-16 text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl mb-4 block text-primary/40" style={{ fontVariationSettings: "'FILL' 1" }}>
               check_circle

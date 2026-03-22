@@ -26,9 +26,13 @@ export default function Settings() {
   const [taskAssignments, setTaskAssignments] = useState(true)
   const [completedNotifs, setCompletedNotifs] = useState(false)
 
-  function handleLogout() {
-    logout()
-    navigate('/login')
+  async function handleLogout() {
+    try {
+      await logout()
+    } catch {
+      // Clear client-side session regardless of API response
+    }
+    navigate('/')
   }
 
   return (
@@ -46,17 +50,19 @@ export default function Settings() {
           </div>
 
           {/* Join code banner */}
-          <div className="bg-surface-container-low rounded-xl p-4 flex items-center gap-3 border border-outline-variant/10">
-            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
-              vpn_key
-            </span>
-            <div>
-              <p className="text-xs text-on-surface-variant font-medium">Join Code</p>
-              <p className="font-headline font-extrabold text-lg text-primary tracking-widest">
-                {household.joinCode}
-              </p>
+          {household && (
+            <div className="bg-surface-container-low rounded-xl p-4 flex items-center gap-3 border border-outline-variant/10">
+              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
+                vpn_key
+              </span>
+              <div>
+                <p className="text-xs text-on-surface-variant font-medium">Join Code</p>
+                <p className="font-headline font-extrabold text-lg text-primary tracking-widest">
+                  {household.joinCode}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-3">
             {members.map(member => {
@@ -104,7 +110,7 @@ export default function Settings() {
                 <span className="font-medium">Week Start Day</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-on-surface-variant text-sm">Monday</span>
+                <span className="text-on-surface-variant text-sm">{household?.weekResetDay ?? 'Monday'}</span>
                 <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
               </div>
             </div>
@@ -191,7 +197,7 @@ export default function Settings() {
             Sign Out
           </button>
           <p className="text-center text-xs text-on-surface-variant/60 mt-4 font-medium italic">
-            Digital Hearth · {household.name}
+            Digital Hearth · {household?.name ?? ''}
           </p>
         </section>
 

@@ -12,7 +12,18 @@ import Settings from './pages/Settings'
 // This keeps the PWA in standalone mode on iOS — redirecting to /login would
 // cause Safari to exit standalone and show browser chrome.
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="h-dvh bg-background flex items-center justify-center">
+        <span className="material-symbols-outlined text-primary text-4xl animate-spin" style={{ fontVariationSettings: "'FILL' 1" }}>
+          progress_activity
+        </span>
+      </div>
+    )
+  }
+
   return user ? <>{children}</> : <Login />
 }
 

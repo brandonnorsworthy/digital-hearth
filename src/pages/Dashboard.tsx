@@ -1,8 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
-import { MOCK_TASKS, MOCK_WEEKLY_MEALS } from '../mock/data'
+import { taskService } from '../services/tasks'
+import { mealService } from '../services/meals'
+import { getCurrentWeekOf } from '../utils/meals'
+import { getDueBadge, getTierIcon } from '../utils/task'
+import type { Task } from '../types/api'
+import type { WeeklyMeal } from '../types/api'
 
 const TIER_COLORS = {
   short: { bg: 'bg-primary-container/40', icon: 'text-primary', label: 'text-primary', tier: 'Weekly' },
@@ -25,24 +30,43 @@ function getHeadline(pendingCount: number) {
 export default function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set())
+
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [meals, setMeals] = useState<WeeklyMeal[]>([])
+  const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
+
+  useEffect(() => {
+    if (!user?.householdId) return
+    taskService.list(user.householdId).then(setTasks).catch(console.error)
+    mealService.weeklyList(user.householdId, getCurrentWeekOf()).then(setMeals).catch(console.error)
+  }, [user?.householdId])
 
   const hour = new Date().getHours()
   const greeting = getGreeting(hour)
 
-  const urgentTasks = MOCK_TASKS.filter(t => t.dueBadgeVariant === 'urgent' || t.dueBadgeVariant === 'soon')
-  const pendingCount = urgentTasks.filter(t => !checkedIds.has(t.id)).length
+  const urgentTasks = tasks.filter(t => {
+    const { variant } = getDueBadge(t)
+    return variant === 'urgent' || variant === 'soon'
+  })
+  const pendingCount = urgentTasks.filter(t => !completedIds.has(t.id)).length
   const { text: headlineText, emphasis } = getHeadline(pendingCount)
 
-  const glanceTasks = MOCK_TASKS.slice(0, 3)
-  const tonightsDinner = MOCK_WEEKLY_MEALS[0]
+  const glanceTasks = tasks.slice(0, 3)
+  const tonightsDinner = meals[0]
 
-  function toggleCheck(id: number) {
-    setCheckedIds(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
+  async function toggleCheck(task: Task) {
+    if (completedIds.has(task.id)) return
+    setCompletedIds(prev => new Set([...prev, task.id]))
+    try {
+      const updated = await taskService.complete(task.id)
+      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t))
+    } catch {
+      setCompletedIds(prev => {
+        const next = new Set(prev)
+        next.delete(task.id)
+        return next
+      })
+    }
   }
 
   return (
@@ -81,7 +105,6 @@ export default function Dashboard() {
             className="relative overflow-hidden rounded-xl shadow-sm group cursor-pointer"
             onClick={() => navigate('/meals')}
           >
-            {/* Gradient hero */}
             <div className="aspect-16/10 w-full bg-linear-to-br from-primary-container via-surface-container to-secondary-container flex items-end">
               <div className="absolute inset-0 flex items-center justify-center opacity-10">
                 <span className="material-symbols-outlined text-[8rem] text-primary">restaurant</span>
@@ -116,7 +139,7 @@ export default function Dashboard() {
           <div className="grid gap-3">
             {glanceTasks.map(task => {
               const colors = TIER_COLORS[task.tier]
-              const checked = checkedIds.has(task.id)
+              const checked = completedIds.has(task.id)
               return (
                 <div
                   key={task.id}
@@ -124,7 +147,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`${colors.bg} p-3 rounded-full`}>
-                      <span className={`material-symbols-outlined ${colors.icon}`}>{task.icon}</span>
+                      <span className={`material-symbols-outlined ${colors.icon}`}>{getTierIcon(task.tier)}</span>
                     </div>
                     <div>
                       <span className={`text-[10px] font-bold ${colors.label} uppercase tracking-wider`}>
@@ -134,7 +157,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <button
-                    onClick={() => toggleCheck(task.id)}
+                    onClick={() => toggleCheck(task)}
                     className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
                       checked
                         ? 'bg-primary border-primary'
