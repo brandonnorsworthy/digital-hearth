@@ -5,8 +5,8 @@
 - [x] refactor app to move out all local components to proper component files instead of having them defined in the same file as the page, this will make the code cleaner and easier to read.
 - [x] when you pull down it should give a refresh indicator and refresh the page
 - [x] at this point app is completely stable, front end needs full striping for tests
-- [ ] backend refactor to vertically slice the repositories by entity
-- [ ] backend testing for all routes and services, except open ai stuff
+- [x] backend refactor to vertically slice the repositories by entity
+- [x] backend testing for all routes and services, except open ai stuff
 
 ### Dashboard
 - [x] on the dashbaord there is a button called View Meal Planner, i think the button should look like the view all tasks button at the bottom'
@@ -76,3 +76,6 @@ backend: api.digitalhearth.zcog.net
 - [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
 - [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when
 - [ ] have a few more placeholder meal suggestions in the input box for new meals instead of just "merry me chicken"
+- [ ] make a initial agreement pop up that just goes into local storage or something wether it has been shown that says, this is completely a personal project, hosted on my person server, and i do not make any promises about resiliency or data loss.
+- [ ] the short term - weekly tag should be removed same with, medium term - monthly tag, and long term - yearly tag
+- [ ] with auditing push subscriptions, we should track last successful push notification and if its over a week we should automatically delete that subscription from the database
