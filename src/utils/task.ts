@@ -1,5 +1,9 @@
 import type { Task, TaskTier } from '../types/api'
 
+export function isTaskDone(task: Task): boolean {
+  return task.lastCompletedAt !== null && new Date(task.nextDueAt) > new Date()
+}
+
 export type DueBadgeVariant = 'urgent' | 'soon' | 'ok'
 
 export function getDueBadge(task: Task): { variant: DueBadgeVariant; label: string } {

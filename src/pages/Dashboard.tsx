@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { mealService } from '../services/meals'
 import { getCurrentWeekOf } from '../utils/meals'
-import { getDueBadge, getTierIcon, getTierFromDays } from '../utils/task'
+import { getDueBadge, getTierIcon, getTierFromDays, isTaskDone } from '../utils/task'
 import { useToast } from '../contexts/ToastContext'
 import type { Task } from '../types/api'
 import type { WeeklyMeal } from '../types/api'
@@ -44,6 +44,7 @@ export default function Dashboard() {
       mealService.weeklyList(user.householdId, getCurrentWeekOf()),
     ])
     setTasks(taskData)
+    setCompletedIds(new Set(taskData.filter(isTaskDone).map(t => t.id)))
     if (mealData.length) setTonightsDinner(mealData[Math.floor(Math.random() * mealData.length)])
   }
 
@@ -58,7 +59,7 @@ export default function Dashboard() {
     const { variant } = getDueBadge(t)
     return variant === 'urgent' || variant === 'soon'
   })
-  const pendingCount = urgentTasks.filter(t => !completedIds.has(t.id)).length
+  const pendingCount = urgentTasks.filter(t => !completedIds.has(t.id) && !isTaskDone(t)).length
   const { text: headlineText, emphasis } = getHeadline(pendingCount)
 
   const glanceTasks = tasks.slice(0, 3)

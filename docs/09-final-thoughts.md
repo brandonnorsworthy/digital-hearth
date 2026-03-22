@@ -10,7 +10,7 @@
 
 ### Dashboard
 - [x] on the dashbaord there is a button called View Meal Planner, i think the button should look like the view all tasks button at the bottom'
-- [ ] tasks at a glance dont show correct completed status, maybe completed status should be moved out to a util function so it can be reused from the task page
+- [x] tasks at a glance dont show correct completed status, maybe completed status should be moved out to a util function so it can be reused from the task page
 
 ### Settings page
 
@@ -79,3 +79,4 @@ backend: api.digitalhearth.zcog.net
 - [ ] make a initial agreement pop up that just goes into local storage or something wether it has been shown that says, this is completely a personal project, hosted on my person server, and i do not make any promises about resiliency or data loss.
 - [ ] the short term - weekly tag should be removed same with, medium term - monthly tag, and long term - yearly tag
 - [ ] with auditing push subscriptions, we should track last successful push notification and if its over a week we should automatically delete that subscription from the database
+- [ ] there should be a responsive screen that when a user seems to be on a desktop, we should display a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app

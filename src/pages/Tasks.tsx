@@ -4,7 +4,7 @@ import Layout from '../components/Layout'
 import TaskCard from '../components/TaskCard'
 import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
-import { getProgress, getTierFromDays } from '../utils/task'
+import { getProgress, getTierFromDays, isTaskDone } from '../utils/task'
 import { daysToLabel } from '../utils/intervals'
 import { useToast } from '../contexts/ToastContext'
 import type { Task } from '../types/api'
@@ -47,11 +47,8 @@ export default function Tasks() {
     }
   }
 
-  function isDone(task: Task) {
-    return task.lastCompletedAt !== null && new Date(task.nextDueAt) > new Date()
-  }
   function isCompleting(task: Task) {
-    return completedIds.has(task.id) || isDone(task)
+    return completedIds.has(task.id) || isTaskDone(task)
   }
 
   const shortTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'short')
