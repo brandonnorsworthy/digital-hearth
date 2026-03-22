@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import Tasks from './pages/Tasks'
 import EditTask from './pages/EditTask'
 import MealPlanner from './pages/MealPlanner'
+import MealLibrary from './pages/MealLibrary'
 import Settings from './pages/Settings'
 import { notificationService } from './services/notifications'
 
@@ -49,6 +50,7 @@ function AppRoutes() {
       <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
       <Route path="/tasks/:id" element={<ProtectedRoute><EditTask /></ProtectedRoute>} />
       <Route path="/meals" element={<ProtectedRoute><MealPlanner /></ProtectedRoute>} />
+      <Route path="/meals/library" element={<ProtectedRoute><MealLibrary /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

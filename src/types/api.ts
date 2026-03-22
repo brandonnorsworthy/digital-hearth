@@ -44,6 +44,7 @@ export interface WeeklyMeal {
   name: string
   mealLibraryId: number | null
   isFromLibrary: boolean
+  imageUrl: string | null
 }
 
 export interface LibraryMeal {
@@ -51,4 +52,6 @@ export interface LibraryMeal {
   name: string
   createdBy: string
   createdAt: string
+  tags: string[]
+  imageUrl: string | null
 }

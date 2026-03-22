@@ -122,7 +122,7 @@ function MediumTaskCard({ task, onComplete }: { task: Task; onComplete: () => vo
 export default function Tasks() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const { showToast } = useToast()
+  const toast = useToast()
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
@@ -148,7 +148,7 @@ export default function Tasks() {
         next.delete(task.id)
         return next
       })
-      showToast('Failed to complete task. Please try again.')
+      toast.error('Failed to complete task. Please try again.')
     }
   }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
@@ -24,12 +25,13 @@ function getWeekRange() {
 
 export default function MealPlanner() {
   const { user } = useAuth()
-  const { showToast } = useToast()
+  const toast = useToast()
+  const navigate = useNavigate()
 
   const [meals, setMeals] = useState<WeeklyMeal[]>([])
   const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [input, setInput] = useState('')
-  const [pendingName, setPendingName] = useState<string | null>(null)
+  const [savingLibraryId, setSavingLibraryId] = useState<number | null>(null)
 
   const weekOf = getCurrentWeekOf()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -49,35 +51,37 @@ export default function MealPlanner() {
       const added = await mealService.addWeekly(user.householdId, payload)
       setMeals(prev => [...prev, added])
       setInput('')
-      if (!libraryId) setPendingName(name.trim())
+      toast.success(`${name.trim()} added to this week`)
     } catch (err) {
       console.error(err)
-      showToast('Failed to add meal. Please try again.')
+      toast.error('Failed to add meal. Please try again.')
     }
   }
 
   async function removeMeal(id: number) {
     setMeals(prev => prev.filter(m => m.id !== id))
-    setPendingName(null)
     try {
       await mealService.removeWeekly(id)
+      toast.success('Meal removed from this week')
     } catch {
-      // revert optimistic removal
       mealService.weeklyList(user!.householdId, weekOf).then(setMeals).catch(console.error)
-      showToast('Failed to remove meal. Please try again.')
+      toast.error('Failed to remove meal. Please try again.')
     }
   }
 
-  async function handleSaveToLibrary() {
-    if (!pendingName || !user?.householdId) return
+  async function saveToLibrary(meal: WeeklyMeal) {
+    if (!user?.householdId) return
+    setSavingLibraryId(meal.id)
     try {
-      const saved = await mealService.addToLibrary(user.householdId, pendingName)
+      const saved = await mealService.addToLibrary(user.householdId, meal.name)
+      const updated = await mealService.updateWeekly(meal.id, { mealLibraryId: saved.id })
       setLibrary(prev => [...prev, saved])
-    } catch (err) {
-      console.error(err)
-      showToast('Failed to save to library. Please try again.')
+      setMeals(prev => prev.map(m => m.id === meal.id ? updated : m))
+      toast.success(`"${meal.name}" saved to library`)
+    } catch {
+      toast.error('Failed to save to library. Please try again.')
     } finally {
-      setPendingName(null)
+      setSavingLibraryId(null)
     }
   }
 
@@ -107,37 +111,6 @@ export default function MealPlanner() {
               <span className="material-symbols-outlined">add</span>
             </button>
           </div>
-
-          {/* Save to library nudge */}
-          {pendingName && (
-            <div className="mt-4 flex items-center justify-between bg-secondary-container/80 backdrop-blur-md p-3 rounded-xl border border-on-secondary-container/5">
-              <div className="flex items-center gap-3">
-                <span
-                  className="material-symbols-outlined text-on-secondary-container text-xl"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  auto_awesome
-                </span>
-                <p className="text-xs font-semibold text-on-secondary-container leading-tight">
-                  Save "{pendingName}" to Library?
-                </p>
-              </div>
-              <div className="flex gap-2 shrink-0">
-                <button
-                  onClick={() => setPendingName(null)}
-                  className="text-[10px] font-bold px-3 py-1.5 bg-white/40 hover:bg-white/60 rounded-full transition-colors"
-                >
-                  Not now
-                </button>
-                <button
-                  onClick={handleSaveToLibrary}
-                  className="text-[10px] font-bold px-3 py-1.5 bg-primary text-on-primary rounded-full shadow-sm hover:opacity-90 transition-opacity"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          )}
         </section>
 
         {/* Weekly meal list */}
@@ -157,9 +130,13 @@ export default function MealPlanner() {
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
                     {meal.isFromLibrary ? (
-                      <span className="font-headline font-black text-on-surface/40 text-xl">
-                        {meal.name[0]}
-                      </span>
+                      meal.imageUrl ? (
+                        <img src={meal.imageUrl} alt={meal.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="font-headline font-black text-on-surface/40 text-xl">
+                          {meal.name[0]}
+                        </span>
+                      )
                     ) : (
                       <span className="material-symbols-outlined text-on-surface-variant/40">dinner_dining</span>
                     )}
@@ -171,18 +148,35 @@ export default function MealPlanner() {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => removeMeal(meal.id)}
-                  className="p-2 text-outline-variant hover:text-error transition-colors rounded-full hover:bg-error-container/10 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-lg">close</span>
-                </button>
+                <div className="flex items-center gap-1">
+                  {!meal.isFromLibrary && (
+                    <button
+                      onClick={() => saveToLibrary(meal)}
+                      disabled={savingLibraryId === meal.id}
+                      className="p-2 text-outline-variant hover:text-primary transition-colors rounded-full hover:bg-primary-container/30 active:scale-95 disabled:opacity-40"
+                      title="Save to library"
+                    >
+                      <span className="material-symbols-outlined text-lg">bookmark</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => removeMeal(meal.id)}
+                    className="p-2 text-outline-variant hover:text-error transition-colors rounded-full hover:bg-error-container/10 active:scale-95"
+                  >
+                    <span className="material-symbols-outlined text-lg">
+                      {meal.isFromLibrary ? 'close' : 'delete'}
+                    </span>
+                  </button>
+                </div>
               </div>
             ))}
 
             {/* Add placeholder */}
             <button
-              onClick={() => inputRef.current?.focus()}
+              onClick={() => {
+                inputRef.current?.focus()
+                document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
               className="w-full bg-primary-container/30 border-2 border-dashed border-primary/20 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:bg-primary-container/50 transition-colors cursor-pointer"
             >
               <span className="material-symbols-outlined text-primary/60">restaurant_menu</span>
@@ -195,7 +189,10 @@ export default function MealPlanner() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-headline font-bold text-base text-on-surface">From Your Library</h3>
-            <button className="text-xs font-bold text-primary flex items-center gap-1">
+            <button
+              onClick={() => navigate('/meals/library')}
+              className="text-xs font-bold text-primary flex items-center gap-1"
+            >
               View all <span className="material-symbols-outlined text-xs">arrow_forward</span>
             </button>
           </div>
@@ -206,10 +203,14 @@ export default function MealPlanner() {
                 onClick={() => addMeal(item.name, item.id)}
                 className="shrink-0 w-32 bg-surface-container-low rounded-lg p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
               >
-                <div className={`w-16 h-16 mx-auto rounded-full ${mealColor(i)} flex items-center justify-center`}>
-                  <span className="font-headline font-black text-on-surface/40 text-xl">
-                    {item.name[0]}
-                  </span>
+                <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-headline font-black text-on-surface/40 text-xl">
+                      {item.name[0]}
+                    </span>
+                  )}
                 </div>
                 <p className="text-[12px] font-bold text-on-surface leading-tight">{item.name}</p>
               </button>

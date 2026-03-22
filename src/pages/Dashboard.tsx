@@ -31,7 +31,7 @@ function getHeadline(pendingCount: number) {
 export default function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const { showToast } = useToast()
+  const toast = useToast()
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [tonightsDinner, setTonightsDinner] = useState<WeeklyMeal | undefined>()
@@ -71,7 +71,7 @@ export default function Dashboard() {
         next.delete(task.id)
         return next
       })
-      showToast('Failed to complete task. Please try again.')
+      toast.error('Failed to complete task. Please try again.')
     }
   }
 
@@ -104,17 +104,25 @@ export default function Dashboard() {
               onClick={() => navigate('/meals')}
               className="text-sm font-semibold text-primary underline"
             >
-              View Library
+              View Meal Planner
             </button>
           </div>
           <div
             className="relative overflow-hidden rounded-xl shadow-sm group cursor-pointer"
             onClick={() => navigate('/meals')}
           >
-            <div className="aspect-16/10 w-full bg-linear-to-br from-primary-container via-surface-container to-secondary-container flex items-end">
-              <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                <span className="material-symbols-outlined text-[8rem] text-primary">restaurant</span>
-              </div>
+            <div className="aspect-16/10 w-full">
+              {tonightsDinner?.imageUrl ? (
+                <img
+                  src={tonightsDinner.imageUrl}
+                  alt={tonightsDinner.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-linear-to-br from-primary-container via-surface-container to-secondary-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[8rem] text-primary opacity-10">restaurant</span>
+                </div>
+              )}
             </div>
             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 p-5 w-full">
