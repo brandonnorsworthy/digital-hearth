@@ -4,7 +4,7 @@
 - [~] reduce the amount of pointless api calls — skipped, double requests are React Strict Mode dev behaviour, not a real issue
 - [x] refactor app to move out all local components to proper component files instead of having them defined in the same file as the page, this will make the code cleaner and easier to read.
 - [x] when you pull down it should give a refresh indicator and refresh the page
-- [ ] at this point app is completely stable, front end needs full striping for tests
+- [x] at this point app is completely stable, front end needs full striping for tests
 - [ ] backend refactor to vertically slice the repositories by entity
 - [ ] backend testing for all routes and services, except open ai stuff
 
@@ -55,6 +55,12 @@
 - [ ] there should be a confirmation modal when you click to delete a meal from the meal library list.
 
 
+## Task page
+
+- [ ] all incomplete tasks should have the same styling on the task page, (still in respective sections)
+- [ ] all complete tasks should have the same styling on the task page, (still in respective sections)
+- [ ] on the task library page i dont think the terms should have different colors its kinda pointless
+
 ### Final Steps
 
 - [ ] make sure everything works in a container
@@ -67,3 +73,6 @@ backend: api.digitalhearth.zcog.net
 #### After everything above
 
 - [ ] moved out component files should have acompanying skeleton files for loading states
+- [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
+- [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when
+- [ ] have a few more placeholder meal suggestions in the input box for new meals instead of just "merry me chicken"

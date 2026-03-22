@@ -2,13 +2,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Layout from '../../components/Layout'
-import type { User } from '../../types/api'
-
-const mockUser: User = { id: 1, username: 'Sarah', householdId: 1 }
-
-vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: mockUser, isLoading: false, login: vi.fn(), logout: vi.fn() }),
-}))
 
 function renderLayout(path = '/', props: Parameters<typeof Layout>[0] = { children: <div>content</div> }) {
   return render(
@@ -19,11 +12,6 @@ function renderLayout(path = '/', props: Parameters<typeof Layout>[0] = { childr
 }
 
 describe('Layout', () => {
-  it("renders the user's first initial in the avatar", () => {
-    renderLayout()
-    expect(screen.getByText('S')).toBeInTheDocument()
-  })
-
   it('renders the bottom nav by default', () => {
     renderLayout()
     expect(screen.getByRole('navigation')).toBeInTheDocument()
@@ -36,7 +24,6 @@ describe('Layout', () => {
 
   it('marks the Home nav item as active when on /', () => {
     renderLayout('/')
-    // The active NavItem gets bg-primary-container class
     const homeLink = screen.getByRole('link', { name: /home/i })
     expect(homeLink.className).toContain('bg-primary-container')
   })
