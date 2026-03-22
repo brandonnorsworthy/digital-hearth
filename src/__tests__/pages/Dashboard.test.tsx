@@ -81,16 +81,6 @@ describe('Dashboard', () => {
     })
   })
 
-  it('renders task names in Tasks at a Glance section', async () => {
-    vi.mocked(taskService.list).mockResolvedValue([
-      makeTask({ id: 1, name: 'Vacuum' }),
-    ])
-    renderPage()
-    await waitFor(() => {
-      expect(screen.getByText('Vacuum')).toBeInTheDocument()
-    })
-  })
-
   it('renders the "View meal planner →" button', async () => {
     renderPage()
     await waitFor(() => {
@@ -111,6 +101,74 @@ describe('Dashboard', () => {
     renderPage()
     await waitFor(() => {
       expect(screen.getByText('Nothing planned')).toBeInTheDocument()
+    })
+  })
+
+  describe('Tasks at a Glance', () => {
+    it('renders incomplete task names', async () => {
+      vi.mocked(taskService.list).mockResolvedValue([
+        makeTask({ id: 1, name: 'Vacuum', lastCompletedAt: null }),
+      ])
+      renderPage()
+      await waitFor(() => {
+        expect(screen.getByText('Vacuum')).toBeInTheDocument()
+      })
+    })
+
+    it('does not render already-completed tasks', async () => {
+      vi.mocked(taskService.list).mockResolvedValue([
+        makeTask({
+          id: 1,
+          name: 'Already Done',
+          lastCompletedAt: new Date(Date.now() - 1 * 86_400_000).toISOString(),
+          nextDueAt: new Date(Date.now() + 6 * 86_400_000).toISOString(),
+        }),
+      ])
+      renderPage()
+      await waitFor(() => {
+        expect(screen.queryByText('Already Done')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows at most 3 incomplete tasks', async () => {
+      vi.mocked(taskService.list).mockResolvedValue([
+        makeTask({ id: 1, name: 'Task One', lastCompletedAt: null }),
+        makeTask({ id: 2, name: 'Task Two', lastCompletedAt: null }),
+        makeTask({ id: 3, name: 'Task Three', lastCompletedAt: null }),
+        makeTask({ id: 4, name: 'Task Four', lastCompletedAt: null }),
+      ])
+      renderPage()
+      await waitFor(() => {
+        expect(screen.getByText('Task One')).toBeInTheDocument()
+        expect(screen.getByText('Task Two')).toBeInTheDocument()
+        expect(screen.getByText('Task Three')).toBeInTheDocument()
+        expect(screen.queryByText('Task Four')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows a due date badge for each glance task', async () => {
+      vi.mocked(taskService.list).mockResolvedValue([
+        makeTask({ id: 1, name: 'Vacuum', nextDueAt: new Date(Date.now()).toISOString() }),
+      ])
+      renderPage()
+      await waitFor(() => {
+        expect(screen.getByText('Due Today')).toBeInTheDocument()
+      })
+    })
+
+    it('renders no task cards when all tasks are completed', async () => {
+      vi.mocked(taskService.list).mockResolvedValue([
+        makeTask({
+          id: 1,
+          name: 'Done Task',
+          lastCompletedAt: new Date(Date.now() - 1 * 86_400_000).toISOString(),
+          nextDueAt: new Date(Date.now() + 6 * 86_400_000).toISOString(),
+        }),
+      ])
+      renderPage()
+      await waitFor(() => {
+        expect(screen.queryByText('Done Task')).not.toBeInTheDocument()
+      })
     })
   })
 })

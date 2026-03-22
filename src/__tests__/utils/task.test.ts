@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { getDueBadge, getProgress } from '../../utils/task'
+import { getDueBadge, getProgress, isTaskDone } from '../../utils/task'
 import type { Task } from '../../types/api'
 
 function makeTask(overrides: Partial<Task> = {}): Task {
@@ -7,7 +7,6 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     id: 1,
     householdId: 1,
     name: 'Test Task',
-    tier: 'short',
     intervalDays: 7,
     lastCompletedAt: null,
     lastCompletedBy: null,
@@ -116,5 +115,39 @@ describe('getProgress', () => {
     })
     // start inferred as due - 7d = now - 3.5d → 50% elapsed
     expect(getProgress(task)).toBe(50)
+  })
+})
+
+describe('isTaskDone', () => {
+  it('returns false when lastCompletedAt is null', () => {
+    const task = makeTask({
+      lastCompletedAt: null,
+      nextDueAt: new Date(FIXED_NOW.getTime() + 3 * 86_400_000).toISOString(),
+    })
+    expect(isTaskDone(task)).toBe(false)
+  })
+
+  it('returns true when completed and nextDueAt is in the future', () => {
+    const task = makeTask({
+      lastCompletedAt: FIXED_NOW.toISOString(),
+      nextDueAt: new Date(FIXED_NOW.getTime() + 7 * 86_400_000).toISOString(),
+    })
+    expect(isTaskDone(task)).toBe(true)
+  })
+
+  it('returns false when completed but nextDueAt is in the past (overdue again)', () => {
+    const task = makeTask({
+      lastCompletedAt: new Date(FIXED_NOW.getTime() - 14 * 86_400_000).toISOString(),
+      nextDueAt: new Date(FIXED_NOW.getTime() - 7 * 86_400_000).toISOString(),
+    })
+    expect(isTaskDone(task)).toBe(false)
+  })
+
+  it('returns false when completed but nextDueAt is exactly now', () => {
+    const task = makeTask({
+      lastCompletedAt: new Date(FIXED_NOW.getTime() - 7 * 86_400_000).toISOString(),
+      nextDueAt: FIXED_NOW.toISOString(),
+    })
+    expect(isTaskDone(task)).toBe(false)
   })
 })

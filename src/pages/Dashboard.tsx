@@ -5,16 +5,11 @@ import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { mealService } from '../services/meals'
 import { getCurrentWeekOf } from '../utils/meals'
-import { getDueBadge, getTierIcon, getTierFromDays, isTaskDone } from '../utils/task'
+import { getDueBadge, isTaskDone } from '../utils/task'
 import { useToast } from '../contexts/ToastContext'
+import DueBadge from '../components/DueBadge'
 import type { Task } from '../types/api'
 import type { WeeklyMeal } from '../types/api'
-
-const TIER_COLORS = {
-  short: { bg: 'bg-primary-container/40', icon: 'text-primary', label: 'text-primary', tier: 'Weekly' },
-  medium: { bg: 'bg-secondary-container/40', icon: 'text-secondary', label: 'text-secondary', tier: 'Monthly' },
-  long: { bg: 'bg-tertiary-container/30', icon: 'text-tertiary', label: 'text-tertiary', tier: 'Seasonal' },
-}
 
 function getGreeting(hour: number) {
   if (hour < 12) return 'Good morning'
@@ -62,7 +57,8 @@ export default function Dashboard() {
   const pendingCount = urgentTasks.filter(t => !completedIds.has(t.id) && !isTaskDone(t)).length
   const { text: headlineText, emphasis } = getHeadline(pendingCount)
 
-  const glanceTasks = tasks.slice(0, 3)
+  const incompleteTasks = tasks.filter(t => !completedIds.has(t.id) && !isTaskDone(t))
+  const glanceTasks = incompleteTasks.slice(0, 3)
 
   async function toggleCheck(task: Task) {
     if (completedIds.has(task.id)) return
@@ -157,35 +153,22 @@ export default function Dashboard() {
           </div>
           <div className="grid gap-3">
             {glanceTasks.map(task => {
-              const colors = TIER_COLORS[getTierFromDays(task.intervalDays)]
-              const checked = completedIds.has(task.id)
+              const { variant, label } = getDueBadge(task)
               return (
                 <div
                   key={task.id}
-                  className={`bg-surface-container-low p-4 rounded-xl flex items-center justify-between border border-outline-variant/10 transition-opacity ${checked ? 'opacity-40' : ''}`}
+                  className="bg-surface-container-low p-4 rounded-xl flex items-center justify-between border border-outline-variant/10"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`${colors.bg} p-3 rounded-full`}>
-                      <span className={`material-symbols-outlined ${colors.icon}`}>{getTierIcon(getTierFromDays(task.intervalDays))}</span>
-                    </div>
-                    <div>
-                      <span className={`text-[10px] font-bold ${colors.label} uppercase tracking-wider`}>
-                        {colors.tier}
-                      </span>
-                      <h4 className="font-headline font-bold text-on-surface">{task.name}</h4>
-                    </div>
+                  <h4 className="font-headline font-bold text-on-surface">{task.name}</h4>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <DueBadge variant={variant} label={label} />
+                    <button
+                      onClick={() => toggleCheck(task)}
+                      className="w-6 h-6 rounded-full border border-outline flex items-center justify-center hover:bg-primary-container transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-sm text-transparent">check</span>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => toggleCheck(task)}
-                    className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${checked
-                      ? 'bg-primary border-primary'
-                      : 'border-outline hover:bg-primary-container'
-                      }`}
-                  >
-                    <span className={`material-symbols-outlined text-sm ${checked ? 'text-on-primary' : 'text-transparent'}`}>
-                      check
-                    </span>
-                  </button>
                 </div>
               )
             })}
