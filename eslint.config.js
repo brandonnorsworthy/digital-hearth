@@ -13,6 +13,9 @@ export default defineConfig([
       js.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
       reactRefresh.configs.vite,
     ],
     languageOptions: {

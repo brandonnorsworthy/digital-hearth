@@ -102,13 +102,13 @@ export default function Dashboard() {
 
         {/* Tonight's Dinner */}
         <section>
-          <div className="flex justify-between items-end mb-4">
+          <div className="flex justify-between items-center mb-4">
             <h3 className="font-headline font-bold text-xl tracking-tight">Tonight's Suggestion</h3>
             <button
               onClick={() => navigate('/meals')}
-              className="text-sm font-semibold text-primary underline"
+              className="text-sm font-semibold text-primary"
             >
-              View Meal Planner
+              View meal planner →
             </button>
           </div>
           <div
@@ -176,11 +176,10 @@ export default function Dashboard() {
                   </div>
                   <button
                     onClick={() => toggleCheck(task)}
-                    className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
-                      checked
-                        ? 'bg-primary border-primary'
-                        : 'border-outline hover:bg-primary-container'
-                    }`}
+                    className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${checked
+                      ? 'bg-primary border-primary'
+                      : 'border-outline hover:bg-primary-container'
+                      }`}
                   >
                     <span className={`material-symbols-outlined text-sm ${checked ? 'text-on-primary' : 'text-transparent'}`}>
                       check

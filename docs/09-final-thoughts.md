@@ -1,12 +1,15 @@
 # Final Small Adjustments and Thoughts
 
 ### All pages
-- [ ] reduce the amount of pointless api calls
+- [~] reduce the amount of pointless api calls — skipped, double requests are React Strict Mode dev behaviour, not a real issue
 - [x] refactor app to move out all local components to proper component files instead of having them defined in the same file as the page, this will make the code cleaner and easier to read.
 - [x] when you pull down it should give a refresh indicator and refresh the page
+- [ ] at this point app is completely stable, front end needs full striping for tests
+- [ ] backend refactor to vertically slice the repositories by entity
+- [ ] backend testing for all routes and services, except open ai stuff
 
 ### Dashboard
-- [ ] on the dashbaord there is a button called View Meal Planner, i think the button should look like the view all tasks button at the bottom'
+- [x] on the dashbaord there is a button called View Meal Planner, i think the button should look like the view all tasks button at the bottom'
 - [ ] tasks at a glance dont show correct completed status, maybe completed status should be moved out to a util function so it can be reused from the task page
 
 ### Settings page
@@ -50,6 +53,15 @@
 
 - [ ] users should have the ability to click a favorite button next to meals which is user specific so individuals in a single house could have different favorite meals. on the front end the favorited meals should show up at the top of the meal library list and have a little favorite icon next to them. this would be a boolean property on the meal model called "isFavorited" or something. there should also be a new filter for "favorites" so users could filter to just see their favorited meals in the meal library if they wanted.
 - [ ] there should be a confirmation modal when you click to delete a meal from the meal library list.
+
+
+### Final Steps
+
+- [ ] make sure everything works in a container
+- [ ] deploy to local linux server
+- [ ] configure nginx to reverse proxy to the backend and frontend
+frontend: digitalhearth.zcog.net
+backend: api.digitalhearth.zcog.net
 
 
 #### After everything above
