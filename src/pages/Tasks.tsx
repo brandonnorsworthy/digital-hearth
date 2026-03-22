@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { getDueBadge, getProgress, formatCompletedAt } from '../utils/task'
 import { daysToLabel } from '../utils/intervals'
+import { useToast } from '../contexts/ToastContext'
 import type { Task } from '../types/api'
 import type { DueBadgeVariant } from '../utils/task'
 
@@ -121,6 +122,7 @@ function MediumTaskCard({ task, onComplete }: { task: Task; onComplete: () => vo
 export default function Tasks() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
@@ -146,6 +148,7 @@ export default function Tasks() {
         next.delete(task.id)
         return next
       })
+      showToast('Failed to complete task. Please try again.')
     }
   }
 

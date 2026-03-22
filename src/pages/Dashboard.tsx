@@ -6,6 +6,7 @@ import { taskService } from '../services/tasks'
 import { mealService } from '../services/meals'
 import { getCurrentWeekOf } from '../utils/meals'
 import { getDueBadge, getTierIcon } from '../utils/task'
+import { useToast } from '../contexts/ToastContext'
 import type { Task } from '../types/api'
 import type { WeeklyMeal } from '../types/api'
 
@@ -30,6 +31,7 @@ function getHeadline(pendingCount: number) {
 export default function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [meals, setMeals] = useState<WeeklyMeal[]>([])
@@ -66,6 +68,7 @@ export default function Dashboard() {
         next.delete(task.id)
         return next
       })
+      showToast('Failed to complete task. Please try again.')
     }
   }
 

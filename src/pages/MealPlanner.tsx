@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
 import { getCurrentWeekOf } from '../utils/meals'
+import { useToast } from '../contexts/ToastContext'
 import type { WeeklyMeal, LibraryMeal } from '../types/api'
 
 const MEAL_COLORS = ['bg-primary-container', 'bg-secondary-container', 'bg-tertiary-container/60', 'bg-surface-container-high']
@@ -23,6 +24,7 @@ function getWeekRange() {
 
 export default function MealPlanner() {
   const { user } = useAuth()
+  const { showToast } = useToast()
 
   const [meals, setMeals] = useState<WeeklyMeal[]>([])
   const [library, setLibrary] = useState<LibraryMeal[]>([])
@@ -30,12 +32,13 @@ export default function MealPlanner() {
   const [pendingName, setPendingName] = useState<string | null>(null)
 
   const weekOf = getCurrentWeekOf()
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!user?.householdId) return
     mealService.weeklyList(user.householdId, weekOf).then(setMeals).catch(console.error)
     mealService.library(user.householdId).then(setLibrary).catch(console.error)
-  }, [user?.householdId])
+  }, [user?.householdId, weekOf])
 
   async function addMeal(name: string, libraryId?: number) {
     if (!name.trim() || !user?.householdId) return
@@ -49,6 +52,7 @@ export default function MealPlanner() {
       if (!libraryId) setPendingName(name.trim())
     } catch (err) {
       console.error(err)
+      showToast('Failed to add meal. Please try again.')
     }
   }
 
@@ -60,6 +64,7 @@ export default function MealPlanner() {
     } catch {
       // revert optimistic removal
       mealService.weeklyList(user!.householdId, weekOf).then(setMeals).catch(console.error)
+      showToast('Failed to remove meal. Please try again.')
     }
   }
 
@@ -70,6 +75,7 @@ export default function MealPlanner() {
       setLibrary(prev => [...prev, saved])
     } catch (err) {
       console.error(err)
+      showToast('Failed to save to library. Please try again.')
     } finally {
       setPendingName(null)
     }
@@ -91,6 +97,7 @@ export default function MealPlanner() {
           </label>
           <div className="relative group">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -181,7 +188,7 @@ export default function MealPlanner() {
 
             {/* Add placeholder */}
             <button
-              onClick={() => document.querySelector<HTMLInputElement>('input[type="text"]')?.focus()}
+              onClick={() => inputRef.current?.focus()}
               className="w-full bg-primary-container/30 border-2 border-dashed border-primary/20 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:bg-primary-container/50 transition-colors cursor-pointer"
             >
               <span className="material-symbols-outlined text-primary/60">restaurant_menu</span>

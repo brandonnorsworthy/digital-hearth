@@ -2,6 +2,9 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { HouseholdProvider } from './contexts/HouseholdContext'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { ToastProvider } from './contexts/ToastContext'
+import { Toast } from './components/Toast'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Tasks from './pages/Tasks'
@@ -54,12 +57,17 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <HouseholdProvider>
-          <AppRoutes />
-        </HouseholdProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <HouseholdProvider>
+            <ToastProvider>
+              <AppRoutes />
+              <Toast />
+            </ToastProvider>
+          </HouseholdProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

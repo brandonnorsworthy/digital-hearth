@@ -65,14 +65,9 @@ export default function Layout({
           {title}
         </h1>
 
-        <div className="relative">
-          <div className="w-10 h-10 rounded-full bg-secondary-container border-2 border-primary-container flex items-center justify-center">
-            <span className="text-on-secondary-container font-headline font-bold text-sm">
-              {user?.username?.[0]?.toUpperCase() ?? 'U'}
-            </span>
-          </div>
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-tertiary rounded-full border-2 border-surface flex items-center justify-center text-[10px] text-on-tertiary font-bold">
-            3
+        <div className="w-10 h-10 rounded-full bg-secondary-container border-2 border-primary-container flex items-center justify-center">
+          <span className="text-on-secondary-container font-headline font-bold text-sm">
+            {user?.username?.[0]?.toUpperCase() ?? 'U'}
           </span>
         </div>
       </header>
