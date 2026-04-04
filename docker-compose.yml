@@ -4,6 +4,8 @@ services:
       context: .
       args:
         VITE_API_URL: ${VITE_API_URL}
+    env_file:
+      - .env
     container_name: digitalhearth
     ports:
       - "3021:4173"
