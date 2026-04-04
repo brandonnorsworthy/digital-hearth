@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
+import { mealImageUrl } from '../services/api'
 import { getCurrentWeekOf } from '../utils/meals'
 import { useToast } from '../contexts/ToastContext'
 import type { WeeklyMeal, LibraryMeal } from '../types/api'
@@ -138,8 +139,8 @@ export default function MealPlanner() {
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
                     {meal.isFromLibrary ? (
-                      meal.imageData ? (
-                        <img src={meal.imageData} alt={meal.name} className="w-full h-full object-cover" />
+                      meal.hasImage && meal.mealLibraryId ? (
+                        <img src={mealImageUrl(meal.mealLibraryId)} alt={meal.name} className="w-full h-full object-cover" loading="lazy" crossOrigin="use-credentials" />
                       ) : (
                         <span className="font-headline font-black text-on-surface/40 text-xl">
                           {meal.name[0]}
@@ -212,8 +213,8 @@ export default function MealPlanner() {
                 className="shrink-0 w-32 bg-surface-container-low rounded-lg p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
               >
                 <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
-                  {item.imageData ? (
-                    <img src={item.imageData} alt={item.name} className="w-full h-full object-cover" />
+                  {item.hasImage ? (
+                    <img src={mealImageUrl(item.id)} alt={item.name} className="w-full h-full object-cover" loading="lazy" crossOrigin="use-credentials" />
                   ) : (
                     <span className="font-headline font-black text-on-surface/40 text-xl">
                       {item.name[0]}

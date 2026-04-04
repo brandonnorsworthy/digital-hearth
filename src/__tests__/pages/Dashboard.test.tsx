@@ -55,7 +55,7 @@ function makeWeeklyMeal(overrides: Partial<WeeklyMeal> = {}): WeeklyMeal {
     name: 'Spaghetti Bolognese',
     mealLibraryId: null,
     isFromLibrary: false,
-    imageData: null,
+    hasImage: false,
     ...overrides,
   }
 }

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Settings from '../../pages/Settings'
 
@@ -45,6 +45,11 @@ vi.mock('../../services/notifications', () => ({
   },
 }))
 
+const mockToastSuccess = vi.fn()
+vi.mock('../../contexts/ToastContext', () => ({
+  useToast: () => ({ success: mockToastSuccess, error: vi.fn() }),
+}))
+
 function renderPage() {
   return render(
     <MemoryRouter>
@@ -78,5 +83,12 @@ describe('Settings', () => {
   it('renders the Sign Out button', () => {
     renderPage()
     expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument()
+  })
+
+  it('shows a toast when invite code is copied', async () => {
+    Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } })
+    renderPage()
+    fireEvent.click(screen.getByRole('button', { name: /invite code/i }))
+    await vi.waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('Invite code copied to clipboard'))
   })
 })

@@ -30,7 +30,7 @@ function makeLibraryMeal(overrides: Partial<LibraryMeal> = {}): LibraryMeal {
     createdBy: 'Sarah',
     createdAt: '2026-01-01T00:00:00Z',
     tags: [],
-    imageData: null,
+    hasImage: false,
     ...overrides,
   }
 }

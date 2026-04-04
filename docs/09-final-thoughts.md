@@ -14,8 +14,8 @@
 
 ### Settings page
 
-- [ ] organize settings between "Household Settings" (settings that affect the whole household like start day and goal meals per week) and "Personal Preferences" (settings that are specifically about notifications)
-- [ ] When you click invite code and it copies it should give you a toast saying "invite code copied to clipboard"
+- [x] organize settings between "Household Settings" (settings that affect the whole household like start day and goal meals per week) and "Personal Preferences" (settings that are specifically about notifications)
+- [x] When you click invite code and it copies it should give you a toast saying "invite code copied to clipboard"
 
 - [ ] new setting under start day which is goal number of meals per week (household setting), this would just be a number input and it would be used in the meal planner notification to say "you have X meals planned for the week, your goal is Y meals per week"
 
@@ -72,6 +72,7 @@ backend: api.digitalhearth.zcog.net
 
 #### After everything above
 
+- [ ] join code
 - [ ] moved out component files should have acompanying skeleton files for loading states
 - [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
 - [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when

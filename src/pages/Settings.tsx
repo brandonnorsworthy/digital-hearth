@@ -9,13 +9,13 @@ import { householdService } from '../services/household'
 import { WEEK_DAYS } from '../constants/household'
 import { notificationService } from '../services/notifications'
 import { urlBase64ToUint8Array } from '../utils/encoding'
-
-
+import { useToast } from '../contexts/ToastContext'
 
 export default function Settings() {
   const { user, logout } = useAuth()
   const { household, members } = useHousehold()
   const navigate = useNavigate()
+  const toast = useToast()
 
   const [weekDaySheetOpen, setWeekDaySheetOpen] = useState(false)
   const [weekResetDay, setWeekResetDay] = useState<string | null>(null)
@@ -77,6 +77,12 @@ export default function Settings() {
     }
   }
 
+  async function handleCopyInviteCode() {
+    if (!household?.joinCode) return
+    await navigator.clipboard.writeText(household.joinCode)
+    toast.success('Invite code copied to clipboard')
+  }
+
   async function handleLogout() {
     try {
       await logout()
@@ -95,7 +101,7 @@ export default function Settings() {
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-headline font-bold text-xl text-on-surface">Household Members</h2>
             <button
-              onClick={() => household?.joinCode && navigator.clipboard.writeText(household.joinCode)}
+              onClick={handleCopyInviteCode}
               className="text-primary font-semibold text-sm flex items-center gap-1 bg-primary-container/30 px-4 py-2 rounded-full hover:bg-primary-container/50 transition-colors active:scale-95"
             >
               <span className="material-symbols-outlined text-lg">share</span>
@@ -152,7 +158,7 @@ export default function Settings() {
 
         {/* General Settings */}
         <section className="space-y-4">
-          <h2 className="font-headline font-bold text-xl text-on-surface">General Settings</h2>
+          <h2 className="font-headline font-bold text-xl text-on-surface">Household Settings</h2>
           <div className="bg-surface-container rounded-xl overflow-hidden">
             <button
               onClick={() => setWeekDaySheetOpen(true)}
@@ -172,7 +178,7 @@ export default function Settings() {
 
         {/* Notification Preferences */}
         <section className="space-y-4">
-          <h2 className="font-headline font-bold text-xl text-on-surface">Notification Preferences</h2>
+          <h2 className="font-headline font-bold text-xl text-on-surface">Personal Preferences</h2>
           <div className="space-y-3">
             <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>
               <div className="flex flex-col">

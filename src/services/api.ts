@@ -1,5 +1,8 @@
 const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? ''
 
+export const mealImageUrl = (libraryMealId: number) =>
+  `${BASE_URL}/api/meals/library/${libraryMealId}/image`
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {

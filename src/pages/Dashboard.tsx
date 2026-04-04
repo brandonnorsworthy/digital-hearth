@@ -4,6 +4,7 @@ import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { mealService } from '../services/meals'
+import { mealImageUrl } from '../services/api'
 import { getCurrentWeekOf } from '../utils/meals'
 import { getDueBadge, isTaskDone } from '../utils/task'
 import { useToast } from '../contexts/ToastContext'
@@ -113,11 +114,13 @@ export default function Dashboard() {
             onClick={() => navigate('/meals')}
           >
             <div className="aspect-16/10 w-full">
-              {tonightsDinner?.imageData ? (
+              {tonightsDinner?.hasImage && tonightsDinner?.mealLibraryId ? (
                 <img
-                  src={tonightsDinner.imageData}
+                  src={mealImageUrl(tonightsDinner.mealLibraryId)}
                   alt={tonightsDinner.name}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  crossOrigin="use-credentials"
                 />
               ) : (
                 <div className="w-full h-full bg-linear-to-br from-primary-container via-surface-container to-secondary-container flex items-center justify-center">

@@ -43,7 +43,7 @@ export interface WeeklyMeal {
   name: string
   mealLibraryId: number | null
   isFromLibrary: boolean
-  imageData: string | null
+  hasImage: boolean
 }
 
 export interface LibraryMeal {
@@ -52,5 +52,5 @@ export interface LibraryMeal {
   createdBy: string
   createdAt: string
   tags: string[]
-  imageData: string | null
+  hasImage: boolean
 }

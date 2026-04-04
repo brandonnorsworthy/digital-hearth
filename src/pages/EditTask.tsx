@@ -64,8 +64,6 @@ export default function EditTask() {
     }
   }
 
-  const intervalDaysPreview = nUnitToDays(intervalN, intervalUnit)
-
   return (
     <Layout
       title="Digital Hearth"

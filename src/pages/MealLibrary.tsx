@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
+import { mealImageUrl } from '../services/api'
 import { getCurrentWeekOf } from '../utils/meals'
 import { useToast } from '../contexts/ToastContext'
 import { MEAL_CARD_COLORS, MEAL_CATEGORIES, MEAL_CATEGORY_TAG_MAP } from '../constants/meals'
@@ -136,11 +137,13 @@ export default function MealLibrary() {
               >
                 {/* Image / color block */}
                 <div className="h-48 relative overflow-hidden">
-                  {meal.imageData ? (
+                  {meal.hasImage ? (
                     <img
-                      src={meal.imageData}
+                      src={mealImageUrl(meal.id)}
                       alt={meal.name}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      crossOrigin="use-credentials"
                     />
                   ) : (
                     <div className={`h-full bg-linear-to-br ${MEAL_CARD_COLORS[i % MEAL_CARD_COLORS.length]} flex items-center justify-center`}>
