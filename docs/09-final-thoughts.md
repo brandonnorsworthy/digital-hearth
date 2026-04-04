@@ -79,11 +79,12 @@ backend: api.digitalhearth.zcog.net
 - [x] want dark mode
 - [x] setting page, push notifications is grayed out if not on pwa making it confusing should have a alert that say you need to download it to use push notifications
 - [x] need to replace common components with skeletons for loading so stuff doesnt pop in
-- [ ] you can click a incomplete task to edit it, should not beable to click to edit
+- [x] you can click a incomplete task to edit it, should not beable to click to edit
 - [ ] tasks over 6 months should have max due time of 1 month
 
 ### other stuff
 
+- [ ] when in dark mode the example task of the edit task screen is super light and hard to see
 - [ ] in the meal library add a new recipe button doesnt work, should support adding a new recipe without adding it to the week. it should be moved to the top of the search results
 - [ ] budget per month for image generation per household
 - [ ] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell

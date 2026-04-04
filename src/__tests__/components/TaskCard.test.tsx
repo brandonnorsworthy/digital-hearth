@@ -69,9 +69,9 @@ describe('TaskCard', () => {
     expect(onComplete).toHaveBeenCalledTimes(1)
   })
 
-  it('navigates to /tasks/:id when card body is clicked', async () => {
+  it('does not navigate when card body is clicked', async () => {
     renderCard(makeTask({ id: 5 }), vi.fn(), false)
     await userEvent.click(screen.getByText('Clean the kitchen'))
-    expect(mockNavigate).toHaveBeenCalledWith('/tasks/5')
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 })

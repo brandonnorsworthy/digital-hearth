@@ -1,16 +1,13 @@
-import { useNavigate } from 'react-router-dom'
 import DueBadge from './DueBadge'
 import { getDueBadge } from '../utils/task'
 import { daysToLabel } from '../utils/intervals'
 import type { Task } from '../types/api'
 
 export default function TaskCard({ task, onComplete, completing }: { task: Task; onComplete: () => void; completing: boolean }) {
-  const navigate = useNavigate()
   const { variant, label } = getDueBadge(task)
   return (
     <div
-      className={`p-6 rounded-xl shadow-sm border border-outline-variant/5 transition-colors relative ${completing ? 'bg-surface-container opacity-60' : 'bg-surface-container-lowest cursor-pointer active:bg-surface-container-high'}`}
-      onClick={completing ? undefined : () => navigate(`/tasks/${task.id}`)}
+      className={`p-6 rounded-xl shadow-sm border border-outline-variant/5 transition-colors relative ${completing ? 'bg-surface-container opacity-60' : 'bg-surface-container-lowest'}`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
