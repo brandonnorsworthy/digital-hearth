@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { HouseholdProvider } from './contexts/HouseholdContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ToastProvider } from './contexts/ToastContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { Toast } from './components/Toast'
 import ProtectedRoute from './components/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
@@ -44,16 +45,18 @@ function AppRoutes() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <AuthProvider>
-          <HouseholdProvider>
-            <ToastProvider>
-              <AppRoutes />
-              <Toast />
-            </ToastProvider>
-          </HouseholdProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <HouseholdProvider>
+              <ToastProvider>
+                <AppRoutes />
+                <Toast />
+              </ToastProvider>
+            </HouseholdProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ThemeProvider>
     </ErrorBoundary>
   )
 }

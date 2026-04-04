@@ -11,6 +11,7 @@ import { notificationService, type UserNotifSettings } from '../services/notific
 import { authService } from '../services/auth'
 import { urlBase64ToUint8Array } from '../utils/encoding'
 import { useToast } from '../contexts/ToastContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 const TASK_REMINDER_HOURS = [
   { value: 0, label: '12:00 AM' },
@@ -185,6 +186,8 @@ export default function Settings() {
     toast.success('Invite code copied to clipboard')
   }
 
+  const { isDark, toggle: toggleDark } = useTheme()
+
   const [changePinOpen, setChangePinOpen] = useState(false)
   const [currentPin, setCurrentPin] = useState('')
   const [newPin, setNewPin] = useState('')
@@ -335,6 +338,15 @@ export default function Settings() {
         {/* Personal Preferences */}
         <section className="space-y-4">
           <h2 className="font-headline font-bold text-xl text-on-surface">Personal Preferences</h2>
+
+          {/* Dark mode toggle */}
+          <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-xl">
+            <div className="flex flex-col">
+              <span className="font-bold text-on-surface">Dark Mode</span>
+              <span className="text-xs text-on-surface-variant">Switch to a darker color scheme</span>
+            </div>
+            <Toggle checked={isDark} onChange={toggleDark} />
+          </div>
 
           {/* Push toggle */}
           <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>

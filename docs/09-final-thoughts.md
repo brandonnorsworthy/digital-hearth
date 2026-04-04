@@ -76,7 +76,7 @@ backend: api.digitalhearth.zcog.net
 
 - [x] logging is too verbose its logging every ef query
 - [x] image generation seems to be broken
-- [ ] want dark mode
+- [x] want dark mode
 - [ ] setting page, push notifications is grayed out if not on pwa making it confusing should have a alert that say you need to download it to use push notifications
 - [ ] need to replace common components with skeletons for loading so stuff doesnt pop in
 - [ ] you can click a incomplete task to edit it, should not beable to click to edit
