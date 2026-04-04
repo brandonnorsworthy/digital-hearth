@@ -51,6 +51,7 @@ function makeLibraryMeal(overrides: Partial<LibraryMeal> = {}): LibraryMeal {
     createdAt: '2026-01-01T00:00:00Z',
     tags: [],
     hasImage: false,
+    isFavorited: false,
     ...overrides,
   }
 }
@@ -205,8 +206,8 @@ describe('MealPlanner', () => {
 
     await waitFor(() => {
       const calls = vi.mocked(mealService.weeklyList).mock.calls
-      const weekOfs = calls.map(([, weekOf]) => weekOf)
-      expect(weekOfs.some(w => w > weekOfs[0])).toBe(true)
+      const weekOfs = calls.map(([, weekOf]) => weekOf as string)
+      expect(weekOfs.some(w => w > weekOfs[0]!)).toBe(true)
     })
   })
 
@@ -221,8 +222,8 @@ describe('MealPlanner', () => {
 
     await waitFor(() => {
       const calls = vi.mocked(mealService.weeklyList).mock.calls
-      const weekOfs = calls.map(([, weekOf]) => weekOf)
-      expect(weekOfs.some(w => w < weekOfs[0])).toBe(true)
+      const weekOfs = calls.map(([, weekOf]) => weekOf as string)
+      expect(weekOfs.some(w => w < weekOfs[0]!)).toBe(true)
     })
   })
 })
