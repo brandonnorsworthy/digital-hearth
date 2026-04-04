@@ -5,7 +5,7 @@ import TaskCard from '../components/TaskCard'
 import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
-import { getTierFromDays, isTaskDone } from '../utils/task'
+import { getTierFromDays, isTaskDone, isTaskVisible } from '../utils/task'
 import { useToast } from '../contexts/ToastContext'
 import type { Task } from '../types/api'
 
@@ -53,9 +53,9 @@ export default function Tasks() {
     return completedIds.has(task.id) || isTaskDone(task)
   }
 
-  const shortTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'short')
-  const mediumTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'medium')
-  const longTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'long')
+  const shortTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'short' && isTaskVisible(t))
+  const mediumTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'medium' && isTaskVisible(t))
+  const longTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'long' && isTaskVisible(t))
   const totalPending = tasks.filter(t => !isCompleting(t)).length
 
   if (loading) {

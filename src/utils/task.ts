@@ -46,3 +46,17 @@ export function getTierFromDays(intervalDays: number): TaskTier {
   if (intervalDays < 30) return 'medium'
   return 'long'
 }
+
+const TIER_VISIBILITY_DAYS: Record<TaskTier, number | null> = {
+  short: null,   // always visible
+  medium: 7,     // show when ≤ 7 days from due
+  long: 30,      // show when ≤ 30 days from due
+}
+
+export function isTaskVisible(task: Task): boolean {
+  const tier = getTierFromDays(task.intervalDays)
+  const windowDays = TIER_VISIBILITY_DAYS[tier]
+  if (windowDays === null) return true
+  const daysUntilDue = Math.ceil((new Date(task.nextDueAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+  return daysUntilDue <= windowDays
+}
