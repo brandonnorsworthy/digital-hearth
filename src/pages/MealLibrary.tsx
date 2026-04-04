@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Layout from '../components/Layout'
+import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
 import { mealImageUrl } from '../services/api'
@@ -23,6 +24,7 @@ export default function MealLibrary() {
   const [confirmRegenerateMeal, setConfirmRegenerateMeal] = useState<LibraryMeal | null>(null)
   const [regeneratingIds, setRegeneratingIds] = useState<Set<number>>(new Set())
   const [imageVersions, setImageVersions] = useState<Record<number, number>>({})
+  const [loading, setLoading] = useState(true)
   const tapCountsRef = useRef<Map<number, { count: number; timer: ReturnType<typeof setTimeout> }>>(new Map())
 
   const weekOf = getCurrentWeekOf()
@@ -31,6 +33,7 @@ export default function MealLibrary() {
     if (!user?.householdId) return
     const data = await mealService.library(user.householdId)
     setLibrary(data)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -115,6 +118,41 @@ export default function MealLibrary() {
       setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, isFavorited: meal.isFavorited } : m))
       toast.error('Failed to update favorite.')
     }
+  }
+
+  if (loading) {
+    return (
+      <Layout title="Meal Library" focusMode onRefresh={loadData}>
+        <div className="pt-8 px-6 max-w-2xl mx-auto pb-8">
+          <section className="mb-8 space-y-2">
+            <Skeleton className="h-9 w-56" />
+            <Skeleton className="h-4 w-72" />
+            <div className="pt-4">
+              <Skeleton className="h-14 w-full rounded-xl" />
+            </div>
+          </section>
+          <div className="flex gap-2 mb-8">
+            {[0, 1, 2, 3].map(i => (
+              <Skeleton key={i} className="h-9 w-20 rounded-full shrink-0" />
+            ))}
+          </div>
+          <div className="flex flex-col gap-4">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="rounded-xl overflow-hidden border border-outline-variant/5">
+                <Skeleton className="h-48 w-full rounded-none" />
+                <div className="px-5 py-4 space-y-4 bg-surface-container-low">
+                  <Skeleton className="h-6 w-2/3" />
+                  <div className="flex items-center justify-between pt-4 border-t border-outline-variant/15">
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                    <Skeleton className="h-10 w-28 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   return (

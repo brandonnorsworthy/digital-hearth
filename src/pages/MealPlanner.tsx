@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
+import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
 import { mealImageUrl } from '../services/api'
@@ -25,6 +26,7 @@ export default function MealPlanner() {
   const [savingLibraryId, setSavingLibraryId] = useState<number | null>(null)
   const [weekOffset, setWeekOffset] = useState(0)
   const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<WeeklyMeal | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const currentWeekOf = getCurrentWeekOf()
   const weekOf = weekOffset === 0 ? currentWeekOf : shiftWeek(currentWeekOf, weekOffset)
@@ -38,6 +40,7 @@ export default function MealPlanner() {
     ])
     setMeals(mealData)
     setLibrary(libraryData)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -96,6 +99,56 @@ export default function MealPlanner() {
       <span className="material-symbols-outlined">{dir === -1 ? 'chevron_left' : 'chevron_right'}</span>
     </button>
   )
+
+  if (loading) {
+    return (
+      <Layout
+        title="Weekly Meals"
+        subtitle={formatWeekRange(weekOf)}
+        onRefresh={loadData}
+        headerLeft={navButton(-1)}
+        headerRight={navButton(1)}
+      >
+        <div className="pt-6 px-6 max-w-2xl mx-auto space-y-8 pb-4">
+          <section className="bg-surface-container rounded-lg p-5 shadow-sm border border-outline-variant/10 space-y-3">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-14 w-full rounded-xl" />
+          </section>
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-5 w-36" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+            <div className="space-y-3">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="bg-surface-container-lowest rounded-xl p-4 flex items-center justify-between border border-outline-variant/5">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="w-12 h-12 rounded-xl" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                  <Skeleton className="w-8 h-8 rounded-full" />
+                </div>
+              ))}
+            </div>
+          </section>
+          <section className="space-y-4">
+            <Skeleton className="h-5 w-40" />
+            <div className="flex gap-3">
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className="shrink-0 w-32 space-y-2">
+                  <Skeleton className="w-16 h-16 rounded-full mx-auto" />
+                  <Skeleton className="h-3 w-20 mx-auto" />
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </Layout>
+    )
+  }
 
   return (
     <Layout

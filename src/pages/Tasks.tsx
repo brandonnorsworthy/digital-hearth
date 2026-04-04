@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import TaskCard from '../components/TaskCard'
+import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { getTierFromDays, isTaskDone } from '../utils/task'
@@ -15,11 +16,13 @@ export default function Tasks() {
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
+  const [loading, setLoading] = useState(true)
 
   async function loadData() {
     if (!user?.householdId) return
     const data = await taskService.list(user.householdId)
     setTasks(data)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -54,6 +57,38 @@ export default function Tasks() {
   const mediumTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'medium')
   const longTasks = tasks.filter(t => getTierFromDays(t.intervalDays) === 'long')
   const totalPending = tasks.filter(t => !isCompleting(t)).length
+
+  if (loading) {
+    return (
+      <Layout showFab onFabClick={() => navigate('/tasks/new')} title="Household Tasks" onRefresh={loadData}>
+        <div className="pt-6 px-6 max-w-md mx-auto pb-4 space-y-12">
+          {[0, 1].map(section => (
+            <section key={section}>
+              <div className="flex items-center gap-2 mb-6 ml-1">
+                <Skeleton className="w-6 h-6 rounded-full" />
+                <Skeleton className="h-7 w-32" />
+                <Skeleton className="h-5 w-16 rounded-full ml-auto" />
+              </div>
+              <div className="space-y-6">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="p-6 rounded-xl bg-surface-container-lowest border border-outline-variant/5 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </div>
+                    <Skeleton className="h-12 w-full rounded-xl" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </Layout>
+    )
+  }
 
   return (
     <Layout showFab onFabClick={() => navigate('/tasks/new')} title="Household Tasks" onRefresh={loadData}>

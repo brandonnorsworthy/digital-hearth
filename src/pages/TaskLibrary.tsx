@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
+import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { getTierFromDays } from '../utils/task'
@@ -54,11 +55,13 @@ export default function TaskLibrary() {
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
 
   async function loadData() {
     if (!user?.householdId) return
     const data = await taskService.list(user.householdId)
     setTasks(data)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -68,6 +71,42 @@ export default function TaskLibrary() {
   const filtered = tasks.filter(t =>
     t.name.toLowerCase().includes(search.toLowerCase())
   )
+
+  if (loading) {
+    return (
+      <Layout title="Task Library" focusMode onRefresh={loadData}>
+        <div className="pt-8 px-6 max-w-2xl mx-auto pb-8">
+          <div className="mb-10 space-y-4">
+            <Skeleton className="h-10 w-48" />
+            <Skeleton className="h-14 w-full rounded-xl" />
+          </div>
+          {[0, 1].map(section => (
+            <section key={section} className="mb-12">
+              <div className="flex items-center gap-4 mb-6 ml-2">
+                <Skeleton className="w-2 h-2 rounded-full" />
+                <Skeleton className="h-6 w-28" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="w-12 h-12 rounded-lg" />
+                      <div className="space-y-1.5">
+                        <Skeleton className="h-4 w-36" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </div>
+                    <Skeleton className="w-5 h-5 rounded" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </Layout>
+    )
+  }
 
   return (
     <Layout title="Task Library" focusMode onRefresh={loadData}>

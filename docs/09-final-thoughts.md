@@ -78,7 +78,7 @@ backend: api.digitalhearth.zcog.net
 - [x] image generation seems to be broken
 - [x] want dark mode
 - [x] setting page, push notifications is grayed out if not on pwa making it confusing should have a alert that say you need to download it to use push notifications
-- [ ] need to replace common components with skeletons for loading so stuff doesnt pop in
+- [x] need to replace common components with skeletons for loading so stuff doesnt pop in
 - [ ] you can click a incomplete task to edit it, should not beable to click to edit
 - [ ] tasks over 6 months should have max due time of 1 month
 

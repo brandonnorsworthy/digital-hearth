@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
+import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { taskService } from '../services/tasks'
 import { mealService } from '../services/meals'
@@ -32,6 +33,7 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [tonightsDinner, setTonightsDinner] = useState<WeeklyMeal | undefined>()
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
+  const [loading, setLoading] = useState(true)
 
   async function loadData() {
     if (!user?.householdId) return
@@ -42,6 +44,7 @@ export default function Dashboard() {
     setTasks(taskData)
     setCompletedIds(new Set(taskData.filter(isTaskDone).map(t => t.id)))
     if (mealData.length) setTonightsDinner(mealData[Math.floor(Math.random() * mealData.length)])
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -75,6 +78,34 @@ export default function Dashboard() {
       })
       toast.error('Failed to complete task. Please try again.')
     }
+  }
+
+  if (loading) {
+    return (
+      <Layout onRefresh={loadData}>
+        <div className="px-6 pb-4 space-y-8 pt-6">
+          <section>
+            <Skeleton className="h-4 w-32 mb-2" />
+            <Skeleton className="h-9 w-3/4" />
+          </section>
+          <section>
+            <div className="flex justify-between items-center mb-4">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-28" />
+            </div>
+            <Skeleton className="w-full rounded-xl" style={{ aspectRatio: '16/10' }} />
+          </section>
+          <section className="space-y-4">
+            <Skeleton className="h-6 w-40" />
+            <div className="grid gap-3">
+              {[0, 1, 2].map(i => (
+                <Skeleton key={i} className="h-14 w-full rounded-xl" />
+              ))}
+            </div>
+          </section>
+        </div>
+      </Layout>
+    )
   }
 
   return (
