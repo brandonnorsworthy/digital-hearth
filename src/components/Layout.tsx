@@ -36,6 +36,8 @@ interface LayoutProps {
   showFab?: boolean
   onFabClick?: () => void
   onRefresh?: () => Promise<void>
+  headerLeft?: ReactNode
+  headerRight?: ReactNode
 }
 
 export default function Layout({
@@ -46,6 +48,8 @@ export default function Layout({
   showFab = false,
   onFabClick,
   onRefresh,
+  headerLeft,
+  headerRight,
 }: LayoutProps) {
   const navigate = useNavigate()
   const mainRef = useRef<HTMLElement>(null)
@@ -102,7 +106,7 @@ export default function Layout({
     <div className="flex flex-col min-h-dvh bg-background text-on-surface">
       {/* Top App Bar */}
       <header className={`fixed top-0 w-full z-50 flex items-center justify-between px-6 bg-surface-container-low ${subtitle ? 'h-20' : 'h-16'}`}>
-        {focusMode ? (
+        {headerLeft ?? (focusMode ? (
           <button
             onClick={() => navigate(-1)}
             className="text-primary p-2 rounded-full hover:bg-surface-container transition-colors active:scale-95"
@@ -111,7 +115,7 @@ export default function Layout({
           </button>
         ) : (
           <div className="w-10" />
-        )}
+        ))}
 
         <div className="flex flex-col items-center">
           <h1 className="text-primary font-headline font-extrabold text-xl tracking-tight whitespace-nowrap">
@@ -124,7 +128,7 @@ export default function Layout({
           )}
         </div>
 
-        <div className="w-10" />
+        {headerRight ?? <div className="w-10" />}
       </header>
 
       {/* Scrollable content */}

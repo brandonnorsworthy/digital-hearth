@@ -4,7 +4,7 @@ import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
 import { mealImageUrl } from '../services/api'
-import { getCurrentWeekOf } from '../utils/meals'
+import { getCurrentWeekOf, shiftWeek, formatWeekRange } from '../utils/meals'
 import { useToast } from '../contexts/ToastContext'
 import type { WeeklyMeal, LibraryMeal } from '../types/api'
 
@@ -12,16 +12,6 @@ const MEAL_COLORS = ['bg-primary-container', 'bg-secondary-container', 'bg-terti
 
 function mealColor(index: number) {
   return MEAL_COLORS[index % MEAL_COLORS.length]
-}
-
-function getWeekRange() {
-  const now = new Date()
-  const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay() + 1) // Monday
-  const endOfWeek = new Date(startOfWeek)
-  endOfWeek.setDate(startOfWeek.getDate() + 6)
-  const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  return `${fmt(startOfWeek)} — ${fmt(endOfWeek)}`
 }
 
 export default function MealPlanner() {
@@ -33,8 +23,10 @@ export default function MealPlanner() {
   const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [input, setInput] = useState('')
   const [savingLibraryId, setSavingLibraryId] = useState<number | null>(null)
+  const [weekOffset, setWeekOffset] = useState(0)
 
-  const weekOf = getCurrentWeekOf()
+  const currentWeekOf = getCurrentWeekOf()
+  const weekOf = weekOffset === 0 ? currentWeekOf : shiftWeek(currentWeekOf, weekOffset)
   const inputRef = useRef<HTMLInputElement>(null)
 
   async function loadData() {
@@ -49,6 +41,7 @@ export default function MealPlanner() {
 
   useEffect(() => {
     loadData().catch(console.error)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.householdId, weekOf])
 
   async function addMeal(name: string, libraryId?: number) {
@@ -94,8 +87,23 @@ export default function MealPlanner() {
     }
   }
 
+  const navButton = (dir: -1 | 1) => (
+    <button
+      onClick={() => setWeekOffset(o => o + dir)}
+      className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors active:scale-95 text-on-surface-variant"
+    >
+      <span className="material-symbols-outlined">{dir === -1 ? 'chevron_left' : 'chevron_right'}</span>
+    </button>
+  )
+
   return (
-    <Layout title="Weekly Meals" subtitle={getWeekRange()} onRefresh={loadData}>
+    <Layout
+      title="Weekly Meals"
+      subtitle={formatWeekRange(weekOf)}
+      onRefresh={loadData}
+      headerLeft={navButton(-1)}
+      headerRight={navButton(1)}
+    >
       <div className="pt-6 px-6 max-w-2xl mx-auto space-y-8 pb-4">
         {/* Quick Add */}
         <section className="bg-surface-container rounded-lg p-5 shadow-sm border border-outline-variant/10">
