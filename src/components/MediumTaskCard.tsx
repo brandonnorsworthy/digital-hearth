@@ -9,7 +9,7 @@ export default function MediumTaskCard({ task, onComplete, completing }: { task:
   const { variant, label } = getDueBadge(task)
   return (
     <div
-      className={`p-6 rounded-xl border border-outline-variant/10 transition-colors relative ${completing ? 'bg-surface-container-high opacity-60' : 'bg-surface-container-low cursor-pointer active:bg-surface-container-high'}`}
+      className={`p-6 rounded-xl border border-outline-variant/10 transition-colors relative ${completing ? 'bg-surface-container opacity-60' : 'bg-surface-container-low cursor-pointer active:bg-surface-container-high'}`}
       onClick={completing ? undefined : () => navigate(`/tasks/${task.id}`)}
     >
       <div className="flex justify-between items-start mb-4">
@@ -35,7 +35,7 @@ export default function MediumTaskCard({ task, onComplete, completing }: { task:
       <button
         onClick={e => { e.stopPropagation(); if (!completing) onComplete() }}
         disabled={completing}
-        className={`w-full py-3 rounded-xl font-headline font-bold flex items-center justify-center gap-2 transition-transform ${completing ? 'border-2 border-outline text-on-surface-variant' : 'border-2 border-primary text-primary active:scale-95 hover:bg-primary/5'}`}
+        className={`w-full py-3 rounded-xl font-headline font-bold flex items-center justify-center gap-2 transition-transform ${completing ? 'bg-surface-container-high text-on-surface-variant' : 'border-2 border-primary text-primary active:scale-95 hover:bg-primary/5'}`}
       >
         <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
           {completing ? 'check_circle' : 'task_alt'}
