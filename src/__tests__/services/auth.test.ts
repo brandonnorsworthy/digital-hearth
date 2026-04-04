@@ -69,3 +69,26 @@ describe('authService.me', () => {
     expect(result).toEqual(user)
   })
 })
+
+describe('authService.changePin', () => {
+  it('calls POST /auth/change-pin', async () => {
+    mockFetch(204, null)
+    await authService.changePin('1234', '5678')
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/change-pin'),
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
+  it('sends currentPin and newPin in the request body', async () => {
+    mockFetch(204, null)
+    await authService.changePin('1234', '5678')
+    const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
+    expect(body).toEqual({ currentPin: '1234', newPin: '5678' })
+  })
+
+  it('throws when the server returns 401', async () => {
+    mockFetch(401, { error: 'Current PIN is incorrect' })
+    await expect(authService.changePin('wrong', '5678')).rejects.toThrow()
+  })
+})

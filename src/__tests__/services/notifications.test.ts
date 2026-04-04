@@ -63,3 +63,70 @@ describe('notificationService.unsubscribe', () => {
     )
   })
 })
+
+describe('notificationService.getUserNotifSettings', () => {
+  it('calls GET /notifications/settings', async () => {
+    mockFetch(200, { taskReminderHour: null, mediumTermDaysAhead: null, mealPlannerNotifs: true, shortTermTaskNotifs: true, mediumTermTaskNotifs: true, longTermTaskNotifs: true, taskCompletedNotifs: false })
+    await notificationService.getUserNotifSettings()
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/notifications/settings'),
+      expect.anything(),
+    )
+  })
+
+  it('returns the settings object', async () => {
+    const settings = { taskReminderHour: 8, mediumTermDaysAhead: 3, mealPlannerNotifs: true, shortTermTaskNotifs: false, mediumTermTaskNotifs: true, longTermTaskNotifs: true, taskCompletedNotifs: true }
+    mockFetch(200, settings)
+    const result = await notificationService.getUserNotifSettings()
+    expect(result).toEqual(settings)
+  })
+})
+
+describe('notificationService.updateUserNotifSettings', () => {
+  it('calls PUT /notifications/settings with the settings body', async () => {
+    mockFetch(204, null)
+    const settings = { taskReminderHour: 9, mediumTermDaysAhead: 2, mealPlannerNotifs: true, shortTermTaskNotifs: true, mediumTermTaskNotifs: false, longTermTaskNotifs: true, taskCompletedNotifs: false }
+    await notificationService.updateUserNotifSettings(settings)
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/notifications/settings'),
+      expect.objectContaining({ method: 'PUT' }),
+    )
+    const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
+    expect(body).toEqual(settings)
+  })
+})
+
+describe('notificationService.preferences', () => {
+  it('calls GET /households/:id/notifications/preferences', async () => {
+    mockFetch(200, { optedOutTaskIds: [1, 2] })
+    await notificationService.preferences(42)
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/households/42/notifications/preferences'),
+      expect.anything(),
+    )
+  })
+})
+
+describe('notificationService.optOut', () => {
+  it('calls POST /notifications/preferences/opt-out with taskId', async () => {
+    mockFetch(204, null)
+    await notificationService.optOut(7)
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/notifications/preferences/opt-out'),
+      expect.objectContaining({ method: 'POST' }),
+    )
+    const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
+    expect(body).toEqual({ taskId: 7 })
+  })
+})
+
+describe('notificationService.optIn', () => {
+  it('calls DELETE /notifications/preferences/opt-out/:taskId', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 204, ok: true, json: () => Promise.resolve(null) }))
+    await notificationService.optIn(7)
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/notifications/preferences/opt-out/7'),
+      expect.objectContaining({ method: 'DELETE' }),
+    )
+  })
+})

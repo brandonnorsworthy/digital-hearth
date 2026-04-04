@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import { getCurrentWeekOf } from '../../utils/meals'
+import { getCurrentWeekOf, shiftWeek, formatWeekRange } from '../../utils/meals'
 
 describe('getCurrentWeekOf', () => {
   afterEach(() => {
@@ -40,5 +40,37 @@ describe('getCurrentWeekOf', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-03-22T23:59:00'))
     expect(getCurrentWeekOf()).toBe('2026-03-16')
+  })
+})
+
+describe('shiftWeek', () => {
+  it('shifts forward by 1 week', () => {
+    expect(shiftWeek('2026-03-16', 1)).toBe('2026-03-23')
+  })
+
+  it('shifts forward by 2 weeks', () => {
+    expect(shiftWeek('2026-03-16', 2)).toBe('2026-03-30')
+  })
+
+  it('shifts backward by 1 week', () => {
+    expect(shiftWeek('2026-03-16', -1)).toBe('2026-03-09')
+  })
+
+  it('returns the same date when shifted by 0', () => {
+    expect(shiftWeek('2026-03-16', 0)).toBe('2026-03-16')
+  })
+})
+
+describe('formatWeekRange', () => {
+  it('returns a string with a dash separator', () => {
+    expect(formatWeekRange('2026-03-16')).toContain('—')
+  })
+
+  it('includes the start date month and day', () => {
+    expect(formatWeekRange('2026-03-16')).toContain('Mar 16')
+  })
+
+  it('ends on Sunday (6 days later)', () => {
+    expect(formatWeekRange('2026-03-16')).toContain('Mar 22')
   })
 })

@@ -132,4 +132,47 @@ describe('MealPlanner', () => {
       )
     })
   })
+
+  it('renders prev and next week navigation buttons', async () => {
+    renderPage()
+    await waitFor(() => screen.getByText('Meals for the Week'))
+    const buttons = screen.getAllByRole('button')
+    const chevronButtons = buttons.filter(btn =>
+      btn.querySelector('.material-symbols-outlined')?.textContent === 'chevron_left' ||
+      btn.querySelector('.material-symbols-outlined')?.textContent === 'chevron_right',
+    )
+    expect(chevronButtons).toHaveLength(2)
+  })
+
+  it('reloads meals with the next week when the forward arrow is clicked', async () => {
+    renderPage()
+    await waitFor(() => screen.getByText('Meals for the Week'))
+
+    const nextBtn = screen.getAllByRole('button').find(btn =>
+      btn.querySelector('.material-symbols-outlined')?.textContent === 'chevron_right',
+    )!
+    await userEvent.click(nextBtn)
+
+    await waitFor(() => {
+      const calls = vi.mocked(mealService.weeklyList).mock.calls
+      const weekOfs = calls.map(([, weekOf]) => weekOf)
+      expect(weekOfs.some(w => w > weekOfs[0])).toBe(true)
+    })
+  })
+
+  it('reloads meals with the previous week when the back arrow is clicked', async () => {
+    renderPage()
+    await waitFor(() => screen.getByText('Meals for the Week'))
+
+    const prevBtn = screen.getAllByRole('button').find(btn =>
+      btn.querySelector('.material-symbols-outlined')?.textContent === 'chevron_left',
+    )!
+    await userEvent.click(prevBtn)
+
+    await waitFor(() => {
+      const calls = vi.mocked(mealService.weeklyList).mock.calls
+      const weekOfs = calls.map(([, weekOf]) => weekOf)
+      expect(weekOfs.some(w => w < weekOfs[0])).toBe(true)
+    })
+  })
 })

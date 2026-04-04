@@ -46,7 +46,7 @@
 
 ## Meal Planner Page
 
-- [ ] need the ability to look at the upcoming week to plan and go back to the current week, thinking a arrow on the top navigation
+- [x] need the ability to look at the upcoming week to plan and go back to the current week, thinking a arrow on the top navigation
 - [ ] there should be a confirmation modal when you click to delete a manual entry meal from the meals for the week list.
 
 ## Meal Library Page

@@ -44,4 +44,14 @@ describe('Layout', () => {
     renderLayout('/', { children: <div />, title: 'My Page' })
     expect(screen.getByText('My Page')).toBeInTheDocument()
   })
+
+  it('renders headerLeft content when provided', () => {
+    renderLayout('/', { children: <div />, headerLeft: <button>Prev</button> })
+    expect(screen.getByRole('button', { name: 'Prev' })).toBeInTheDocument()
+  })
+
+  it('renders headerRight content when provided', () => {
+    renderLayout('/', { children: <div />, headerRight: <button>Next</button> })
+    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument()
+  })
 })

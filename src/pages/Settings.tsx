@@ -511,8 +511,9 @@ export default function Settings() {
             </div>
             <form onSubmit={handleChangePinSubmit} className="px-8 pb-10 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-on-surface-variant ml-1">Current PIN</label>
+                <label htmlFor="current-pin" className="text-sm font-semibold text-on-surface-variant ml-1">Current PIN</label>
                 <input
+                  id="current-pin"
                   type="password"
                   inputMode="numeric"
                   maxLength={4}
@@ -524,8 +525,9 @@ export default function Settings() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-on-surface-variant ml-1">New PIN</label>
+                <label htmlFor="new-pin" className="text-sm font-semibold text-on-surface-variant ml-1">New PIN</label>
                 <input
+                  id="new-pin"
                   type="password"
                   inputMode="numeric"
                   maxLength={4}
@@ -537,8 +539,9 @@ export default function Settings() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-on-surface-variant ml-1">Confirm New PIN</label>
+                <label htmlFor="confirm-pin" className="text-sm font-semibold text-on-surface-variant ml-1">Confirm New PIN</label>
                 <input
+                  id="confirm-pin"
                   type="password"
                   inputMode="numeric"
                   maxLength={4}
