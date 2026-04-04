@@ -128,7 +128,7 @@ export default function EditTask() {
 
           {/* Visual context card */}
           <div className="relative overflow-hidden rounded-xl bg-linear-to-br from-primary-container/50 to-secondary-container/30 h-48 flex items-center p-6 mt-2">
-            <div className="relative z-10 bg-white/80 backdrop-blur-md p-4 rounded-lg flex items-center gap-4 shadow-sm max-w-xs w-full">
+            <div className="relative z-10 bg-surface/90 backdrop-blur-md p-4 rounded-lg flex items-center gap-4 shadow-sm w-full">
               <div className="bg-primary-container p-2 rounded-full">
                 <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
                   schedule
@@ -137,7 +137,7 @@ export default function EditTask() {
               <div>
                 <p className="text-[10px] text-primary font-bold uppercase tracking-wider">Upcoming Task</p>
                 <p className="text-sm font-headline font-bold text-on-surface leading-tight">
-                  {name} · {intervalN} {intervalUnit}{intervalN !== 1 ? 's' : ''}
+                  {name ? name : 'New Task'} · {intervalN} {intervalUnit}{intervalN !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>

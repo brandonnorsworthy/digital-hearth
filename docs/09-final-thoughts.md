@@ -84,7 +84,7 @@ backend: api.digitalhearth.zcog.net
 
 ### other stuff
 
-- [ ] when in dark mode the example task of the edit task screen is super light and hard to see
+- [x] when in dark mode the example task of the edit task screen is super light and hard to see
 - [ ] in the meal library add a new recipe button doesnt work, should support adding a new recipe without adding it to the week. it should be moved to the top of the search results
 - [ ] budget per month for image generation per household
 - [ ] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell
