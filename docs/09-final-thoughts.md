@@ -63,7 +63,7 @@
 ### Final Steps
 
 - [x] make sure everything works in a container
-- [ ] deploy to local linux server
+- [x] deploy to local linux server
 - [x] configure nginx to reverse proxy to the backend and frontend
 frontend: digitalhearth.zcog.net
 3021 frontend
@@ -82,6 +82,18 @@ backend: api.digitalhearth.zcog.net
 - [ ] you can click a incomplete task to edit it, should not beable to click to edit
 - [ ] tasks over 6 months should have max due time of 1 month
 
+### other stuff
+
+- [ ] in the meal library add a new recipe button doesnt work, should support adding a new recipe without adding it to the week. it should be moved to the top of the search results
+- [ ] budget per month for image generation per household
+- [ ] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell
+- [ ] confirmation are you sure you want to log out
+- [ ] when deleting a task are you sure you want to delete like the meal library delete
+- [ ] text on the setting thing is a little to far left
+- [ ] rounding on stuff like goal meals per week div is too rounded
+- [ ] i think the icons on the meal library on top of the image when in dark mode are too light
+- [ ] more dashboard verbs for larger variety
+
 #### After everything above
 
 - [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
@@ -98,3 +110,5 @@ backend: api.digitalhearth.zcog.net
 - [ ] there should be a responsive screen that when a user seems to be on a desktop, we should display a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] loading components should have skeletons
 - [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months
+- [ ] on the meal library page, underneath the filter the pills next to favorites would be tags of the household, so you can click a add new tag button but it also lists all tags you have to filter by item.
+- [ ] dont have an account? create a household button on the login page that takes you to a create household page where you can create an account and household at the same time, this would just be a form with email, password, confirm password, household name, and then it would create the household and account at the same time and log you in.

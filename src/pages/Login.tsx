@@ -71,7 +71,7 @@ export default function Login() {
               value={pin}
               onChange={e => setPin(e.target.value)}
               required
-              placeholder="••••"
+              placeholder="••••••"
               className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
