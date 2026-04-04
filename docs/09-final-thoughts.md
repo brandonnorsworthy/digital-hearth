@@ -17,13 +17,13 @@
 - [x] organize settings between "Household Settings" (settings that affect the whole household like start day and goal meals per week) and "Personal Preferences" (settings that are specifically about notifications)
 - [x] When you click invite code and it copies it should give you a toast saying "invite code copied to clipboard"
 
-- [ ] new setting under start day which is goal number of meals per week (household setting), this would just be a number input and it would be used in the meal planner notification to say "you have X meals planned for the week, your goal is Y meals per week"
+- [x] new setting under start day which is goal number of meals per week (household setting), this would just be a number input and it would be used in the meal planner notification to say "you have X meals planned for the week, your goal is Y meals per week"
 
-- [ ] new setting under goal meals per week, which is the time of daily task reminder notification, 0am - 12pm, this would be a time input where user selects what time of day they want to receive a daily task notification reminder about the tasks for the day.
+- [x] new setting under goal meals per week, which is the time of daily task reminder notification, 0am - 12pm, this would be a time input where user selects what time of day they want to receive a daily task notification reminder about the tasks for the day.
 
-- [ ] new setting, notifaciton preferences for how soon of notification for medium term task reminders 1 - 7 days, this would be a number input where user selects how many days in advance they want to receive the medium term task reminder notification.
+- [x] new setting, notifaciton preferences for how soon of notification for medium term task reminders 1 - 7 days, this would be a number input where user selects how many days in advance they want to receive the medium term task reminder notification.
 
-- [ ] settings / notification preferences
+- [x] settings / notification preferences
   a. push notifications enabled
   b. weekly meal planner notifications
     ex: "36 hours before your marked week start day(household setting) it would send a notification with the meals planned for the week and any meals that are missing. Like "only 2/5 meals are planned for the week!"
@@ -42,7 +42,7 @@
   f. task marked completed by someone else notification
     on / off
 
-- [ ] User setting for security to change their pin should be implemented and working.
+- [x] User setting for security to change their pin should be implemented and working.
 
 ## Meal Planner Page
 
@@ -81,3 +81,4 @@ backend: api.digitalhearth.zcog.net
 - [ ] the short term - weekly tag should be removed same with, medium term - monthly tag, and long term - yearly tag
 - [ ] with auditing push subscriptions, we should track last successful push notification and if its over a week we should automatically delete that subscription from the database
 - [ ] there should be a responsive screen that when a user seems to be on a desktop, we should display a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
+- [ ] loading components should have skeletons

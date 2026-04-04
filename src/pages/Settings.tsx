@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import SelectSheet from '../components/SelectSheet'
@@ -7,9 +7,49 @@ import { useAuth } from '../contexts/AuthContext'
 import { useHousehold } from '../contexts/HouseholdContext'
 import { householdService } from '../services/household'
 import { WEEK_DAYS } from '../constants/household'
-import { notificationService } from '../services/notifications'
+import { notificationService, type UserNotifSettings } from '../services/notifications'
+import { authService } from '../services/auth'
 import { urlBase64ToUint8Array } from '../utils/encoding'
 import { useToast } from '../contexts/ToastContext'
+
+const TASK_REMINDER_HOURS = [
+  { value: 0, label: '12:00 AM' },
+  { value: 1, label: '1:00 AM' },
+  { value: 2, label: '2:00 AM' },
+  { value: 3, label: '3:00 AM' },
+  { value: 4, label: '4:00 AM' },
+  { value: 5, label: '5:00 AM' },
+  { value: 6, label: '6:00 AM' },
+  { value: 7, label: '7:00 AM' },
+  { value: 8, label: '8:00 AM' },
+  { value: 9, label: '9:00 AM' },
+  { value: 10, label: '10:00 AM' },
+  { value: 11, label: '11:00 AM' },
+  { value: 12, label: '12:00 PM' },
+]
+
+const NOT_SET = 'Not set'
+const REMINDER_HOUR_OPTIONS = [NOT_SET, ...TASK_REMINDER_HOURS.map(h => h.label)]
+
+function hourToLabel(hour: number | null): string {
+  if (hour === null) return NOT_SET
+  return TASK_REMINDER_HOURS.find(h => h.value === hour)?.label ?? NOT_SET
+}
+
+function labelToHour(label: string): number | null {
+  if (label === NOT_SET) return null
+  return TASK_REMINDER_HOURS.find(h => h.label === label)?.value ?? null
+}
+
+const DEFAULT_NOTIF_SETTINGS: UserNotifSettings = {
+  taskReminderHour: null,
+  mediumTermDaysAhead: null,
+  mealPlannerNotifs: true,
+  shortTermTaskNotifs: true,
+  mediumTermTaskNotifs: true,
+  longTermTaskNotifs: true,
+  taskCompletedNotifs: false,
+}
 
 export default function Settings() {
   const { user, logout } = useAuth()
@@ -18,6 +58,7 @@ export default function Settings() {
   const toast = useToast()
 
   const [weekDaySheetOpen, setWeekDaySheetOpen] = useState(false)
+  const [reminderHourSheetOpen, setReminderHourSheetOpen] = useState(false)
   const [weekResetDay, setWeekResetDay] = useState<string | null>(null)
   const [goalMeals, setGoalMeals] = useState<string>('')
 
@@ -41,10 +82,6 @@ export default function Settings() {
       }
     }
   }
-
-  const [mealReminders, setMealReminders] = useState(true)
-  const [taskAssignments, setTaskAssignments] = useState(true)
-  const [completedNotifs, setCompletedNotifs] = useState(false)
 
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushPending, setPushPending] = useState(false)
@@ -88,7 +125,8 @@ export default function Settings() {
   async function handleGoalMealsBlur() {
     if (!user?.householdId) return
     const value = goalMeals.trim()
-    const parsed = value === '' ? null : Number(value)
+    const parsed = value === '' ? null : Math.min(14, Math.max(1, Number(value)))
+    setGoalMeals(parsed != null ? String(parsed) : '')
     try {
       await householdService.update(user.householdId, { goalMealsPerWeek: parsed })
       reload()
@@ -97,10 +135,92 @@ export default function Settings() {
     }
   }
 
+  // Notification settings
+  const [notifSettings, setNotifSettings] = useState<UserNotifSettings>(DEFAULT_NOTIF_SETTINGS)
+  const [mediumDaysInput, setMediumDaysInput] = useState<string>('')
+  const notifSettingsLoaded = useRef(false)
+
+  useEffect(() => {
+    notificationService.getUserNotifSettings()
+      .then(settings => {
+        setNotifSettings(settings)
+        setMediumDaysInput(settings.mediumTermDaysAhead != null ? String(settings.mediumTermDaysAhead) : '')
+        notifSettingsLoaded.current = true
+      })
+      .catch(err => console.error('Failed to load notif settings', err))
+  }, [])
+
+  async function saveNotifSettings(updated: UserNotifSettings) {
+    try {
+      await notificationService.updateUserNotifSettings(updated)
+    } catch (err) {
+      console.error('Failed to save notif settings', err)
+    }
+  }
+
+  function handleNotifToggle(key: keyof UserNotifSettings, value: boolean) {
+    const updated = { ...notifSettings, [key]: value }
+    setNotifSettings(updated)
+    saveNotifSettings(updated)
+  }
+
+  async function handleReminderHourSelect(label: string) {
+    const hour = labelToHour(label)
+    const updated = { ...notifSettings, taskReminderHour: hour }
+    setNotifSettings(updated)
+    await saveNotifSettings(updated)
+  }
+
+  async function handleMediumDaysBlur() {
+    const value = mediumDaysInput.trim()
+    const parsed = value === '' ? null : Math.min(7, Math.max(1, Number(value)))
+    const updated = { ...notifSettings, mediumTermDaysAhead: parsed }
+    setNotifSettings(updated)
+    await saveNotifSettings(updated)
+  }
+
   async function handleCopyInviteCode() {
     if (!household?.joinCode) return
     await navigator.clipboard.writeText(household.joinCode)
     toast.success('Invite code copied to clipboard')
+  }
+
+  const [changePinOpen, setChangePinOpen] = useState(false)
+  const [currentPin, setCurrentPin] = useState('')
+  const [newPin, setNewPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
+  const [changePinError, setChangePinError] = useState<string | null>(null)
+  const [changePinLoading, setChangePinLoading] = useState(false)
+
+  function openChangePinModal() {
+    setCurrentPin('')
+    setNewPin('')
+    setConfirmPin('')
+    setChangePinError(null)
+    setChangePinOpen(true)
+  }
+
+  async function handleChangePinSubmit(e: { preventDefault(): void }) {
+    e.preventDefault()
+    setChangePinError(null)
+    if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+      setChangePinError('New PIN must be exactly 4 digits.')
+      return
+    }
+    if (newPin !== confirmPin) {
+      setChangePinError('PINs do not match.')
+      return
+    }
+    setChangePinLoading(true)
+    try {
+      await authService.changePin(currentPin, newPin)
+      setChangePinOpen(false)
+      toast.success('PIN updated successfully')
+    } catch {
+      setChangePinError('Current PIN is incorrect.')
+    } finally {
+      setChangePinLoading(false)
+    }
   }
 
   async function handleLogout() {
@@ -176,7 +296,7 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* General Settings */}
+        {/* Household Settings */}
         <section className="space-y-4">
           <h2 className="font-headline font-bold text-xl text-on-surface">Household Settings</h2>
           <div className="bg-surface-container rounded-xl overflow-hidden">
@@ -212,46 +332,99 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* Notification Preferences */}
+        {/* Personal Preferences */}
         <section className="space-y-4">
           <h2 className="font-headline font-bold text-xl text-on-surface">Personal Preferences</h2>
-          <div className="space-y-3">
-            <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>
-              <div className="flex flex-col">
-                <span className="font-bold text-on-surface">Push Notifications</span>
-                <span className="text-xs text-on-surface-variant">Allow alerts on this device</span>
-              </div>
-              <Toggle checked={pushEnabled} onChange={handlePushToggle} />
+
+          {/* Push toggle */}
+          <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>
+            <div className="flex flex-col">
+              <span className="font-bold text-on-surface">Push Notifications</span>
+              <span className="text-xs text-on-surface-variant">Allow alerts on this device</span>
             </div>
-            {[
+            <Toggle checked={pushEnabled} onChange={handlePushToggle} />
+          </div>
+
+          {/* Reminder time + medium term days */}
+          <div className="bg-surface-container rounded-xl overflow-hidden">
+            <div className="p-4 flex items-center justify-between border-b border-outline-variant/10">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">schedule</span>
+                <div>
+                  <p className="font-medium">Daily Reminder Time</p>
+                  <p className="text-xs text-on-surface-variant">Time to send daily task reminders</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setReminderHourSheetOpen(true)}
+                className="flex items-center gap-2 text-on-surface-variant text-sm"
+              >
+                <span>{hourToLabel(notifSettings.taskReminderHour)}</span>
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+            <div className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">pending_actions</span>
+                <div>
+                  <p className="font-medium">Medium Term Alert</p>
+                  <p className="text-xs text-on-surface-variant">Days ahead for medium task reminders (1–7)</p>
+                </div>
+              </div>
+              <input
+                type="number"
+                min={1}
+                max={7}
+                value={mediumDaysInput}
+                onChange={e => setMediumDaysInput(e.target.value)}
+                onBlur={handleMediumDaysBlur}
+                placeholder="—"
+                className="w-16 text-right bg-surface-container-high rounded-lg px-3 py-1.5 text-on-surface font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Notification type toggles */}
+          <div className="space-y-3">
+            {([
               {
-                label: 'Meal Prep Reminders',
-                sub: 'Alerts 2 hours before scheduled meal',
-                checked: mealReminders,
-                onChange: setMealReminders,
+                key: 'mealPlannerNotifs' as const,
+                label: 'Meal Planner',
+                sub: '36 hrs before week start if meals are missing',
               },
               {
-                label: 'Task Assignments',
-                sub: 'When someone assigns you a chore',
-                checked: taskAssignments,
-                onChange: setTaskAssignments,
+                key: 'shortTermTaskNotifs' as const,
+                label: 'Short Term Tasks',
+                sub: 'Daily reminder of tasks due today',
               },
               {
-                label: 'Completed Tasks',
-                sub: 'When a family member finishes a task',
-                checked: completedNotifs,
-                onChange: setCompletedNotifs,
+                key: 'mediumTermTaskNotifs' as const,
+                label: 'Medium Term Tasks',
+                sub: 'Reminder when tasks are coming up soon',
               },
-            ].map(item => (
+              {
+                key: 'longTermTaskNotifs' as const,
+                label: 'Long Term Tasks',
+                sub: 'Reminder when long term tasks are approaching',
+              },
+              {
+                key: 'taskCompletedNotifs' as const,
+                label: 'Task Completed',
+                sub: 'When a household member completes a task',
+              },
+            ] as const).map(item => (
               <div
-                key={item.label}
-                className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl transition-opacity ${!item.checked ? 'opacity-60' : ''}`}
+                key={item.key}
+                className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl transition-opacity ${!notifSettings[item.key] ? 'opacity-60' : ''}`}
               >
                 <div className="flex flex-col">
                   <span className="font-bold text-on-surface">{item.label}</span>
                   <span className="text-xs text-on-surface-variant">{item.sub}</span>
                 </div>
-                <Toggle checked={item.checked} onChange={item.onChange} />
+                <Toggle
+                  checked={notifSettings[item.key]}
+                  onChange={v => handleNotifToggle(item.key, v)}
+                />
               </div>
             ))}
           </div>
@@ -272,7 +445,10 @@ export default function Settings() {
                   <p className="text-sm text-on-surface-variant">Manage your 4-digit household access PIN</p>
                 </div>
               </div>
-              <button className="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98]">
+              <button
+                onClick={openChangePinModal}
+                className="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98]"
+              >
                 Change Access PIN
               </button>
             </div>
@@ -302,6 +478,93 @@ export default function Settings() {
           onSelect={handleWeekDaySelect}
           onClose={() => setWeekDaySheetOpen(false)}
         />
+      )}
+      {reminderHourSheetOpen && (
+        <SelectSheet
+          title="Daily Reminder Time"
+          options={REMINDER_HOUR_OPTIONS}
+          value={hourToLabel(notifSettings.taskReminderHour)}
+          onSelect={handleReminderHourSelect}
+          onClose={() => setReminderHourSheetOpen(false)}
+        />
+      )}
+      {changePinOpen && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setChangePinOpen(false)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="px-8 pt-4 pb-6 flex items-center justify-between">
+              <h3 className="font-headline text-2xl font-bold text-on-surface">Change Access PIN</h3>
+              <button
+                onClick={() => setChangePinOpen(false)}
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors"
+              >
+                <span className="material-symbols-outlined text-on-surface-variant">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleChangePinSubmit} className="px-8 pb-10 flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-on-surface-variant ml-1">Current PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={currentPin}
+                  onChange={e => setCurrentPin(e.target.value)}
+                  placeholder="••••"
+                  required
+                  className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-on-surface-variant ml-1">New PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={newPin}
+                  onChange={e => setNewPin(e.target.value)}
+                  placeholder="••••"
+                  required
+                  className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-on-surface-variant ml-1">Confirm New PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={confirmPin}
+                  onChange={e => setConfirmPin(e.target.value)}
+                  placeholder="••••"
+                  required
+                  className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              </div>
+              {changePinError && (
+                <p className="text-sm text-error font-medium text-center">{changePinError}</p>
+              )}
+              <button
+                type="submit"
+                disabled={changePinLoading}
+                className="w-full py-4 rounded-xl bg-linear-to-r from-primary to-primary-dim text-on-primary font-headline font-bold text-base shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-1 disabled:opacity-60"
+              >
+                <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  {changePinLoading ? 'progress_activity' : 'lock_reset'}
+                </span>
+                {changePinLoading ? 'Updating…' : 'Update PIN'}
+              </button>
+            </form>
+          </div>
+        </div>
       )}
     </Layout>
   )

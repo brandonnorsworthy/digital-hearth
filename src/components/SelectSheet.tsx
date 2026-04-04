@@ -44,37 +44,35 @@ export default function SelectSheet({ title, options, value, onSelect, onClose }
         </div>
 
         {/* Options — scrollable with fade indicator */}
-        <div className="relative flex-1 overflow-hidden">
-          <div className="overflow-y-auto h-full px-6 pb-8 space-y-2">
-            {options.map(option => {
-              const selected = option === value
-              return (
-                <button
-                  key={option}
-                  onClick={() => { onSelect(option); onClose() }}
-                  className={`w-full flex items-center justify-between px-6 py-5 rounded-full transition-all active:scale-95 ${
-                    selected
-                      ? 'bg-primary-container text-on-primary-container'
-                      : 'hover:bg-surface-container-high text-on-surface'
-                  }`}
-                >
-                  <span className={`font-body text-lg ${selected ? 'font-semibold' : ''}`}>{option}</span>
-                  {selected && (
-                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <span
-                        className="material-symbols-outlined text-on-primary text-sm"
-                        style={{ fontVariationSettings: "'wght' 700" }}
-                      >
-                        check
-                      </span>
-                    </div>
-                  )}
-                </button>
-              )
-            })}
-          </div>
+        <div className="relative flex-1 min-h-0 overflow-y-auto px-6 pb-8 space-y-2">
+          {options.map(option => {
+            const selected = option === value
+            return (
+              <button
+                key={option}
+                onClick={() => { onSelect(option); onClose() }}
+                className={`w-full flex items-center justify-between px-6 py-5 rounded-full transition-all active:scale-95 ${
+                  selected
+                    ? 'bg-primary-container text-on-primary-container'
+                    : 'hover:bg-surface-container-high text-on-surface'
+                }`}
+              >
+                <span className={`font-body text-lg ${selected ? 'font-semibold' : ''}`}>{option}</span>
+                {selected && (
+                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                    <span
+                      className="material-symbols-outlined text-on-primary text-sm"
+                      style={{ fontVariationSettings: "'wght' 700" }}
+                    >
+                      check
+                    </span>
+                  </div>
+                )}
+              </button>
+            )
+          })}
           {/* Gradient fade to hint at scrollable content */}
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-surface to-transparent" />
+          <div className="pointer-events-none sticky bottom-0 left-0 right-0 h-12 bg-linear-to-t from-surface to-transparent -mx-6" />
         </div>
       </div>
     </div>

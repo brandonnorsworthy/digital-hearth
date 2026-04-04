@@ -1,5 +1,15 @@
 import { api } from './api'
 
+export interface UserNotifSettings {
+  taskReminderHour: number | null
+  mediumTermDaysAhead: number | null
+  mealPlannerNotifs: boolean
+  shortTermTaskNotifs: boolean
+  mediumTermTaskNotifs: boolean
+  longTermTaskNotifs: boolean
+  taskCompletedNotifs: boolean
+}
+
 export const notificationService = {
   vapidPublicKey: () =>
     api.get<{ publicKey: string }>('/notifications/vapid-public-key'),
@@ -22,4 +32,10 @@ export const notificationService = {
 
   optIn: (taskId: number) =>
     api.delete(`/notifications/preferences/opt-out/${taskId}`),
+
+  getUserNotifSettings: () =>
+    api.get<UserNotifSettings>('/notifications/settings'),
+
+  updateUserNotifSettings: (settings: UserNotifSettings) =>
+    api.put<void>('/notifications/settings', settings),
 }

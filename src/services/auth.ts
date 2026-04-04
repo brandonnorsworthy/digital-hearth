@@ -10,4 +10,7 @@ export const authService = {
 
   me: () =>
     api.get<User>('/auth/me'),
+
+  changePin: (currentPin: string, newPin: string) =>
+    api.post<void>('/auth/change-pin', { currentPin, newPin }),
 }
