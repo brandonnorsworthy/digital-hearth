@@ -5,9 +5,12 @@ export const MEAL_CARD_COLORS = [
   'from-surface-container-high to-surface-container',
 ] as const
 
+export const CATEGORY_ALL = 'All Meals'
+export const CATEGORY_FAVORITES = 'Favorites'
+
 export const MEAL_CATEGORIES = [
-  'All Meals',
-  'Favorites',
+  CATEGORY_ALL,
+  CATEGORY_FAVORITES,
   'Vegetarian',
   'Family Favorites',
 ] as const

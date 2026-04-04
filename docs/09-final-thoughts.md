@@ -72,9 +72,22 @@ backend: api.digitalhearth.zcog.net
 3020 api
 - [x] aws route 53 configured
 
+### after deployment notes
+
+- [x] logging is too verbose its logging every ef query
+- [x] image generation seems to be broken
+- [ ] want dark mode
+- [ ] setting page, push notifications is grayed out if not on pwa making it confusing should have a alert that say you need to download it to use push notifications
+- [ ] need to replace common components with skeletons for loading so stuff doesnt pop in
+- [ ] you can click a incomplete task to edit it, should not beable to click to edit
+- [ ] tasks over 6 months should have max due time of 1 month
+
 #### After everything above
 
+- [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
 - [ ] join code invites
+- [ ] join code should be longer to make harder to brute force guess
+- [ ] user pin codes should be longer to make harder to brute force guess
 - [ ] moved out component files should have acompanying skeleton files for loading states
 - [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
 - [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when
@@ -84,3 +97,4 @@ backend: api.digitalhearth.zcog.net
 - [ ] with auditing push subscriptions, we should track last successful push notification and if its over a week we should automatically delete that subscription from the database
 - [ ] there should be a responsive screen that when a user seems to be on a desktop, we should display a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] loading components should have skeletons
+- [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months

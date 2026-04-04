@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Layout from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
 import { mealImageUrl } from '../services/api'
 import { getCurrentWeekOf } from '../utils/meals'
 import { useToast } from '../contexts/ToastContext'
-import { MEAL_CARD_COLORS, MEAL_CATEGORIES, MEAL_CATEGORY_TAG_MAP } from '../constants/meals'
+import { MEAL_CARD_COLORS, MEAL_CATEGORIES, MEAL_CATEGORY_TAG_MAP, CATEGORY_ALL, CATEGORY_FAVORITES } from '../constants/meals'
 import type { LibraryMeal } from '../types/api'
+
+const IMAGE_REGEN_TAP_COUNT = 3
+const IMAGE_REGEN_TAP_RESET_MS = 1000
 
 export default function MealLibrary() {
   const { user } = useAuth()
@@ -14,9 +17,13 @@ export default function MealLibrary() {
 
   const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [search, setSearch] = useState('')
-  const [activeCategory, setActiveCategory] = useState('All Meals')
+  const [activeCategory, setActiveCategory] = useState(CATEGORY_ALL)
   const [addingId, setAddingId] = useState<number | null>(null)
   const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<LibraryMeal | null>(null)
+  const [confirmRegenerateMeal, setConfirmRegenerateMeal] = useState<LibraryMeal | null>(null)
+  const [regeneratingIds, setRegeneratingIds] = useState<Set<number>>(new Set())
+  const [imageVersions, setImageVersions] = useState<Record<number, number>>({})
+  const tapCountsRef = useRef<Map<number, { count: number; timer: ReturnType<typeof setTimeout> }>>(new Map())
 
   const weekOf = getCurrentWeekOf()
 
@@ -33,8 +40,8 @@ export default function MealLibrary() {
   const filtered = library
     .filter(m => {
       const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase())
-      const matchesCategory = activeCategory === 'All Meals'
-        || (activeCategory === 'Favorites' ? m.isFavorited : m.tags.includes(MEAL_CATEGORY_TAG_MAP[activeCategory]))
+      const matchesCategory = activeCategory === CATEGORY_ALL
+        || (activeCategory === CATEGORY_FAVORITES ? m.isFavorited : m.tags.includes(MEAL_CATEGORY_TAG_MAP[activeCategory]))
       return matchesSearch && matchesCategory
     })
     .sort((a, b) => {
@@ -64,6 +71,34 @@ export default function MealLibrary() {
     } catch {
       setLibrary(prev => [...prev, meal])
       toast.error('Failed to remove meal.')
+    }
+  }
+
+  function handleImageTap(meal: LibraryMeal) {
+    const entry = tapCountsRef.current.get(meal.id) ?? { count: 0, timer: undefined as ReturnType<typeof setTimeout> | undefined }
+    clearTimeout(entry.timer)
+    const newCount = entry.count + 1
+    if (newCount >= IMAGE_REGEN_TAP_COUNT) {
+      tapCountsRef.current.delete(meal.id)
+      setConfirmRegenerateMeal(meal)
+    } else {
+      const timer = setTimeout(() => tapCountsRef.current.delete(meal.id), IMAGE_REGEN_TAP_RESET_MS)
+      tapCountsRef.current.set(meal.id, { count: newCount, timer })
+    }
+  }
+
+  async function regenerateImage(meal: LibraryMeal) {
+    setConfirmRegenerateMeal(null)
+    setRegeneratingIds(prev => new Set(prev).add(meal.id))
+    try {
+      await mealService.regenerateImage(meal.id)
+      setImageVersions(prev => ({ ...prev, [meal.id]: (prev[meal.id] ?? 0) + 1 }))
+      setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, hasImage: true } : m))
+      toast.success(`Image regenerated for ${meal.name}`)
+    } catch {
+      toast.error('Failed to regenerate image.')
+    } finally {
+      setRegeneratingIds(prev => { const next = new Set(prev); next.delete(meal.id); return next })
     }
   }
 
@@ -157,11 +192,11 @@ export default function MealLibrary() {
                 key={meal.id}
                 className="flex flex-col bg-surface-container-low rounded-xl overflow-hidden shadow-sm border border-outline-variant/5"
               >
-                {/* Image / color block */}
-                <div className="h-48 relative overflow-hidden">
+                {/* Image / color block — triple-tap to regenerate image */}
+                <div className="h-48 relative overflow-hidden" onClick={() => handleImageTap(meal)}>
                   {meal.hasImage ? (
                     <img
-                      src={mealImageUrl(meal.id)}
+                      src={`${mealImageUrl(meal.id)}${imageVersions[meal.id] ? `?v=${imageVersions[meal.id]}` : ''}`}
                       alt={meal.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
@@ -174,14 +209,19 @@ export default function MealLibrary() {
                       </span>
                     </div>
                   )}
+                  {regeneratingIds.has(meal.id) && (
+                    <div className="absolute inset-0 bg-on-surface/30 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-white text-4xl animate-spin">progress_activity</span>
+                    </div>
+                  )}
                   <button
-                    onClick={() => setConfirmDeleteMeal(meal)}
+                    onClick={e => { e.stopPropagation(); setConfirmDeleteMeal(meal) }}
                     className="absolute top-5 left-5 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center text-on-surface-variant hover:text-error transition-colors active:scale-90"
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
                   <button
-                    onClick={() => toggleFavorite(meal)}
+                    onClick={e => { e.stopPropagation(); toggleFavorite(meal) }}
                     className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center transition-colors active:scale-90"
                   >
                     <span
@@ -226,8 +266,44 @@ export default function MealLibrary() {
             </div>
           </div>
         )}
-
       </div>
+
+      {confirmRegenerateMeal && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmRegenerateMeal(null)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Regenerate Image?</h3>
+              <p className="text-sm text-on-surface-variant">
+                Generate a new AI image for <span className="font-semibold text-on-surface">"{confirmRegenerateMeal.name}"</span>? This may take a moment.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => regenerateImage(confirmRegenerateMeal)}
+                className="w-full py-3.5 rounded-xl bg-primary text-on-primary font-bold active:scale-[0.98] transition-all"
+              >
+                Regenerate
+              </button>
+              <button
+                onClick={() => setConfirmRegenerateMeal(null)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {confirmDeleteMeal && (
         <div
           className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"

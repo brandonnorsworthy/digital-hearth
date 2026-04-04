@@ -35,4 +35,7 @@ export const mealService = {
 
   unfavoriteMeal: (id: number) =>
     api.delete(`/meals/library/${id}/favorite`),
+
+  regenerateImage: (id: number) =>
+    api.post<void>(`/meals/library/${id}/regenerate-image`, {}),
 }
