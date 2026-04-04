@@ -2,11 +2,9 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import basicSsl from '@vitejs/plugin-basic-ssl'
-
 const API_TARGET = process.env.API_URL ?? 'http://localhost:5125'
 
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   server: {
     port: 5173,
     proxy: {
@@ -17,7 +15,6 @@ export default defineConfig(({ command }) => ({
     },
   },
   plugins: [
-    ...(command === 'serve' ? [basicSsl()] : []),
     react(),
     tailwindcss(),
     VitePWA({
@@ -66,4 +63,4 @@ export default defineConfig(({ command }) => ({
       reporter: ['text', 'lcov'],
     },
   },
-}))
+})
