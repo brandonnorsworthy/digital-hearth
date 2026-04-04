@@ -24,6 +24,7 @@ export default function MealPlanner() {
   const [input, setInput] = useState('')
   const [savingLibraryId, setSavingLibraryId] = useState<number | null>(null)
   const [weekOffset, setWeekOffset] = useState(0)
+  const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<WeeklyMeal | null>(null)
 
   const currentWeekOf = getCurrentWeekOf()
   const weekOf = weekOffset === 0 ? currentWeekOf : shiftWeek(currentWeekOf, weekOffset)
@@ -177,7 +178,7 @@ export default function MealPlanner() {
                     </button>
                   )}
                   <button
-                    onClick={() => removeMeal(meal.id)}
+                    onClick={() => meal.isFromLibrary ? removeMeal(meal.id) : setConfirmDeleteMeal(meal)}
                     className="p-2 text-outline-variant hover:text-error transition-colors rounded-full hover:bg-error-container/10 active:scale-95"
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -236,6 +237,42 @@ export default function MealPlanner() {
         </section>
 
       </div>
+
+      {confirmDeleteMeal && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmDeleteMeal(null)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Remove Meal?</h3>
+              <p className="text-sm text-on-surface-variant">
+                Remove <span className="font-semibold text-on-surface">"{confirmDeleteMeal.name}"</span> from this week's meals?
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => { removeMeal(confirmDeleteMeal.id); setConfirmDeleteMeal(null) }}
+                className="w-full py-3.5 rounded-xl bg-error text-on-error font-bold active:scale-[0.98] transition-all"
+              >
+                Remove
+              </button>
+              <button
+                onClick={() => setConfirmDeleteMeal(null)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }

@@ -29,4 +29,10 @@ export const mealService = {
 
   removeFromLibrary: (id: number) =>
     api.delete(`/meals/library/${id}`),
+
+  favoriteMeal: (id: number) =>
+    api.post<void>(`/meals/library/${id}/favorite`, {}),
+
+  unfavoriteMeal: (id: number) =>
+    api.delete(`/meals/library/${id}/favorite`),
 }

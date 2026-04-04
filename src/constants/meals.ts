@@ -7,6 +7,7 @@ export const MEAL_CARD_COLORS = [
 
 export const MEAL_CATEGORIES = [
   'All Meals',
+  'Favorites',
   'Vegetarian',
   'Family Favorites',
 ] as const

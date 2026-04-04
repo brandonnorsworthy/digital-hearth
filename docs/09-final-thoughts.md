@@ -47,12 +47,12 @@
 ## Meal Planner Page
 
 - [x] need the ability to look at the upcoming week to plan and go back to the current week, thinking a arrow on the top navigation
-- [ ] there should be a confirmation modal when you click to delete a manual entry meal from the meals for the week list.
+- [x] there should be a confirmation modal when you click to delete a manual entry meal from the meals for the week list.
 
 ## Meal Library Page
 
-- [ ] users should have the ability to click a favorite button next to meals which is user specific so individuals in a single house could have different favorite meals. on the front end the favorited meals should show up at the top of the meal library list and have a little favorite icon next to them. this would be a boolean property on the meal model called "isFavorited" or something. there should also be a new filter for "favorites" so users could filter to just see their favorited meals in the meal library if they wanted.
-- [ ] there should be a confirmation modal when you click to delete a meal from the meal library list.
+- [x] users should have the ability to click a favorite button next to meals which is user specific so individuals in a single house could have different favorite meals. on the front end the favorited meals should show up at the top of the meal library list and have a little favorite icon next to them. this would be a boolean property on the meal model called "isFavorited" or something. there should also be a new filter for "favorites" so users could filter to just see their favorited meals in the meal library if they wanted.
+- [x] there should be a confirmation modal when you click to delete a meal from the meal library list.
 
 
 ## Task page

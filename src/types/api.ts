@@ -54,4 +54,5 @@ export interface LibraryMeal {
   createdAt: string
   tags: string[]
   hasImage: boolean
+  isFavorited: boolean
 }

@@ -64,6 +64,7 @@ function renderPage() {
 }
 
 beforeEach(() => {
+  vi.clearAllMocks()
   vi.mocked(mealService.weeklyList).mockResolvedValue([])
   vi.mocked(mealService.library).mockResolvedValue([])
   vi.mocked(mealService.addWeekly).mockResolvedValue(makeWeeklyMeal())
@@ -102,19 +103,68 @@ describe('MealPlanner', () => {
     })
   })
 
-  it('calls mealService.removeWeekly when remove button is clicked', async () => {
-    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 5, name: 'Pasta' })])
+  it('shows a confirmation modal when the delete button is clicked on a manual entry meal', async () => {
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 5, name: 'Pasta', isFromLibrary: false })])
+    renderPage()
+
+    await waitFor(() => screen.getByText('Pasta'))
+
+    const deleteBtn = screen.getAllByRole('button').find(btn =>
+      btn.querySelector('.material-symbols-outlined')?.textContent === 'delete',
+    )!
+    await userEvent.click(deleteBtn)
+
+    expect(screen.getByRole('heading', { name: 'Remove Meal?' })).toBeInTheDocument()
+    expect(screen.getByText(/"Pasta"/)).toBeInTheDocument()
+    expect(mealService.removeWeekly).not.toHaveBeenCalled()
+  })
+
+  it('calls mealService.removeWeekly when confirmed in the modal', async () => {
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 5, name: 'Pasta', isFromLibrary: false })])
     vi.mocked(mealService.removeWeekly).mockResolvedValue(undefined)
     renderPage()
 
     await waitFor(() => screen.getByText('Pasta'))
 
-    // The remove button for a non-library meal has a "delete" icon
-    const deleteButtons = screen.getAllByRole('button').filter(btn =>
+    const deleteBtn = screen.getAllByRole('button').find(btn =>
       btn.querySelector('.material-symbols-outlined')?.textContent === 'delete',
-    )
-    await userEvent.click(deleteButtons[0])
+    )!
+    await userEvent.click(deleteBtn)
+    await userEvent.click(screen.getByRole('button', { name: 'Remove' }))
+
     expect(mealService.removeWeekly).toHaveBeenCalledWith(5)
+  })
+
+  it('dismisses the confirmation modal without deleting when Cancel is clicked', async () => {
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 5, name: 'Pasta', isFromLibrary: false })])
+    renderPage()
+
+    await waitFor(() => screen.getByText('Pasta'))
+
+    const deleteBtn = screen.getAllByRole('button').find(btn =>
+      btn.querySelector('.material-symbols-outlined')?.textContent === 'delete',
+    )!
+    await userEvent.click(deleteBtn)
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(screen.queryByRole('heading', { name: 'Remove Meal?' })).not.toBeInTheDocument()
+    expect(mealService.removeWeekly).not.toHaveBeenCalled()
+  })
+
+  it('calls mealService.removeWeekly directly (no modal) when close button is clicked on a library meal', async () => {
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 6, name: 'Chicken Curry', isFromLibrary: true, mealLibraryId: 10 })])
+    vi.mocked(mealService.removeWeekly).mockResolvedValue(undefined)
+    renderPage()
+
+    await waitFor(() => screen.getByText('Chicken Curry'))
+
+    const closeBtn = screen.getAllByRole('button').find(btn =>
+      btn.querySelector('.material-symbols-outlined')?.textContent === 'close',
+    )!
+    await userEvent.click(closeBtn)
+
+    expect(screen.queryByRole('heading', { name: 'Remove Meal?' })).not.toBeInTheDocument()
+    expect(mealService.removeWeekly).toHaveBeenCalledWith(6)
   })
 
   it('calls mealService.addWeekly with libraryId when a library shortcut is clicked', async () => {

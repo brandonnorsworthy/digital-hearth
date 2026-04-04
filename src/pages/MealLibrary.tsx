@@ -16,6 +16,7 @@ export default function MealLibrary() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All Meals')
   const [addingId, setAddingId] = useState<number | null>(null)
+  const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<LibraryMeal | null>(null)
 
   const weekOf = getCurrentWeekOf()
 
@@ -29,12 +30,17 @@ export default function MealLibrary() {
     loadData().catch(console.error)
   }, [user?.householdId])
 
-  const filtered = library.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase())
-    const matchesCategory = activeCategory === 'All Meals'
-      || m.tags.includes(MEAL_CATEGORY_TAG_MAP[activeCategory])
-    return matchesSearch && matchesCategory
-  })
+  const filtered = library
+    .filter(m => {
+      const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase())
+      const matchesCategory = activeCategory === 'All Meals'
+        || (activeCategory === 'Favorites' ? m.isFavorited : m.tags.includes(MEAL_CATEGORY_TAG_MAP[activeCategory]))
+      return matchesSearch && matchesCategory
+    })
+    .sort((a, b) => {
+      if (a.isFavorited === b.isFavorited) return 0
+      return a.isFavorited ? -1 : 1
+    })
 
   async function addToWeek(meal: LibraryMeal) {
     if (!user?.householdId || addingId === meal.id) return
@@ -50,6 +56,7 @@ export default function MealLibrary() {
   }
 
   async function removeFromLibrary(meal: LibraryMeal) {
+    setConfirmDeleteMeal(null)
     setLibrary(prev => prev.filter(m => m.id !== meal.id))
     try {
       await mealService.removeFromLibrary(meal.id)
@@ -57,6 +64,21 @@ export default function MealLibrary() {
     } catch {
       setLibrary(prev => [...prev, meal])
       toast.error('Failed to remove meal.')
+    }
+  }
+
+  async function toggleFavorite(meal: LibraryMeal) {
+    const newFavorited = !meal.isFavorited
+    setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, isFavorited: newFavorited } : m))
+    try {
+      if (newFavorited) {
+        await mealService.favoriteMeal(meal.id)
+      } else {
+        await mealService.unfavoriteMeal(meal.id)
+      }
+    } catch {
+      setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, isFavorited: meal.isFavorited } : m))
+      toast.error('Failed to update favorite.')
     }
   }
 
@@ -95,8 +117,8 @@ export default function MealLibrary() {
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`shrink-0 px-5 py-2 rounded-full font-medium text-sm transition-colors ${activeCategory === cat
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                ? 'bg-primary text-on-primary'
+                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
                 }`}
             >
               {cat}
@@ -153,10 +175,21 @@ export default function MealLibrary() {
                     </div>
                   )}
                   <button
-                    onClick={() => removeFromLibrary(meal)}
-                    className="absolute top-3 left-3 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center text-on-surface-variant hover:text-error transition-colors active:scale-90"
+                    onClick={() => setConfirmDeleteMeal(meal)}
+                    className="absolute top-5 left-5 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center text-on-surface-variant hover:text-error transition-colors active:scale-90"
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                  <button
+                    onClick={() => toggleFavorite(meal)}
+                    className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center transition-colors active:scale-90"
+                  >
+                    <span
+                      className={`material-symbols-outlined text-[18px] ${meal.isFavorited ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                      style={meal.isFavorited ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                    >
+                      {meal.isFavorited ? "heart_check" : "heart_plus"}
+                    </span>
                   </button>
                 </div>
 
@@ -195,6 +228,41 @@ export default function MealLibrary() {
         )}
 
       </div>
+      {confirmDeleteMeal && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmDeleteMeal(null)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Delete Meal?</h3>
+              <p className="text-sm text-on-surface-variant">
+                Remove <span className="font-semibold text-on-surface">"{confirmDeleteMeal.name}"</span> from your library? This can't be undone.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => removeFromLibrary(confirmDeleteMeal)}
+                className="w-full py-3.5 rounded-xl bg-error text-on-error font-bold active:scale-[0.98] transition-all"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setConfirmDeleteMeal(null)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }

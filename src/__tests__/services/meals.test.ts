@@ -98,3 +98,29 @@ describe('mealService.removeFromLibrary', () => {
     )
   })
 })
+
+describe('mealService.favoriteMeal', () => {
+  it('calls POST /meals/library/:id/favorite', async () => {
+    mockFetch(204, null)
+    await mealService.favoriteMeal(7)
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/meals/library/7/favorite'),
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+})
+
+describe('mealService.unfavoriteMeal', () => {
+  it('calls DELETE /meals/library/:id/favorite', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ status: 204, ok: true, json: () => Promise.resolve(null) }),
+    )
+    await mealService.unfavoriteMeal(7)
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/meals/library/7/favorite'),
+      expect.objectContaining({ method: 'DELETE' }),
+    )
+  })
+})
+
