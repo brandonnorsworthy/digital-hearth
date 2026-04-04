@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 const API_TARGET = process.env.API_URL ?? 'http://localhost:5125'
 
 export default defineConfig({
+  preview: {
+    allowedHosts: process.env.PREVIEW_ALLOWED_HOSTS?.split(',') ?? [],
+  },
   server: {
     port: 5173,
     proxy: {
