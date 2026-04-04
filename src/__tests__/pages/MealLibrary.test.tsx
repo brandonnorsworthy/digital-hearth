@@ -213,7 +213,9 @@ describe('MealLibrary', () => {
     renderPage()
     await waitFor(() => screen.getAllByRole('heading', { level: 3 }))
 
-    const headings = screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent)
+    const headings = screen.getAllByRole('heading', { level: 3 })
+      .map(h => h.textContent)
+      .filter(t => t !== 'Add a new recipe')
     expect(headings[0]).toBe('Chicken Tikka')
     expect(headings[1]).toBe('Beef Stew')
   })

@@ -25,6 +25,9 @@ export default function MealLibrary() {
   const [regeneratingIds, setRegeneratingIds] = useState<Set<number>>(new Set())
   const [imageVersions, setImageVersions] = useState<Record<number, number>>({})
   const [loading, setLoading] = useState(true)
+  const [addingNew, setAddingNew] = useState(false)
+  const [newMealName, setNewMealName] = useState('')
+  const [savingNew, setSavingNew] = useState(false)
   const tapCountsRef = useRef<Map<number, { count: number; timer: ReturnType<typeof setTimeout> }>>(new Map())
 
   const weekOf = getCurrentWeekOf()
@@ -62,6 +65,22 @@ export default function MealLibrary() {
       toast.error('Failed to add meal. Please try again.')
     } finally {
       setAddingId(null)
+    }
+  }
+
+  async function addNewToLibrary() {
+    if (!newMealName.trim() || !user?.householdId) return
+    setSavingNew(true)
+    try {
+      const saved = await mealService.addToLibrary(user.householdId, newMealName.trim())
+      setLibrary(prev => [...prev, saved])
+      setNewMealName('')
+      setAddingNew(false)
+      toast.success(`${saved.name} added to library`)
+    } catch {
+      toast.error('Failed to add meal. Please try again.')
+    } finally {
+      setSavingNew(false)
     }
   }
 
@@ -199,6 +218,51 @@ export default function MealLibrary() {
           ))}
         </div>
 
+        {/* Add new recipe — always at top */}
+        <div className="flex flex-col gap-4 mb-4">
+          {addingNew ? (
+            <div className="border-2 border-primary/30 rounded-xl p-5 bg-surface-container-low flex flex-col gap-3">
+              <input
+                autoFocus
+                type="text"
+                value={newMealName}
+                onChange={e => setNewMealName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addNewToLibrary()}
+                placeholder="Recipe name..."
+                className="w-full bg-surface-container-high border-none rounded-xl py-3 px-4 text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={addNewToLibrary}
+                  disabled={!newMealName.trim() || savingNew}
+                  className="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm active:scale-95 transition-all disabled:opacity-40"
+                >
+                  {savingNew ? 'Saving...' : 'Add to Library'}
+                </button>
+                <button
+                  onClick={() => { setAddingNew(false); setNewMealName('') }}
+                  className="px-4 py-2.5 rounded-xl bg-surface-container font-bold text-sm text-on-surface active:scale-95 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setAddingNew(true)}
+              className="flex items-center gap-4 border-2 border-dashed border-outline-variant/40 rounded-xl p-5 bg-surface-container-low/30 hover:bg-surface-container-low transition-colors active:scale-[0.98] w-full text-left"
+            >
+              <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary shrink-0">
+                <span className="material-symbols-outlined text-[22px]">add_circle</span>
+              </div>
+              <div>
+                <h3 className="font-headline font-bold text-on-surface text-sm">Add a new recipe</h3>
+                <p className="text-on-surface-variant text-xs mt-0.5">Save a meal to your library</p>
+              </div>
+            </button>
+          )}
+        </div>
+
         {/* Empty state */}
         {library.length === 0 && (
           <div className="text-center py-16 text-on-surface-variant">
@@ -292,16 +356,6 @@ export default function MealLibrary() {
               </div>
             ))}
 
-            {/* Add new placeholder */}
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/40 rounded-xl p-8 bg-surface-container-low/30 hover:bg-surface-container-low transition-colors cursor-pointer active:scale-[0.98]">
-              <div className="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center text-primary mb-3">
-                <span className="material-symbols-outlined text-[28px]">add_circle</span>
-              </div>
-              <h3 className="font-headline font-bold text-on-surface text-sm text-center">Add a new recipe</h3>
-              <p className="text-on-surface-variant text-center text-xs mt-1">
-                Save a meal to your library
-              </p>
-            </div>
           </div>
         )}
       </div>
