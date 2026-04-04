@@ -57,7 +57,7 @@
 
 ## Task page
 
-- [ ] all incomplete tasks should have the same styling on the task page, (still in respective sections)
+- [x] all incomplete tasks should have the same styling on the task page, (still in respective sections)
 - [ ] all complete tasks should have the same styling on the task page, (still in respective sections)
 - [ ] on the task library page i dont think the terms should have different colors its kinda pointless
 
