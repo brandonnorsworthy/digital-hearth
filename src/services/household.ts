@@ -5,7 +5,7 @@ export const householdService = {
   get: (id: number) =>
     api.get<Household>(`/households/${id}`),
 
-  update: (id: number, data: Partial<Pick<Household, 'name' | 'weekResetDay'>>) =>
+  update: (id: number, data: Partial<Pick<Household, 'name' | 'weekResetDay' | 'goalMealsPerWeek'>>) =>
     api.put<Household>(`/households/${id}`, data),
 
   members: (id: number) =>

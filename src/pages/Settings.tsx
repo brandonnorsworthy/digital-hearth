@@ -13,20 +13,28 @@ import { useToast } from '../contexts/ToastContext'
 
 export default function Settings() {
   const { user, logout } = useAuth()
-  const { household, members } = useHousehold()
+  const { household, members, reload } = useHousehold()
   const navigate = useNavigate()
   const toast = useToast()
 
   const [weekDaySheetOpen, setWeekDaySheetOpen] = useState(false)
   const [weekResetDay, setWeekResetDay] = useState<string | null>(null)
+  const [goalMeals, setGoalMeals] = useState<string>('')
 
   const currentWeekDay = weekResetDay ?? household?.weekResetDay ?? 'Monday'
+
+  useEffect(() => {
+    if (household?.goalMealsPerWeek != null) {
+      setGoalMeals(String(household.goalMealsPerWeek))
+    }
+  }, [household?.goalMealsPerWeek])
 
   async function handleWeekDaySelect(day: string) {
     setWeekResetDay(day)
     if (user?.householdId) {
       try {
         await householdService.update(user.householdId, { weekResetDay: day })
+        reload()
       } catch (err) {
         console.error('Failed to update week reset day', err)
         setWeekResetDay(null)
@@ -74,6 +82,18 @@ export default function Settings() {
       console.error('Push toggle failed', err)
     } finally {
       setPushPending(false)
+    }
+  }
+
+  async function handleGoalMealsBlur() {
+    if (!user?.householdId) return
+    const value = goalMeals.trim()
+    const parsed = value === '' ? null : Number(value)
+    try {
+      await householdService.update(user.householdId, { goalMealsPerWeek: parsed })
+      reload()
+    } catch (err) {
+      console.error('Failed to update goal meals per week', err)
     }
   }
 
@@ -173,6 +193,22 @@ export default function Settings() {
                 <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
               </div>
             </button>
+            <div className="w-full p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">restaurant</span>
+                <span className="font-medium">Goal Meals Per Week</span>
+              </div>
+              <input
+                type="number"
+                min={1}
+                max={14}
+                value={goalMeals}
+                onChange={e => setGoalMeals(e.target.value)}
+                onBlur={handleGoalMealsBlur}
+                placeholder="—"
+                className="w-16 text-right bg-surface-container-high rounded-lg px-3 py-1.5 text-on-surface font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+              />
+            </div>
           </div>
         </section>
 

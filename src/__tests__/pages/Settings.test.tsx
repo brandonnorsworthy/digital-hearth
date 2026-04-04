@@ -20,7 +20,7 @@ vi.mock('../../contexts/AuthContext', () => ({
 
 vi.mock('../../contexts/HouseholdContext', () => ({
   useHousehold: () => ({
-    household: { id: 1, name: 'The Smiths', joinCode: 'ABC123', weekResetDay: 'Monday' },
+    household: { id: 1, name: 'The Smiths', joinCode: 'ABC123', weekResetDay: 'Monday', goalMealsPerWeek: 5 },
     members: [
       { id: 1, username: 'Sarah', role: 'admin' },
       { id: 2, username: 'John', role: 'member' },
@@ -83,6 +83,23 @@ describe('Settings', () => {
   it('renders the Sign Out button', () => {
     renderPage()
     expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument()
+  })
+
+  it('renders the goal meals per week input pre-filled from household', () => {
+    renderPage()
+    const input = screen.getByRole('spinbutton')
+    expect(input).toHaveValue(5)
+  })
+
+  it('calls householdService.update with goalMealsPerWeek on blur', async () => {
+    const { householdService } = await import('../../services/household')
+    renderPage()
+    const input = screen.getByRole('spinbutton')
+    fireEvent.change(input, { target: { value: '7' } })
+    fireEvent.blur(input)
+    await vi.waitFor(() =>
+      expect(householdService.update).toHaveBeenCalledWith(1, { goalMealsPerWeek: 7 })
+    )
   })
 
   it('shows a toast when invite code is copied', async () => {

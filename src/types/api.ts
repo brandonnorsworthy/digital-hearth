@@ -11,6 +11,7 @@ export interface Household {
   name: string
   joinCode: string
   weekResetDay: string
+  goalMealsPerWeek: number | null
 }
 
 export interface Member {
