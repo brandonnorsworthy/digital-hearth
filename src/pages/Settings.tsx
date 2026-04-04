@@ -84,6 +84,8 @@ export default function Settings() {
     }
   }
 
+  const isPwa = window.matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true
+
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushPending, setPushPending] = useState(false)
 
@@ -349,13 +351,27 @@ export default function Settings() {
           </div>
 
           {/* Push toggle */}
-          <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>
-            <div className="flex flex-col">
-              <span className="font-bold text-on-surface">Push Notifications</span>
-              <span className="text-xs text-on-surface-variant">Allow alerts on this device</span>
+          {isPwa ? (
+            <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>
+              <div className="flex flex-col">
+                <span className="font-bold text-on-surface">Push Notifications</span>
+                <span className="text-xs text-on-surface-variant">Allow alerts on this device</span>
+              </div>
+              <Toggle checked={pushEnabled} onChange={handlePushToggle} />
             </div>
-            <Toggle checked={pushEnabled} onChange={handlePushToggle} />
-          </div>
+          ) : (
+            <div className="flex items-start gap-3 p-4 bg-secondary-container/40 rounded-xl border border-outline-variant/20">
+              <span className="material-symbols-outlined text-secondary shrink-0 mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>
+                install_mobile
+              </span>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-bold text-on-surface text-sm">Push Notifications Unavailable</span>
+                <span className="text-xs text-on-surface-variant leading-relaxed">
+                  Add Digital Hearth to your home screen to enable push notifications.
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Reminder time + medium term days */}
           <div className="bg-surface-container rounded-xl overflow-hidden">
