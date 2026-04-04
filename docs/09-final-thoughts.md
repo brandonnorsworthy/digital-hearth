@@ -59,20 +59,22 @@
 
 - [x] all incomplete tasks should have the same styling on the task page, (still in respective sections)
 - [x] all complete tasks should have the same styling on the task page, (still in respective sections)
-- [ ] on the task library page i dont think the terms should have different colors its kinda pointless
 
 ### Final Steps
 
-- [ ] make sure everything works in a container
+- [x] make sure everything works in a container
 - [ ] deploy to local linux server
-- [ ] configure nginx to reverse proxy to the backend and frontend
+- [x] configure nginx to reverse proxy to the backend and frontend
 frontend: digitalhearth.zcog.net
-backend: api.digitalhearth.zcog.net
+3021 frontend
 
+backend: api.digitalhearth.zcog.net
+3020 api
+- [x] aws route 53 configured
 
 #### After everything above
 
-- [ ] join code
+- [ ] join code invites
 - [ ] moved out component files should have acompanying skeleton files for loading states
 - [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
 - [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when

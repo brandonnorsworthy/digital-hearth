@@ -1,0 +1,13 @@
+services:
+  digitalhearth-frontend:
+    build:
+      context: .
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: digitalhearth-frontend
+    ports:
+      - "3021:4173"
+    restart: unless-stopped
+    stop_grace_period: 90s
+    mem_limit: 512m
+    cpus: 1

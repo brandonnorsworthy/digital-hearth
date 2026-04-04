@@ -6,7 +6,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 
 const API_TARGET = process.env.API_URL ?? 'http://localhost:5125'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   server: {
     port: 5173,
     proxy: {
@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    basicSsl(),
+    ...(command === 'serve' ? [basicSsl()] : []),
     react(),
     tailwindcss(),
     VitePWA({
@@ -66,4 +66,4 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
     },
   },
-})
+}))
