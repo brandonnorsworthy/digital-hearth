@@ -18,6 +18,7 @@ import CreateHousehold from './pages/CreateHousehold'
 import JoinHousehold from './pages/JoinHousehold'
 import TaskHistory from './pages/TaskHistory'
 import { notificationService } from './services/notifications'
+import DisclaimerModal from './components/DisclaimerModal'
 
 
 function AppRoutes() {
@@ -58,6 +59,7 @@ export default function App() {
               <ToastProvider>
                 <AppRoutes />
                 <Toast />
+                <DisclaimerModal />
               </ToastProvider>
             </HouseholdProvider>
           </AuthProvider>

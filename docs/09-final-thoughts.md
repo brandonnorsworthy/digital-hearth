@@ -112,7 +112,7 @@ backend: api.digitalhearth.zcog.net
 - [x] join code invites should expire after 24 hours
 - [x] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when
 - [x] have a few more placeholder (20)+ meal suggestions in the input box for new meals instead of just "marry me chicken"
-- [ ] make a initial agreement pop up that just goes into local storage or something wether it has been shown that says, this is completely a personal project, hosted on my person server, and i do not make any promises about resiliency or data loss.
+- [x] make a initial agreement pop up that just goes into local storage or something wether it has been shown that says, this is completely a personal project, hosted on my person server, and i do not make any promises about resiliency or data loss.
 - [ ] with auditing push subscriptions, we should track last successful push notification and if its over a month we should automatically delete that subscription from the database
 - [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months
 - [ ] need favicon and pwa icon
