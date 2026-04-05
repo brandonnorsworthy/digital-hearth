@@ -112,8 +112,8 @@ export default function MealLibrary() {
     setConfirmRegenerateMeal(null)
     setRegeneratingIds(prev => new Set(prev).add(meal.id))
     try {
-      const token = await mealService.regenerateImage(meal.id)
-      setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, hasImage: true, imageToken: token } : m))
+      const imageGuid = await mealService.regenerateImage(meal.id)
+      setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, hasImage: true, imageGuid } : m))
       toast.success(`Image regenerated for ${meal.name}`)
     } catch {
       toast.error('Failed to regenerate image.')
@@ -296,11 +296,10 @@ export default function MealLibrary() {
                 <div className="h-48 relative overflow-hidden" onClick={() => handleImageTap(meal)}>
                   {meal.hasImage ? (
                     <img
-                      src={`${mealImageUrl(meal.id)}${meal.imageToken ? `?v=${meal.imageToken}` : ''}`}
+                      src={meal.imageGuid ? mealImageUrl(meal.id, meal.imageGuid) : ''}
                       alt={meal.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
-                      crossOrigin="use-credentials"
                     />
                   ) : (
                     <div className={`h-full bg-linear-to-br ${MEAL_CARD_COLORS[i % MEAL_CARD_COLORS.length]} flex items-center justify-center`}>

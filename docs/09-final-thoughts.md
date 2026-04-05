@@ -89,6 +89,7 @@ backend: api.digitalhearth.zcog.net
 - [x] budget per month for image generation per household
 - [x] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell
 - [x] move image data to a dedicated table for the token, image guid, image data, if it was ai generated, created at, and updated at
+- [ ] upgrade security, database ids, should be uuid instead of int to make it harder to brute force guess ids, especially for things like user ids, and household ids, task ids, meal ids, etc
 - [ ] confirmation are you sure you want to log out
 - [ ] when deleting a task are you sure you want to delete like the meal library delete
 - [ ] text on the setting thing is a little to far left
@@ -100,6 +101,7 @@ backend: api.digitalhearth.zcog.net
 
 #### After everything above
 
+- [ ] weekly meal page, in the from your library should show 10 results max
 - [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
 - [ ] join code invites

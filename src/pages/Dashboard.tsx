@@ -147,11 +147,10 @@ export default function Dashboard() {
             <div className="aspect-16/10 w-full">
               {tonightsDinner?.hasImage && tonightsDinner?.mealLibraryId ? (
                 <img
-                  src={`${mealImageUrl(tonightsDinner.mealLibraryId)}${tonightsDinner.imageToken ? `?v=${tonightsDinner.imageToken}` : ''}`}
+                  src={tonightsDinner.imageGuid ? mealImageUrl(tonightsDinner.mealLibraryId, tonightsDinner.imageGuid) : ''}
                   alt={tonightsDinner.name}
                   className="w-full h-full object-cover"
                   loading="lazy"
-                  crossOrigin="use-credentials"
                 />
               ) : (
                 <div className="w-full h-full bg-linear-to-br from-primary-container via-surface-container to-secondary-container flex items-center justify-center">

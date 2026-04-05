@@ -47,7 +47,7 @@ export interface WeeklyMeal {
   mealLibraryId: number | null
   isFromLibrary: boolean
   hasImage: boolean
-  imageToken: string | null
+  imageGuid: string | null
 }
 
 export interface LibraryMeal {
@@ -58,5 +58,5 @@ export interface LibraryMeal {
   tags: string[]
   hasImage: boolean
   isFavorited: boolean
-  imageToken: string | null
+  imageGuid: string | null
 }
