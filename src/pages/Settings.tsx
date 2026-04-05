@@ -543,7 +543,7 @@ export default function Settings() {
             Sign Out
           </button>
           <p className="text-center text-xs text-on-surface-variant/60 mt-4 font-medium italic">
-            Digital Hearth · {household?.name ?? ''}
+            Digital Hearth · {household?.name ?? ''} · v{__APP_VERSION__}
           </p>
         </section>
 

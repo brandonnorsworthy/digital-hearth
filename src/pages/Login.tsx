@@ -100,6 +100,8 @@ export default function Login() {
       >
         No account? <span className="text-primary">Create a household</span>
       </button>
+
+      <p className="mt-8 text-xs text-on-surface-variant/40 font-medium">v{__APP_VERSION__}</p>
     </div>
   )
 }

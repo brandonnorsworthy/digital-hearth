@@ -1,14 +1,20 @@
 import { defineConfig } from 'vitest/config'
 import { loadEnv } from 'vite'
+import { readFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const API_TARGET = env.API_URL ?? 'http://localhost:5125'
 
   return {
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
     preview: {
       allowedHosts: env.PREVIEW_ALLOWED_HOSTS?.split(',') ?? [],
     },
