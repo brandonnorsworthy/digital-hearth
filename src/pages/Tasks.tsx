@@ -93,6 +93,25 @@ export default function Tasks() {
   return (
     <Layout showFab onFabClick={() => navigate('/tasks/new')} title="Household Tasks" onRefresh={loadData}>
       <div className="pt-6 px-6 max-w-md mx-auto pb-4">
+        {tasks.length === 0 && (
+          <div className="text-center pb-18 pt-16 text-on-surface-variant flex flex-col items-center gap-4">
+            <span className="material-symbols-outlined text-5xl text-primary/30" style={{ fontVariationSettings: "'FILL' 1" }}>
+              checklist
+            </span>
+            <div>
+              <p className="font-headline font-bold text-lg text-on-surface">No tasks yet</p>
+              <p className="text-sm mt-1">Add your first household task to get started.</p>
+            </div>
+            <button
+              onClick={() => navigate('/tasks/new')}
+              className="mt-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-bold text-sm active:scale-[0.98] transition-all flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-lg">add</span>
+              Add a Task
+            </button>
+          </div>
+        )}
+
         {totalPending === 0 && tasks.length > 0 && (
           <div className="text-center pb-18 pt-8 text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl mb-4 block text-primary/40" style={{ fontVariationSettings: "'FILL' 1" }}>

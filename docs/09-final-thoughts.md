@@ -98,15 +98,15 @@ backend: api.digitalhearth.zcog.net
 - [x] i think the icons on the meal library on top of the image when in dark mode are too light
 - [x] more dashboard verbs for larger variety
 - [x] pin code should be converted to passwords with 1 capital, 1 lowercase, 1 number, 12 characters and 1 special character to make it more secure
-- [ ] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page
-- [ ] if household have no image generation budget per month ex: 0, it should say "Contact Brandon for a image generation budget" or something, instead of Resets on x 1st
+- [x] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page
+- [x] if household have no image generation budget per month ex: 0, it should say "Contact Brandon for a image generation budget" or something, instead of Resets on x 1st
 
 ### After everything above
 
 - [ ] weekly meal page, in the from your library list should show 10 results max
 - [ ] Household tasks screen should have some content if there are no tasks, instead of just being blank, maybe a button to add a task
 - [ ] from your library on the meal planner page should show a message if there are no meals in the library instead of just being blank, maybe a button to add a meal
-- [ ] tasks at a glance should show "no current tasks" or something if household has no tasks, instead of just being blank
+- [x] tasks at a glance should show "no current tasks" or something if household has no tasks, instead of just being blank
 - [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
 - [ ] join code should be longer to make harder to brute force guess
 - [ ] join code invites should expire after 24 hours
