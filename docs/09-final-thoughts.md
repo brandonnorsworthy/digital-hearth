@@ -116,6 +116,8 @@ backend: api.digitalhearth.zcog.net
 - [ ] with auditing push subscriptions, we should track last successful push notification and if its over a month we should automatically delete that subscription from the database
 - [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months
 - [ ] need favicon and pwa icon
+- [ ] remove invite code button above the join code, redundant
+- [ ] join code should be hidden, and when you tap it, it should copy to clipboard and show a toast that says "join code copied to clipboard", it also should somehow indicate join code is only valid for 24 hours and then it expires
 
 # past 2.0
 - [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
