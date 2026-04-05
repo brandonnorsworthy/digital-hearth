@@ -93,9 +93,9 @@ backend: api.digitalhearth.zcog.net
 - [x] dont have an account? create a household button on the login page that takes you to a create household page where you can create an account and household at the same time, this would just be a form with email, password, confirm password, household name, and then it would create the household and account at the same time and log you in.
 - [x] confirmation are you sure you want to log out
 - [x] when deleting a task are you sure you want to delete like the meal library delete
-- [ ] text on the setting thing is a little to far left
-- [ ] rounding on stuff like goal meals per week div is too rounded
-- [ ] i think the icons on the meal library on top of the image when in dark mode are too light
+- [x] text on the setting thing is a little to far left
+- [x] rounding on stuff like goal meals per week div is too rounded
+- [x] i think the icons on the meal library on top of the image when in dark mode are too light
 - [ ] more dashboard verbs for larger variety
 - [ ] pin code should be converted to passwords with 1 capital, 1 lowercase, 1 number, 12 characters and 1 special character to make it more secure
 - [ ] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page

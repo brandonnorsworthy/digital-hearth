@@ -316,7 +316,7 @@ export default function MealLibrary() {
                   )}
                   <button
                     onClick={e => { e.stopPropagation(); setConfirmDeleteMeal(meal) }}
-                    className="absolute top-5 left-5 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center text-on-surface-variant hover:text-error transition-colors active:scale-90"
+                    className="absolute top-5 left-5 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center text-neutral-600 hover:text-error transition-colors active:scale-90"
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
@@ -325,7 +325,7 @@ export default function MealLibrary() {
                     className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center transition-colors active:scale-90"
                   >
                     <span
-                      className={`material-symbols-outlined text-[18px] ${meal.isFavorited ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                      className={`material-symbols-outlined text-[18px] ${meal.isFavorited ? 'text-[#50662b]' : 'text-neutral-600 hover:text-[#50662b]'}`}
                       style={meal.isFavorited ? { fontVariationSettings: "'FILL' 1" } : undefined}
                     >
                       {meal.isFavorited ? "heart_check" : "heart_plus"}
