@@ -26,25 +26,25 @@ function renderRoute(children = <div>Protected Content</div>) {
 
 describe('ProtectedRoute', () => {
   it('shows a spinner while loading', () => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, isLoading: true, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn() })
+    vi.mocked(useAuth).mockReturnValue({ user: null, isLoading: true, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn(), joinHousehold: vi.fn() })
     renderRoute()
     expect(screen.getByText('progress_activity')).toBeInTheDocument()
   })
 
   it('renders the Login page when user is null and not loading', () => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, isLoading: false, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn() })
+    vi.mocked(useAuth).mockReturnValue({ user: null, isLoading: false, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn(), joinHousehold: vi.fn() })
     renderRoute()
     expect(screen.getByText('Login Page')).toBeInTheDocument()
   })
 
   it('renders children when user is authenticated', () => {
-    vi.mocked(useAuth).mockReturnValue({ user: mockUser, isLoading: false, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn() })
+    vi.mocked(useAuth).mockReturnValue({ user: mockUser, isLoading: false, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn(), joinHousehold: vi.fn() })
     renderRoute(<div>Protected Content</div>)
     expect(screen.getByText('Protected Content')).toBeInTheDocument()
   })
 
   it('does not render children while loading', () => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, isLoading: true, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn() })
+    vi.mocked(useAuth).mockReturnValue({ user: null, isLoading: true, login: vi.fn(), logout: vi.fn(), createHousehold: vi.fn(), joinHousehold: vi.fn() })
     renderRoute(<div>Protected Content</div>)
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
   })
