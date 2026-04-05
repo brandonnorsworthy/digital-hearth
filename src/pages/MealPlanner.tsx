@@ -267,26 +267,39 @@ export default function MealPlanner() {
               View all <span className="material-symbols-outlined text-xs">arrow_forward</span>
             </button>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-4 -mx-2 px-2 scrollbar-hide">
-            {library.map((item, i) => (
+          {library.length === 0 ? (
+            <div className="text-center py-6 text-on-surface-variant flex flex-col items-center gap-3">
+              <span className="material-symbols-outlined text-3xl text-primary/30" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
+              <p className="text-sm font-medium">Your meal library is empty</p>
               <button
-                key={item.id}
-                onClick={() => addMeal(item.name, item.id)}
-                className="shrink-0 w-32 bg-surface-container-low rounded-lg p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
+                onClick={() => navigate('/meals/library')}
+                className="text-sm font-bold text-primary flex items-center gap-1"
               >
-                <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
-                  {item.hasImage ? (
-                    <img src={item.imageGuid ? mealImageUrl(item.id, item.imageGuid) : ''} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
-                  ) : (
-                    <span className="font-headline font-black text-on-surface/40 text-xl">
-                      {item.name[0]}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[12px] font-bold text-on-surface leading-tight">{item.name}</p>
+                Add a meal <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </button>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-4 -mx-2 px-2 scrollbar-hide">
+              {library.slice(0, 10).map((item, i) => (
+                <button
+                  key={item.id}
+                  onClick={() => addMeal(item.name, item.id)}
+                  className="shrink-0 w-32 bg-surface-container-low rounded-lg p-3 border border-outline-variant/10 text-center space-y-2 active:scale-95 transition-transform"
+                >
+                  <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
+                    {item.hasImage ? (
+                      <img src={item.imageGuid ? mealImageUrl(item.id, item.imageGuid) : ''} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <span className="font-headline font-black text-on-surface/40 text-xl">
+                        {item.name[0]}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[12px] font-bold text-on-surface leading-tight">{item.name}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
       </div>

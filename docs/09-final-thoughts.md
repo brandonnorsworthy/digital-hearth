@@ -82,7 +82,7 @@ backend: api.digitalhearth.zcog.net
 - [x] you can click a incomplete task to edit it, should not beable to click to edit
 - [x] tasks over 6 months should have max due time of 1 month
 
-### other stuff
+### to wrap up for 1.0
 
 - [x] when in dark mode the example task of the edit task screen is super light and hard to see
 - [x] in the meal library add a new recipe button doesnt work, should support adding a new recipe without adding it to the week. it should be moved to the top of the search results
@@ -101,26 +101,23 @@ backend: api.digitalhearth.zcog.net
 - [x] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page
 - [x] if household have no image generation budget per month ex: 0, it should say "Contact Brandon for a image generation budget" or something, instead of Resets on x 1st
 
-### After everything above
+### after 1.0
 
+- [x] tasks at a glance should show "no current tasks" or something if household has no tasks, instead of just being blank
 - [ ] weekly meal page, in the from your library list should show 10 results max
 - [ ] Household tasks screen should have some content if there are no tasks, instead of just being blank, maybe a button to add a task
 - [ ] from your library on the meal planner page should show a message if there are no meals in the library instead of just being blank, maybe a button to add a meal
-- [x] tasks at a glance should show "no current tasks" or something if household has no tasks, instead of just being blank
 - [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
 - [ ] join code should be longer to make harder to brute force guess
 - [ ] join code invites should expire after 24 hours
-- [ ] user pin codes should be longer to make harder to brute force guess
-- [ ] moved out component files should have acompanying skeleton files for loading states
-- [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
-- [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
 - [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when
-- [ ] have a few more placeholder meal suggestions in the input box for new meals instead of just "merry me chicken"
+- [ ] have a few more placeholder (20)+ meal suggestions in the input box for new meals instead of just "marry me chicken"
 - [ ] make a initial agreement pop up that just goes into local storage or something wether it has been shown that says, this is completely a personal project, hosted on my person server, and i do not make any promises about resiliency or data loss.
-- [ ] the short term - weekly tag should be removed same with, medium term - monthly tag, and long term - yearly tag
-- [ ] with auditing push subscriptions, we should track last successful push notification and if its over a week we should automatically delete that subscription from the database
-- [ ] there should be a responsive screen that when a user seems to be on a desktop, we should display a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
-- [ ] loading components should have skeletons
+- [ ] with auditing push subscriptions, we should track last successful push notification and if its over a month we should automatically delete that subscription from the database
 - [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months
+
+# past 2.0
+- [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
+- [ ] there should be a responsive screen that when a user seems to be on a desktop, service worker could probably detect it, we should display a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] on the meal library page, underneath the filter the pills next to favorites would be tags of the household, so you can click a add new tag button but it also lists all tags you have to filter by item.
 - [ ] allow users to upload their own images
