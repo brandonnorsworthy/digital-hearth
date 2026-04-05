@@ -351,30 +351,38 @@ export default function Settings() {
                   {household.monthlyImageBudget != null ? `${household.imageGenThisMonth} / ${household.monthlyImageBudget}` : `${household.imageGenThisMonth} / ∞`}
                 </span>
               </div>
-              {household.monthlyImageBudget != null ? (
-                <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      household.imageGenThisMonth >= household.monthlyImageBudget
-                        ? 'bg-error'
-                        : household.imageGenThisMonth / household.monthlyImageBudget > 0.8
-                          ? 'bg-tertiary'
-                          : 'bg-primary'
-                    }`}
-                    style={{ width: `${Math.min(100, (household.imageGenThisMonth / household.monthlyImageBudget) * 100)}%` }}
-                  />
-                </div>
+              {household.monthlyImageBudget === 0 ? (
+                <p className="text-xs text-on-surface-variant italic">
+                  Contact Brandon for an image generation budget increase.
+                </p>
+              ) : household.monthlyImageBudget != null ? (
+                <>
+                  <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        household.imageGenThisMonth >= household.monthlyImageBudget
+                          ? 'bg-error'
+                          : household.imageGenThisMonth / household.monthlyImageBudget > 0.8
+                            ? 'bg-tertiary'
+                            : 'bg-primary'
+                      }`}
+                      style={{ width: `${Math.min(100, (household.imageGenThisMonth / household.monthlyImageBudget) * 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-on-surface-variant">
+                    {`Resets on ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`}
+                  </p>
+                </>
               ) : (
-                <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-                  <div className="h-full w-full bg-primary/20 rounded-full" />
-                </div>
+                <>
+                  <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                    <div className="h-full w-full bg-primary/20 rounded-full" />
+                  </div>
+                  <p className="text-xs text-on-surface-variant">
+                    {`Unlimited — resets on ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`}
+                  </p>
+                </>
               )}
-              <p className="text-xs text-on-surface-variant">
-                {household.monthlyImageBudget != null
-                  ? `Resets on ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
-                  : `Unlimited — resets on ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
-                }
-              </p>
             </div>
           )}
         </section>
