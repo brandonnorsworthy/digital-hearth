@@ -96,7 +96,7 @@ backend: api.digitalhearth.zcog.net
 - [x] text on the setting thing is a little to far left
 - [x] rounding on stuff like goal meals per week div is too rounded
 - [x] i think the icons on the meal library on top of the image when in dark mode are too light
-- [ ] more dashboard verbs for larger variety
+- [x] more dashboard verbs for larger variety
 - [ ] pin code should be converted to passwords with 1 capital, 1 lowercase, 1 number, 12 characters and 1 special character to make it more secure
 - [ ] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page
 - [ ] if household have no image generation budget per month ex: 0, it should say "Contact Brandon for a image generation budget" or something, instead of Resets on x 1st

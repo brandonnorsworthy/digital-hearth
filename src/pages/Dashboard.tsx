@@ -12,18 +12,7 @@ import { useToast } from '../contexts/ToastContext'
 import DueBadge from '../components/DueBadge'
 import type { Task } from '../types/api'
 import type { WeeklyMeal } from '../types/api'
-
-function getGreeting(hour: number) {
-  if (hour < 12) return 'Good morning'
-  if (hour < 17) return 'Good afternoon'
-  return 'Good evening'
-}
-
-function getHeadline(pendingCount: number) {
-  if (pendingCount === 0) return { text: 'The house is quiet.', emphasis: 'quiet' }
-  if (pendingCount === 1) return { text: 'One thing needs attention.', emphasis: 'attention' }
-  return { text: `${pendingCount} things need attention.`, emphasis: 'attention' }
-}
+import { getGreeting, getHeadline } from '../utils/dashboard'
 
 export default function Dashboard() {
   const { user } = useAuth()
