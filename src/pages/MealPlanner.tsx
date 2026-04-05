@@ -159,6 +159,32 @@ export default function MealPlanner() {
       headerRight={navButton(1)}
     >
       <div className="pt-6 px-6 max-w-2xl mx-auto space-y-8 pb-4">
+        {/* Week indicator */}
+        <div className="flex justify-center -mt-2">
+          {weekOffset === 0 ? (
+            <span className="bg-primary-container text-on-primary-container text-xs font-bold px-3 py-1 rounded-full">
+              Current Week
+            </span>
+          ) : (
+            <button
+              onClick={() => setWeekOffset(0)}
+              className="bg-surface-container text-primary text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 active:scale-95 transition-transform"
+            >
+              {weekOffset < 0 ? (
+                <>
+                  Back to current week
+                  <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-xs">arrow_back</span>
+                  Back to current week
+                </>
+              )}
+            </button>
+          )}
+        </div>
+
         {/* Quick Add */}
         <section className="bg-surface-container rounded-lg p-5 shadow-sm border border-outline-variant/10">
           <label className="block text-on-surface font-headline font-bold text-sm mb-3">
