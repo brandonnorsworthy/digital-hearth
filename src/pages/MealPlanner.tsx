@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
@@ -10,6 +10,15 @@ import { useToast } from '../contexts/ToastContext'
 import type { WeeklyMeal, LibraryMeal } from '../types/api'
 
 const MEAL_COLORS = ['bg-primary-container', 'bg-secondary-container', 'bg-tertiary-container/60', 'bg-surface-container-high']
+
+const MEAL_PLACEHOLDERS = [
+  'Marry Me Chicken', 'Spaghetti Bolognese', 'Sheet Pan Salmon', 'Beef Tacos',
+  'Chicken Stir Fry', 'Homemade Pizza', 'Lemon Garlic Shrimp', 'Turkey Meatballs',
+  'Veggie Fried Rice', 'Pulled Pork Sliders', 'Butternut Squash Soup', 'Greek Chicken Bowls',
+  'Cheesy Baked Pasta', 'Teriyaki Salmon', 'Black Bean Burritos', 'Creamy Tuscan Chicken',
+  'Slow Cooker Chili', 'Honey Garlic Pork Chops', 'Caprese Flatbread', 'Thai Peanut Noodles',
+  'Chicken Caesar Wraps', 'Mushroom Risotto', 'Fish Tacos', 'Loaded Baked Potatoes',
+]
 
 function mealColor(index: number) {
   return MEAL_COLORS[index % MEAL_COLORS.length]
@@ -31,6 +40,7 @@ export default function MealPlanner() {
   const currentWeekOf = getCurrentWeekOf()
   const weekOf = weekOffset === 0 ? currentWeekOf : shiftWeek(currentWeekOf, weekOffset)
   const inputRef = useRef<HTMLInputElement>(null)
+  const placeholder = useMemo(() => MEAL_PLACEHOLDERS[Math.floor(Math.random() * MEAL_PLACEHOLDERS.length)], [])
 
   async function loadData() {
     if (!user?.householdId) return
@@ -197,7 +207,7 @@ export default function MealPlanner() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addMeal(input)}
-              placeholder="Marry Me Chicken"
+              placeholder={placeholder}
               className="w-full bg-surface-container-high border-none rounded-xl py-4 pl-4 pr-14 text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
             />
             <button

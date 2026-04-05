@@ -94,9 +94,9 @@ describe('MealPlanner', () => {
   it('calls mealService.addWeekly when typing a name and pressing Enter', async () => {
     vi.mocked(mealService.addWeekly).mockResolvedValue(makeWeeklyMeal({ name: 'Tacos' }))
     renderPage()
-    await waitFor(() => screen.getByPlaceholderText('Marry Me Chicken'))
+    await waitFor(() => screen.getByRole('textbox'))
 
-    await userEvent.type(screen.getByPlaceholderText('Marry Me Chicken'), 'Tacos{Enter}')
+    await userEvent.type(screen.getByRole('textbox'), 'Tacos{Enter}')
 
     await waitFor(() => {
       expect(mealService.addWeekly).toHaveBeenCalledWith(
