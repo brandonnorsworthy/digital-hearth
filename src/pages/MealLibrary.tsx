@@ -296,6 +296,7 @@ export default function MealLibrary() {
                 <div className="h-48 relative overflow-hidden" onClick={() => handleImageTap(meal)}>
                   {meal.hasImage ? (
                     <img
+                      key={meal.imageGuid}
                       src={meal.imageGuid ? mealImageUrl(meal.id, meal.imageGuid) : ''}
                       alt={meal.name}
                       className="w-full h-full object-cover"

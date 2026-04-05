@@ -24,9 +24,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (res.status === 204) return undefined as T
 
-  const data = await res.json()
+  const isJson = res.headers.get('content-type')?.includes('application/json')
+  const data = isJson ? await res.json() : await res.text()
   if (!res.ok) {
-    throw new ApiError(res.status, (data as { error?: string }).error ?? 'Unknown error')
+    throw new ApiError(res.status, (data as { error?: string }).error ?? String(data))
   }
 
   return data as T
