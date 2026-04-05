@@ -186,8 +186,9 @@ export default function Settings() {
 
   async function handleCopyInviteCode() {
     if (!household?.joinCode) return
-    await navigator.clipboard.writeText(household.joinCode)
-    toast.success('Invite code copied to clipboard')
+    const link = `${window.location.origin}/join?code=${household.joinCode}`
+    await navigator.clipboard.writeText(link)
+    toast.success('Invite link copied to clipboard')
   }
 
   const { isDark, toggle: toggleDark } = useTheme()

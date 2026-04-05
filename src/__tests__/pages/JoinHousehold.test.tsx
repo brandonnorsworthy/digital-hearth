@@ -9,9 +9,11 @@ const user = userEvent.setup({ delay: null })
 const mockJoinHousehold = vi.fn()
 const mockNavigate = vi.fn()
 
+const mockSearchParams = new URLSearchParams()
+
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>()
-  return { ...actual, useNavigate: () => mockNavigate }
+  return { ...actual, useNavigate: () => mockNavigate, useSearchParams: () => [mockSearchParams] }
 })
 
 vi.mock('../../contexts/AuthContext', () => ({
@@ -21,6 +23,7 @@ vi.mock('../../contexts/AuthContext', () => ({
 beforeEach(() => {
   mockJoinHousehold.mockReset()
   mockNavigate.mockReset()
+  mockSearchParams.delete('code')
 })
 
 function renderPage() {
@@ -95,6 +98,12 @@ describe('JoinHousehold', () => {
     await waitFor(() =>
       expect(screen.getByText(/invite code has expired/i)).toBeInTheDocument()
     )
+  })
+
+  it('pre-fills the invite code from the ?code query param', () => {
+    mockSearchParams.set('code', 'ab12cd34')
+    renderPage()
+    expect((screen.getByLabelText('Invite Code') as HTMLInputElement).value).toBe('AB12CD34')
   })
 
   it('navigates to / on successful join', async () => {

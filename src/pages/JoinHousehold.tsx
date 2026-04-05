@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { validatePassword } from '../utils/password'
 
 export default function JoinHousehold() {
   const { joinHousehold } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const [joinCode, setJoinCode] = useState('')
+  const [joinCode, setJoinCode] = useState(() => (searchParams.get('code') ?? '').toUpperCase())
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')

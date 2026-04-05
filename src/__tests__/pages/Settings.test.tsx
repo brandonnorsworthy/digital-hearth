@@ -148,7 +148,7 @@ describe('Settings', () => {
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockResolvedValue(undefined) }, configurable: true })
     renderPage()
     fireEvent.click(screen.getByRole('button', { name: /invite code/i }))
-    await vi.waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('Invite code copied to clipboard'))
+    await vi.waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('Invite link copied to clipboard'))
   })
 
   it('renders the Change Password button', () => {
