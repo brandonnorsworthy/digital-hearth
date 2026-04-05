@@ -7,6 +7,7 @@ function mockFetch(status: number, body: unknown) {
     vi.fn().mockResolvedValue({
       status,
       ok: status >= 200 && status < 300,
+      headers: { get: () => 'application/json' },
       json: () => Promise.resolve(body),
     }),
   )
@@ -19,7 +20,7 @@ afterEach(() => {
 describe('mealService.weeklyList', () => {
   it('calls GET /households/:id/meals/weekly', async () => {
     mockFetch(200, [])
-    await mealService.weeklyList(1)
+    await mealService.weeklyList('1')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/1/meals/weekly'),
       expect.anything(),
@@ -28,7 +29,7 @@ describe('mealService.weeklyList', () => {
 
   it('appends weekOf query param when provided', async () => {
     mockFetch(200, [])
-    await mealService.weeklyList(1, '2026-03-23')
+    await mealService.weeklyList('1', '2026-03-23')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('weekOf=2026-03-23'),
       expect.anything(),
@@ -38,8 +39,8 @@ describe('mealService.weeklyList', () => {
 
 describe('mealService.addWeekly', () => {
   it('calls POST /households/:id/meals/weekly', async () => {
-    mockFetch(201, { id: 1, name: 'Pasta', weekOf: '2026-03-23' })
-    await mealService.addWeekly(1, { weekOf: '2026-03-23', name: 'Pasta' })
+    mockFetch(201, { id: '1', name: 'Pasta', weekOf: '2026-03-23' })
+    await mealService.addWeekly('1', { weekOf: '2026-03-23', name: 'Pasta' })
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/1/meals/weekly'),
       expect.objectContaining({ method: 'POST' }),
@@ -53,7 +54,7 @@ describe('mealService.removeWeekly', () => {
       'fetch',
       vi.fn().mockResolvedValue({ status: 204, ok: true, json: () => Promise.resolve(null) }),
     )
-    await mealService.removeWeekly(5)
+    await mealService.removeWeekly('5')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/meals/weekly/5'),
       expect.objectContaining({ method: 'DELETE' }),
@@ -64,7 +65,7 @@ describe('mealService.removeWeekly', () => {
 describe('mealService.library', () => {
   it('calls GET /households/:id/meals/library', async () => {
     mockFetch(200, [])
-    await mealService.library(1)
+    await mealService.library('1')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/1/meals/library'),
       expect.anything(),
@@ -74,8 +75,8 @@ describe('mealService.library', () => {
 
 describe('mealService.addToLibrary', () => {
   it('calls POST /households/:id/meals/library with name and tags', async () => {
-    mockFetch(201, { id: 10, name: 'Chicken Curry' })
-    await mealService.addToLibrary(1, 'Chicken Curry', ['dinner'])
+    mockFetch(201, { id: '10', name: 'Chicken Curry' })
+    await mealService.addToLibrary('1', 'Chicken Curry', ['dinner'])
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/1/meals/library'),
       expect.objectContaining({ method: 'POST' }),
@@ -91,7 +92,7 @@ describe('mealService.removeFromLibrary', () => {
       'fetch',
       vi.fn().mockResolvedValue({ status: 204, ok: true, json: () => Promise.resolve(null) }),
     )
-    await mealService.removeFromLibrary(3)
+    await mealService.removeFromLibrary('3')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/meals/library/3'),
       expect.objectContaining({ method: 'DELETE' }),
@@ -102,7 +103,7 @@ describe('mealService.removeFromLibrary', () => {
 describe('mealService.favoriteMeal', () => {
   it('calls POST /meals/library/:id/favorite', async () => {
     mockFetch(204, null)
-    await mealService.favoriteMeal(7)
+    await mealService.favoriteMeal('7')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/meals/library/7/favorite'),
       expect.objectContaining({ method: 'POST' }),
@@ -116,7 +117,7 @@ describe('mealService.unfavoriteMeal', () => {
       'fetch',
       vi.fn().mockResolvedValue({ status: 204, ok: true, json: () => Promise.resolve(null) }),
     )
-    await mealService.unfavoriteMeal(7)
+    await mealService.unfavoriteMeal('7')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/meals/library/7/favorite'),
       expect.objectContaining({ method: 'DELETE' }),

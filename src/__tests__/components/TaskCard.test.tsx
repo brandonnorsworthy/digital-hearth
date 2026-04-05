@@ -14,8 +14,8 @@ vi.mock('react-router-dom', async (importOriginal) => {
 
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
-    id: 1,
-    householdId: 1,
+    id: '1',
+    householdId: '1',
     name: 'Clean the kitchen',
     intervalDays: 3,
     lastCompletedAt: null,
@@ -70,7 +70,7 @@ describe('TaskCard', () => {
   })
 
   it('does not navigate when card body is clicked', async () => {
-    renderCard(makeTask({ id: 5 }), vi.fn(), false)
+    renderCard(makeTask({ id: '5' }), vi.fn(), false)
     await userEvent.click(screen.getByText('Clean the kitchen'))
     expect(mockNavigate).not.toHaveBeenCalled()
   })

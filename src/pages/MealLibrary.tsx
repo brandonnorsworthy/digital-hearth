@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
@@ -31,16 +31,16 @@ export default function MealLibrary() {
 
   const weekOf = getCurrentWeekOf()
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     if (!user?.householdId) return
     const data = await mealService.library(user.householdId)
     setLibrary(data)
     setLoading(false)
-  }
+  }, [user])
 
   useEffect(() => {
     loadData().catch(console.error)
-  }, [user?.householdId])
+  }, [loadData])
 
   const filtered = library
     .filter(m => {

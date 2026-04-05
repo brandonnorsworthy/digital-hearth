@@ -7,6 +7,7 @@ function mockFetch(status: number, body: unknown) {
     vi.fn().mockResolvedValue({
       status,
       ok: status >= 200 && status < 300,
+      headers: { get: () => 'application/json' },
       json: () => Promise.resolve(body),
     }),
   )

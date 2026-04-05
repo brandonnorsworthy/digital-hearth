@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+
+const user = userEvent.setup({ delay: null })
 import { MemoryRouter } from 'react-router-dom'
 import Settings from '../../pages/Settings'
 import { notificationService } from '../../services/notifications'
@@ -15,7 +17,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => ({
-    user: { id: 1, username: 'Sarah', householdId: 1 },
+    user: { id: '1', username: 'Sarah', householdId: '1' },
     isLoading: false,
     logout: vi.fn().mockResolvedValue(undefined),
   }),
@@ -23,10 +25,10 @@ vi.mock('../../contexts/AuthContext', () => ({
 
 vi.mock('../../contexts/HouseholdContext', () => ({
   useHousehold: () => ({
-    household: { id: 1, name: 'The Smiths', joinCode: 'ABC123', weekResetDay: 'Monday', goalMealsPerWeek: 5 },
+    household: { id: '1', name: 'The Smiths', joinCode: 'ABC123', weekResetDay: 'Monday', goalMealsPerWeek: 5 },
     members: [
-      { id: 1, username: 'Sarah', role: 'admin' },
-      { id: 2, username: 'John', role: 'member' },
+      { id: '1', username: 'Sarah', role: 'admin' },
+      { id: '2', username: 'John', role: 'member' },
     ],
     isLoading: false,
     error: null,
@@ -137,12 +139,12 @@ describe('Settings', () => {
     fireEvent.change(input, { target: { value: '7' } })
     fireEvent.blur(input)
     await vi.waitFor(() =>
-      expect(householdService.update).toHaveBeenCalledWith(1, { goalMealsPerWeek: 7 })
+      expect(householdService.update).toHaveBeenCalledWith('1', { goalMealsPerWeek: 7 })
     )
   })
 
   it('shows a toast when invite code is copied', async () => {
-    Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } })
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockResolvedValue(undefined) }, configurable: true })
     renderPage()
     fireEvent.click(screen.getByRole('button', { name: /invite code/i }))
     await vi.waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('Invite code copied to clipboard'))
@@ -155,7 +157,7 @@ describe('Settings', () => {
 
   it('opens the Change PIN modal when the button is clicked', async () => {
     renderPage()
-    await userEvent.click(screen.getByRole('button', { name: /change access pin/i }))
+    await user.click(screen.getByRole('button', { name: /change access pin/i }))
     expect(screen.getByRole('heading', { name: 'Change Access PIN' })).toBeInTheDocument()
     expect(screen.getByLabelText('Current PIN')).toBeInTheDocument()
     expect(screen.getByLabelText('New PIN')).toBeInTheDocument()
@@ -164,33 +166,33 @@ describe('Settings', () => {
 
   it('shows an error when new PIN is not 4 digits', async () => {
     renderPage()
-    await userEvent.click(screen.getByRole('button', { name: /change access pin/i }))
-    await userEvent.type(screen.getByLabelText('Current PIN'), '1234')
-    await userEvent.type(screen.getByLabelText('New PIN'), '123')
-    await userEvent.type(screen.getByLabelText('Confirm New PIN'), '123')
-    await userEvent.click(screen.getByRole('button', { name: /update pin/i }))
+    await user.click(screen.getByRole('button', { name: /change access pin/i }))
+    await user.type(screen.getByLabelText('Current PIN'), '1234')
+    await user.type(screen.getByLabelText('New PIN'), '123')
+    await user.type(screen.getByLabelText('Confirm New PIN'), '123')
+    await user.click(screen.getByRole('button', { name: /update pin/i }))
     expect(screen.getByText(/must be exactly 4 digits/i)).toBeInTheDocument()
     expect(authService.changePin).not.toHaveBeenCalled()
   })
 
   it('shows an error when new PINs do not match', async () => {
     renderPage()
-    await userEvent.click(screen.getByRole('button', { name: /change access pin/i }))
-    await userEvent.type(screen.getByLabelText('Current PIN'), '1234')
-    await userEvent.type(screen.getByLabelText('New PIN'), '5678')
-    await userEvent.type(screen.getByLabelText('Confirm New PIN'), '9999')
-    await userEvent.click(screen.getByRole('button', { name: /update pin/i }))
+    await user.click(screen.getByRole('button', { name: /change access pin/i }))
+    await user.type(screen.getByLabelText('Current PIN'), '1234')
+    await user.type(screen.getByLabelText('New PIN'), '5678')
+    await user.type(screen.getByLabelText('Confirm New PIN'), '9999')
+    await user.click(screen.getByRole('button', { name: /update pin/i }))
     expect(screen.getByText(/pins do not match/i)).toBeInTheDocument()
     expect(authService.changePin).not.toHaveBeenCalled()
   })
 
   it('calls authService.changePin and shows success toast on valid submission', async () => {
     renderPage()
-    await userEvent.click(screen.getByRole('button', { name: /change access pin/i }))
-    await userEvent.type(screen.getByLabelText('Current PIN'), '1234')
-    await userEvent.type(screen.getByLabelText('New PIN'), '5678')
-    await userEvent.type(screen.getByLabelText('Confirm New PIN'), '5678')
-    await userEvent.click(screen.getByRole('button', { name: /update pin/i }))
+    await user.click(screen.getByRole('button', { name: /change access pin/i }))
+    await user.type(screen.getByLabelText('Current PIN'), '1234')
+    await user.type(screen.getByLabelText('New PIN'), '5678')
+    await user.type(screen.getByLabelText('Confirm New PIN'), '5678')
+    await user.click(screen.getByRole('button', { name: /update pin/i }))
     await waitFor(() => expect(authService.changePin).toHaveBeenCalledWith('1234', '5678'))
     await waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('PIN updated successfully'))
   })
@@ -198,11 +200,11 @@ describe('Settings', () => {
   it('shows an error when authService.changePin rejects', async () => {
     vi.mocked(authService.changePin).mockRejectedValue(new Error('Unauthorized'))
     renderPage()
-    await userEvent.click(screen.getByRole('button', { name: /change access pin/i }))
-    await userEvent.type(screen.getByLabelText('Current PIN'), 'wrong')
-    await userEvent.type(screen.getByLabelText('New PIN'), '5678')
-    await userEvent.type(screen.getByLabelText('Confirm New PIN'), '5678')
-    await userEvent.click(screen.getByRole('button', { name: /update pin/i }))
+    await user.click(screen.getByRole('button', { name: /change access pin/i }))
+    await user.type(screen.getByLabelText('Current PIN'), 'wrong')
+    await user.type(screen.getByLabelText('New PIN'), '5678')
+    await user.type(screen.getByLabelText('Confirm New PIN'), '5678')
+    await user.click(screen.getByRole('button', { name: /update pin/i }))
     await waitFor(() => expect(screen.getByText(/current pin is incorrect/i)).toBeInTheDocument())
   })
 })

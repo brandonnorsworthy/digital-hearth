@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
@@ -35,7 +35,7 @@ export default function Dashboard() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     if (!user?.householdId) return
     const [taskData, mealData] = await Promise.all([
       taskService.list(user.householdId),
@@ -45,11 +45,11 @@ export default function Dashboard() {
     setCompletedIds(new Set(taskData.filter(isTaskDone).map(t => t.id)))
     if (mealData.length) setTonightsDinner(mealData[Math.floor(Math.random() * mealData.length)])
     setLoading(false)
-  }
+  }, [user])
 
   useEffect(() => {
     loadData().catch(console.error)
-  }, [user?.householdId])
+  }, [loadData])
 
   const hour = new Date().getHours()
   const greeting = getGreeting(hour)

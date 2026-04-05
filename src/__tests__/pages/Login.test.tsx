@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import Login from '../../pages/Login'
+
+const user = userEvent.setup({ delay: null })
 
 const mockLogin = vi.fn()
 
@@ -14,7 +17,11 @@ beforeEach(() => {
 })
 
 function renderLogin() {
-  return render(<Login />)
+  return render(
+    <MemoryRouter>
+      <Login />
+    </MemoryRouter>,
+  )
 }
 
 describe('Login', () => {
@@ -29,9 +36,9 @@ describe('Login', () => {
     mockLogin.mockResolvedValue(undefined)
     renderLogin()
 
-    await userEvent.type(screen.getByLabelText('Username'), 'Sarah')
-    await userEvent.type(screen.getByLabelText('PIN'), '1234')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.type(screen.getByLabelText('Username'), 'Sarah')
+    await user.type(screen.getByLabelText('PIN'), '1234')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     expect(mockLogin).toHaveBeenCalledWith('Sarah', '1234')
   })
@@ -40,9 +47,9 @@ describe('Login', () => {
     mockLogin.mockRejectedValue(new Error('bad credentials'))
     renderLogin()
 
-    await userEvent.type(screen.getByLabelText('Username'), 'Sarah')
-    await userEvent.type(screen.getByLabelText('PIN'), '0000')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.type(screen.getByLabelText('Username'), 'Sarah')
+    await user.type(screen.getByLabelText('PIN'), '0000')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
       expect(screen.getByText('Invalid username or PIN.')).toBeInTheDocument()
@@ -53,15 +60,15 @@ describe('Login', () => {
     mockLogin.mockRejectedValueOnce(new Error('bad credentials')).mockResolvedValueOnce(undefined)
     renderLogin()
 
-    await userEvent.type(screen.getByLabelText('Username'), 'Sarah')
-    await userEvent.type(screen.getByLabelText('PIN'), '0000')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.type(screen.getByLabelText('Username'), 'Sarah')
+    await user.type(screen.getByLabelText('PIN'), '0000')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
       expect(screen.getByText('Invalid username or PIN.')).toBeInTheDocument()
     })
 
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
       expect(screen.queryByText('Invalid username or PIN.')).not.toBeInTheDocument()
@@ -74,9 +81,9 @@ describe('Login', () => {
     mockLogin.mockReturnValue(deferred)
 
     renderLogin()
-    await userEvent.type(screen.getByLabelText('Username'), 'Sarah')
-    await userEvent.type(screen.getByLabelText('PIN'), '1234')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.type(screen.getByLabelText('Username'), 'Sarah')
+    await user.type(screen.getByLabelText('PIN'), '1234')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled()

@@ -27,7 +27,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isJson = res.headers.get('content-type')?.includes('application/json')
   const data = isJson ? await res.json() : await res.text()
   if (!res.ok) {
-    throw new ApiError(res.status, (data as { error?: string }).error ?? String(data))
+    const message = typeof data === 'string' ? data : (data as { error?: string }).error ?? 'Unknown error'
+    throw new ApiError(res.status, message)
   }
 
   return data as T

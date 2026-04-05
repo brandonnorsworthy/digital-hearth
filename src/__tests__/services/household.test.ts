@@ -7,6 +7,7 @@ function mockFetch(status: number, body: unknown) {
     vi.fn().mockResolvedValue({
       status,
       ok: status >= 200 && status < 300,
+      headers: { get: () => 'application/json' },
       json: () => Promise.resolve(body),
     }),
   )
@@ -18,8 +19,8 @@ afterEach(() => {
 
 describe('householdService.get', () => {
   it('calls GET /households/:id', async () => {
-    mockFetch(200, { id: 1, name: 'The Smiths', joinCode: 'ABC', weekResetDay: 'Monday' })
-    await householdService.get(1)
+    mockFetch(200, { id: '1', name: 'The Smiths', joinCode: 'ABC', weekResetDay: 'Monday' })
+    await householdService.get('1')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/1'),
       expect.anything(),
@@ -27,17 +28,17 @@ describe('householdService.get', () => {
   })
 
   it('returns the household object', async () => {
-    const household = { id: 1, name: 'The Smiths', joinCode: 'ABC', weekResetDay: 'Monday' }
+    const household = { id: '1', name: 'The Smiths', joinCode: 'ABC', weekResetDay: 'Monday' }
     mockFetch(200, household)
-    const result = await householdService.get(1)
+    const result = await householdService.get('1')
     expect(result).toEqual(household)
   })
 })
 
 describe('householdService.update', () => {
   it('calls PUT /households/:id', async () => {
-    mockFetch(200, { id: 1, name: 'The Smiths', joinCode: 'ABC', weekResetDay: 'Tuesday' })
-    await householdService.update(1, { weekResetDay: 'Tuesday' })
+    mockFetch(200, { id: '1', name: 'The Smiths', joinCode: 'ABC', weekResetDay: 'Tuesday' })
+    await householdService.update('1', { weekResetDay: 'Tuesday' })
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/1'),
       expect.objectContaining({ method: 'PUT' }),
@@ -48,7 +49,7 @@ describe('householdService.update', () => {
 describe('householdService.members', () => {
   it('calls GET /households/:id/members', async () => {
     mockFetch(200, [])
-    await householdService.members(1)
+    await householdService.members('1')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/1/members'),
       expect.anything(),

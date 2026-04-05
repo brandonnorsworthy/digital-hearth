@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 })
 
 vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 1, username: 'Sarah', householdId: 1 }, isLoading: false, logout: vi.fn() }),
+  useAuth: () => ({ user: { id: '1', username: 'Sarah', householdId: '1' }, isLoading: false, logout: vi.fn() }),
 }))
 
 vi.mock('../../contexts/ToastContext', () => ({
@@ -31,8 +31,8 @@ import { taskService } from '../../services/tasks'
 
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
-    id: 1,
-    householdId: 1,
+    id: '1',
+    householdId: '1',
     name: 'Test Task',
     intervalDays: 3,
     lastCompletedAt: null,
@@ -58,7 +58,7 @@ beforeEach(() => {
 describe('Tasks page', () => {
   it('renders "Short Term" heading for short-interval tasks', async () => {
     vi.mocked(taskService.list).mockResolvedValue([
-      makeTask({ id: 1, name: 'Vacuum', intervalDays: 3 }),
+      makeTask({ id: '1', name: 'Vacuum', intervalDays: 3 }),
     ])
     renderPage()
     await waitFor(() => {
@@ -68,7 +68,7 @@ describe('Tasks page', () => {
 
   it('renders "Medium Term" heading for medium-interval tasks', async () => {
     vi.mocked(taskService.list).mockResolvedValue([
-      makeTask({ id: 2, name: 'Clean gutters', intervalDays: 14 }),
+      makeTask({ id: '2', name: 'Clean gutters', intervalDays: 14 }),
     ])
     renderPage()
     await waitFor(() => {
@@ -78,7 +78,7 @@ describe('Tasks page', () => {
 
   it('renders "Long Term" heading for long-interval tasks', async () => {
     vi.mocked(taskService.list).mockResolvedValue([
-      makeTask({ id: 3, name: 'Paint fence', intervalDays: 180 }),
+      makeTask({ id: '3', name: 'Paint fence', intervalDays: 180 }),
     ])
     renderPage()
     await waitFor(() => {
@@ -88,7 +88,7 @@ describe('Tasks page', () => {
 
   it('shows task name in the rendered list', async () => {
     vi.mocked(taskService.list).mockResolvedValue([
-      makeTask({ id: 1, name: 'Mow the lawn', intervalDays: 5 }),
+      makeTask({ id: '1', name: 'Mow the lawn', intervalDays: 5 }),
     ])
     renderPage()
     await waitFor(() => {
@@ -98,10 +98,10 @@ describe('Tasks page', () => {
 
   it('calls taskService.complete when Complete Task button is clicked', async () => {
     vi.mocked(taskService.list).mockResolvedValue([
-      makeTask({ id: 1, name: 'Vacuum', intervalDays: 3 }),
+      makeTask({ id: '1', name: 'Vacuum', intervalDays: 3 }),
     ])
     const updatedTask = makeTask({
-      id: 1,
+      id: '1',
       lastCompletedAt: new Date().toISOString(),
       nextDueAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
     })
@@ -110,13 +110,13 @@ describe('Tasks page', () => {
     renderPage()
     await waitFor(() => screen.getByRole('button', { name: /complete task/i }))
     await userEvent.click(screen.getByRole('button', { name: /complete task/i }))
-    expect(taskService.complete).toHaveBeenCalledWith(1)
+    expect(taskService.complete).toHaveBeenCalledWith('1')
   })
 
   it('shows "All caught up!" when all tasks are done', async () => {
     vi.mocked(taskService.list).mockResolvedValue([
       makeTask({
-        id: 1,
+        id: '1',
         intervalDays: 3,
         lastCompletedAt: new Date().toISOString(),
         nextDueAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),

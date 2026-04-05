@@ -90,9 +90,9 @@ backend: api.digitalhearth.zcog.net
 - [x] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell
 - [x] move image data to a dedicated table for the token, image guid, image data, if it was ai generated, created at, and updated at
 - [x] upgrade security, database ids, should be uuid instead of int to make it harder to brute force guess ids, especially for things like user ids, and household ids, task ids, meal ids, etc
-- [ ] dont have an account? create a household button on the login page that takes you to a create household page where you can create an account and household at the same time, this would just be a form with email, password, confirm password, household name, and then it would create the household and account at the same time and log you in.
-- [ ] confirmation are you sure you want to log out
-- [ ] when deleting a task are you sure you want to delete like the meal library delete
+- [x] dont have an account? create a household button on the login page that takes you to a create household page where you can create an account and household at the same time, this would just be a form with email, password, confirm password, household name, and then it would create the household and account at the same time and log you in.
+- [x] confirmation are you sure you want to log out
+- [x] when deleting a task are you sure you want to delete like the meal library delete
 - [ ] text on the setting thing is a little to far left
 - [ ] rounding on stuff like goal meals per week div is too rounded
 - [ ] i think the icons on the meal library on top of the image when in dark mode are too light

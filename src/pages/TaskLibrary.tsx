@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
@@ -57,16 +57,16 @@ export default function TaskLibrary() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     if (!user?.householdId) return
     const data = await taskService.list(user.householdId)
     setTasks(data)
     setLoading(false)
-  }
+  }, [user])
 
   useEffect(() => {
     loadData().catch(console.error)
-  }, [user?.householdId])
+  }, [loadData])
 
   const filtered = tasks.filter(t =>
     t.name.toLowerCase().includes(search.toLowerCase())
@@ -80,7 +80,7 @@ export default function TaskLibrary() {
             <Skeleton className="h-10 w-48" />
             <Skeleton className="h-14 w-full rounded-xl" />
           </div>
-          {[0, 1].map(section => (
+          {[0].map(section => (
             <section key={section} className="mb-12">
               <div className="flex items-center gap-4 mb-6 ml-2">
                 <Skeleton className="w-2 h-2 rounded-full" />

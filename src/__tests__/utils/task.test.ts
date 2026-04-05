@@ -4,8 +4,8 @@ import type { Task } from '../../types/api'
 
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
-    id: 1,
-    householdId: 1,
+    id: '1',
+    householdId: '1',
     name: 'Test Task',
     intervalDays: 7,
     lastCompletedAt: null,

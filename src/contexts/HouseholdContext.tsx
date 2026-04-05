@@ -42,7 +42,6 @@ export function HouseholdProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (user?.householdId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       load()
     } else {
       setHousehold(null)

@@ -62,6 +62,7 @@ export default function Settings() {
   const [reminderHourSheetOpen, setReminderHourSheetOpen] = useState(false)
   const [weekResetDay, setWeekResetDay] = useState<string | null>(null)
   const [goalMeals, setGoalMeals] = useState<string>('')
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false)
 
   const currentWeekDay = weekResetDay ?? household?.weekResetDay ?? 'Monday'
 
@@ -525,7 +526,7 @@ export default function Settings() {
         {/* Danger zone */}
         <section className="pt-2 pb-4">
           <button
-            onClick={handleLogout}
+            onClick={() => setConfirmLogoutOpen(true)}
             className="w-full p-4 rounded-xl border-2 border-error/20 text-error font-bold flex items-center justify-center gap-2 hover:bg-error/5 transition-colors active:scale-[0.98]"
           >
             <span className="material-symbols-outlined">logout</span>
@@ -633,6 +634,41 @@ export default function Settings() {
                 {changePinLoading ? 'Updating…' : 'Update PIN'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {confirmLogoutOpen && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmLogoutOpen(false)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Sign Out?</h3>
+              <p className="text-sm text-on-surface-variant">
+                You'll need your username and PIN to sign back in.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleLogout}
+                className="w-full py-3.5 rounded-xl bg-error text-on-error font-bold active:scale-[0.98] transition-all"
+              >
+                Sign Out
+              </button>
+              <button
+                onClick={() => setConfirmLogoutOpen(false)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

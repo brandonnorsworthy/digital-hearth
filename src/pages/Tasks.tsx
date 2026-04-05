@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import TaskCard from '../components/TaskCard'
@@ -15,19 +15,19 @@ export default function Tasks() {
   const toast = useToast()
 
   const [tasks, setTasks] = useState<Task[]>([])
-  const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     if (!user?.householdId) return
     const data = await taskService.list(user.householdId)
     setTasks(data)
     setLoading(false)
-  }
+  }, [user])
 
   useEffect(() => {
     loadData().catch(console.error)
-  }, [user?.householdId])
+  }, [loadData])
 
   async function complete(task: Task) {
     setCompletedIds(prev => new Set([...prev, task.id]))
@@ -62,7 +62,7 @@ export default function Tasks() {
     return (
       <Layout showFab onFabClick={() => navigate('/tasks/new')} title="Household Tasks" onRefresh={loadData}>
         <div className="pt-6 px-6 max-w-md mx-auto pb-4 space-y-12">
-          {[0, 1].map(section => (
+          {[0].map(section => (
             <section key={section}>
               <div className="flex items-center gap-2 mb-6 ml-1">
                 <Skeleton className="w-6 h-6 rounded-full" />

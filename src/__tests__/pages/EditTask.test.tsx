@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 })
 
 vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 1, username: 'Sarah', householdId: 1 }, isLoading: false, logout: vi.fn() }),
+  useAuth: () => ({ user: { id: '1', username: 'Sarah', householdId: '1' }, isLoading: false, logout: vi.fn() }),
 }))
 
 vi.mock('../../services/tasks', () => ({
@@ -29,8 +29,8 @@ import { taskService } from '../../services/tasks'
 
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
-    id: 42,
-    householdId: 1,
+    id: '42',
+    householdId: '1',
     name: 'Clean gutters',
     intervalDays: 90,
     lastCompletedAt: null,
@@ -50,7 +50,7 @@ function renderPage() {
 
 beforeEach(() => {
   vi.mocked(taskService.list).mockResolvedValue([makeTask()])
-  vi.mocked(taskService.create).mockResolvedValue(makeTask({ id: 99, name: 'New Task' }))
+  vi.mocked(taskService.create).mockResolvedValue(makeTask({ id: '99', name: 'New Task' }))
   vi.mocked(taskService.update).mockResolvedValue(makeTask())
   vi.mocked(taskService.delete).mockResolvedValue(undefined)
   mockNavigate.mockReset()
@@ -75,7 +75,7 @@ describe('EditTask — new task (id="new")', () => {
   })
 
   it('calls taskService.create with name when Add Task is clicked', async () => {
-    vi.mocked(taskService.create).mockResolvedValue(makeTask({ id: 99, name: 'Wash windows' }))
+    vi.mocked(taskService.create).mockResolvedValue(makeTask({ id: '99', name: 'Wash windows' }))
     renderPage()
 
     await userEvent.type(screen.getByPlaceholderText('What needs to be done?'), 'Wash windows')
@@ -83,7 +83,7 @@ describe('EditTask — new task (id="new")', () => {
 
     await waitFor(() => {
       expect(taskService.create).toHaveBeenCalledWith(
-        1,
+        '1',
         expect.objectContaining({ name: 'Wash windows' }),
       )
     })

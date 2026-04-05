@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 })
 
 vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 1, username: 'Sarah', householdId: 1 }, isLoading: false, logout: vi.fn() }),
+  useAuth: () => ({ user: { id: '1', username: 'Sarah', householdId: '1' }, isLoading: false, logout: vi.fn() }),
 }))
 
 vi.mock('../../contexts/ToastContext', () => ({
@@ -33,25 +33,27 @@ import { mealService } from '../../services/meals'
 
 function makeWeeklyMeal(overrides: Partial<WeeklyMeal> = {}): WeeklyMeal {
   return {
-    id: 1,
+    id: '1',
     weekOf: '2026-03-23',
     name: 'Pasta',
     mealLibraryId: null,
     isFromLibrary: false,
     hasImage: false,
+    imageGuid: null,
     ...overrides,
   }
 }
 
 function makeLibraryMeal(overrides: Partial<LibraryMeal> = {}): LibraryMeal {
   return {
-    id: 10,
+    id: '10',
     name: 'Chicken Curry',
     createdBy: 'Sarah',
     createdAt: '2026-01-01T00:00:00Z',
     tags: [],
     hasImage: false,
     isFavorited: false,
+    imageGuid: null,
     ...overrides,
   }
 }
@@ -98,14 +100,14 @@ describe('MealPlanner', () => {
 
     await waitFor(() => {
       expect(mealService.addWeekly).toHaveBeenCalledWith(
-        1,
+        '1',
         expect.objectContaining({ name: 'Tacos' }),
       )
     })
   })
 
   it('shows a confirmation modal when the delete button is clicked on a manual entry meal', async () => {
-    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 5, name: 'Pasta', isFromLibrary: false })])
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: '5', name: 'Pasta', isFromLibrary: false })])
     renderPage()
 
     await waitFor(() => screen.getByText('Pasta'))
@@ -121,7 +123,7 @@ describe('MealPlanner', () => {
   })
 
   it('calls mealService.removeWeekly when confirmed in the modal', async () => {
-    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 5, name: 'Pasta', isFromLibrary: false })])
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: '5', name: 'Pasta', isFromLibrary: false })])
     vi.mocked(mealService.removeWeekly).mockResolvedValue(undefined)
     renderPage()
 
@@ -133,11 +135,11 @@ describe('MealPlanner', () => {
     await userEvent.click(deleteBtn)
     await userEvent.click(screen.getByRole('button', { name: 'Remove' }))
 
-    expect(mealService.removeWeekly).toHaveBeenCalledWith(5)
+    expect(mealService.removeWeekly).toHaveBeenCalledWith('5')
   })
 
   it('dismisses the confirmation modal without deleting when Cancel is clicked', async () => {
-    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 5, name: 'Pasta', isFromLibrary: false })])
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: '5', name: 'Pasta', isFromLibrary: false })])
     renderPage()
 
     await waitFor(() => screen.getByText('Pasta'))
@@ -153,7 +155,7 @@ describe('MealPlanner', () => {
   })
 
   it('calls mealService.removeWeekly directly (no modal) when close button is clicked on a library meal', async () => {
-    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: 6, name: 'Chicken Curry', isFromLibrary: true, mealLibraryId: 10 })])
+    vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: '6', name: 'Chicken Curry', isFromLibrary: true, mealLibraryId: '10' })])
     vi.mocked(mealService.removeWeekly).mockResolvedValue(undefined)
     renderPage()
 
@@ -165,11 +167,11 @@ describe('MealPlanner', () => {
     await userEvent.click(closeBtn)
 
     expect(screen.queryByRole('heading', { name: 'Remove Meal?' })).not.toBeInTheDocument()
-    expect(mealService.removeWeekly).toHaveBeenCalledWith(6)
+    expect(mealService.removeWeekly).toHaveBeenCalledWith('6')
   })
 
   it('calls mealService.addWeekly with libraryId when a library shortcut is clicked', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 10, name: 'Chicken Curry' })])
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '10', name: 'Chicken Curry' })])
     vi.mocked(mealService.addWeekly).mockResolvedValue(makeWeeklyMeal({ name: 'Chicken Curry' }))
     renderPage()
 
@@ -178,8 +180,8 @@ describe('MealPlanner', () => {
 
     await waitFor(() => {
       expect(mealService.addWeekly).toHaveBeenCalledWith(
-        1,
-        expect.objectContaining({ mealLibraryId: 10 }),
+        '1',
+        expect.objectContaining({ mealLibraryId: '10' }),
       )
     })
   })

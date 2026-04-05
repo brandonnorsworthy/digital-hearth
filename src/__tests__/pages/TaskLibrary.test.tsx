@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 })
 
 vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 1, username: 'Sarah', householdId: 1 }, isLoading: false, logout: vi.fn() }),
+  useAuth: () => ({ user: { id: '1', username: 'Sarah', householdId: '1' }, isLoading: false, logout: vi.fn() }),
 }))
 
 vi.mock('../../services/tasks', () => ({
@@ -26,8 +26,8 @@ import { taskService } from '../../services/tasks'
 
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
-    id: 1,
-    householdId: 1,
+    id: '1',
+    householdId: '1',
     name: 'Vacuum',
     intervalDays: 3,
     lastCompletedAt: null,
@@ -77,8 +77,8 @@ describe('TaskLibrary', () => {
 
   it('filters task names by search input', async () => {
     vi.mocked(taskService.list).mockResolvedValue([
-      makeTask({ id: 1, name: 'Vacuum', intervalDays: 3 }),
-      makeTask({ id: 2, name: 'Mop floors', intervalDays: 5 }),
+      makeTask({ id: '1', name: 'Vacuum', intervalDays: 3 }),
+      makeTask({ id: '2', name: 'Mop floors', intervalDays: 5 }),
     ])
     renderPage()
     await waitFor(() => screen.getByText('Vacuum'))
@@ -90,7 +90,7 @@ describe('TaskLibrary', () => {
   })
 
   it('navigates to /tasks/:id when a task row is clicked', async () => {
-    vi.mocked(taskService.list).mockResolvedValue([makeTask({ id: 7, name: 'Vacuum', intervalDays: 3 })])
+    vi.mocked(taskService.list).mockResolvedValue([makeTask({ id: '7', name: 'Vacuum', intervalDays: 3 })])
     renderPage()
     await waitFor(() => screen.getByText('Vacuum'))
 

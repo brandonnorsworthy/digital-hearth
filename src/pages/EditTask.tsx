@@ -20,6 +20,7 @@ export default function EditTask() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [unitSheetOpen, setUnitSheetOpen] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
 
   useEffect(() => {
     if (isNew || !user?.householdId) return
@@ -160,7 +161,7 @@ export default function EditTask() {
 
             {!isNew && (
               <button
-                onClick={handleDelete}
+                onClick={() => setConfirmDeleteOpen(true)}
                 disabled={saving}
                 className="w-full py-4 rounded-xl text-error font-semibold text-sm hover:bg-error/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
               >
@@ -179,6 +180,42 @@ export default function EditTask() {
           onSelect={v => setIntervalUnit(v as IntervalUnit)}
           onClose={() => setUnitSheetOpen(false)}
         />
+      )}
+      {confirmDeleteOpen && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmDeleteOpen(false)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Delete Task?</h3>
+              <p className="text-sm text-on-surface-variant">
+                Remove <span className="font-semibold text-on-surface">"{name}"</span> from your household? This can't be undone.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleDelete}
+                disabled={saving}
+                className="w-full py-3.5 rounded-xl bg-error text-on-error font-bold active:scale-[0.98] transition-all disabled:opacity-60"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setConfirmDeleteOpen(false)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </Layout>
   )

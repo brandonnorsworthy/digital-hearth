@@ -6,7 +6,7 @@ import MealLibrary from '../../pages/MealLibrary'
 import type { LibraryMeal } from '../../types/api'
 
 vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 1, username: 'Sarah', householdId: 1 }, isLoading: false, logout: vi.fn() }),
+  useAuth: () => ({ user: { id: '1', username: 'Sarah', householdId: '1' }, isLoading: false, logout: vi.fn() }),
 }))
 
 vi.mock('../../contexts/ToastContext', () => ({
@@ -27,13 +27,14 @@ import { mealService } from '../../services/meals'
 
 function makeLibraryMeal(overrides: Partial<LibraryMeal> = {}): LibraryMeal {
   return {
-    id: 1,
+    id: '1',
     name: 'Chicken Tikka',
     createdBy: 'Sarah',
     createdAt: '2026-01-01T00:00:00Z',
     tags: [],
     hasImage: false,
     isFavorited: false,
+    imageGuid: null,
     ...overrides,
   }
 }
@@ -49,7 +50,7 @@ function renderPage() {
 beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(mealService.library).mockResolvedValue([])
-  vi.mocked(mealService.addWeekly).mockResolvedValue({} as any)
+  vi.mocked(mealService.addWeekly).mockResolvedValue({ id: '1', weekOf: '2026-04-07', name: 'Chicken Tikka', mealLibraryId: null, isFromLibrary: true, hasImage: false, imageGuid: null })
   vi.mocked(mealService.removeFromLibrary).mockResolvedValue(undefined)
   vi.mocked(mealService.favoriteMeal).mockResolvedValue(undefined)
   vi.mocked(mealService.unfavoriteMeal).mockResolvedValue(undefined)
@@ -74,8 +75,8 @@ describe('MealLibrary', () => {
 
   it('filters meals by search input', async () => {
     vi.mocked(mealService.library).mockResolvedValue([
-      makeLibraryMeal({ id: 1, name: 'Chicken Tikka' }),
-      makeLibraryMeal({ id: 2, name: 'Beef Stew' }),
+      makeLibraryMeal({ id: '1', name: 'Chicken Tikka' }),
+      makeLibraryMeal({ id: '2', name: 'Beef Stew' }),
     ])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
@@ -87,15 +88,15 @@ describe('MealLibrary', () => {
   })
 
   it('calls mealService.addWeekly when "Add to Week" is clicked', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 5, name: 'Chicken Tikka' })])
-    vi.mocked(mealService.addWeekly).mockResolvedValue({} as any)
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '5', name: 'Chicken Tikka' })])
+    vi.mocked(mealService.addWeekly).mockResolvedValue({ id: '1', weekOf: '2026-04-07', name: 'Chicken Tikka', mealLibraryId: null, isFromLibrary: true, hasImage: false, imageGuid: null })
     renderPage()
     await waitFor(() => screen.getByRole('button', { name: /add to week/i }))
     await userEvent.click(screen.getByRole('button', { name: /add to week/i }))
     await waitFor(() => {
       expect(mealService.addWeekly).toHaveBeenCalledWith(
-        1,
-        expect.objectContaining({ mealLibraryId: 5 }),
+        '1',
+        expect.objectContaining({ mealLibraryId: '5' }),
       )
     })
   })
@@ -111,7 +112,7 @@ describe('MealLibrary', () => {
   })
 
   it('shows a confirmation modal when delete is clicked', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 3, name: 'Chicken Tikka' })])
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '3', name: 'Chicken Tikka' })])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
 
@@ -126,7 +127,7 @@ describe('MealLibrary', () => {
   })
 
   it('calls mealService.removeFromLibrary when Delete is confirmed', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 3, name: 'Chicken Tikka' })])
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '3', name: 'Chicken Tikka' })])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
 
@@ -136,11 +137,11 @@ describe('MealLibrary', () => {
     await userEvent.click(deleteBtn)
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
 
-    await waitFor(() => expect(mealService.removeFromLibrary).toHaveBeenCalledWith(3))
+    await waitFor(() => expect(mealService.removeFromLibrary).toHaveBeenCalledWith('3'))
   })
 
   it('dismisses the confirmation modal without deleting when Cancel is clicked', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 3, name: 'Chicken Tikka' })])
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '3', name: 'Chicken Tikka' })])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
 
@@ -155,7 +156,7 @@ describe('MealLibrary', () => {
   })
 
   it('renders a favorite button for each meal', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 1, name: 'Chicken Tikka', isFavorited: false })])
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '1', name: 'Chicken Tikka', isFavorited: false })])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
 
@@ -166,7 +167,7 @@ describe('MealLibrary', () => {
   })
 
   it('calls mealService.favoriteMeal when favoriting an unfavorited meal', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 5, isFavorited: false })])
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '5', isFavorited: false })])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
 
@@ -175,11 +176,11 @@ describe('MealLibrary', () => {
     )!
     await userEvent.click(favoriteBtn)
 
-    await waitFor(() => expect(mealService.favoriteMeal).toHaveBeenCalledWith(5))
+    await waitFor(() => expect(mealService.favoriteMeal).toHaveBeenCalledWith('5'))
   })
 
   it('calls mealService.unfavoriteMeal when unfavoriting a favorited meal', async () => {
-    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: 5, isFavorited: true })])
+    vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '5', isFavorited: true })])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
 
@@ -188,13 +189,13 @@ describe('MealLibrary', () => {
     )!
     await userEvent.click(unfavoriteBtn)
 
-    await waitFor(() => expect(mealService.unfavoriteMeal).toHaveBeenCalledWith(5))
+    await waitFor(() => expect(mealService.unfavoriteMeal).toHaveBeenCalledWith('5'))
   })
 
   it('shows only favorited meals when Favorites filter is active', async () => {
     vi.mocked(mealService.library).mockResolvedValue([
-      makeLibraryMeal({ id: 1, name: 'Chicken Tikka', isFavorited: true }),
-      makeLibraryMeal({ id: 2, name: 'Beef Stew', isFavorited: false }),
+      makeLibraryMeal({ id: '1', name: 'Chicken Tikka', isFavorited: true }),
+      makeLibraryMeal({ id: '2', name: 'Beef Stew', isFavorited: false }),
     ])
     renderPage()
     await waitFor(() => screen.getByText('Chicken Tikka'))
@@ -207,8 +208,8 @@ describe('MealLibrary', () => {
 
   it('renders favorited meals before non-favorited meals', async () => {
     vi.mocked(mealService.library).mockResolvedValue([
-      makeLibraryMeal({ id: 1, name: 'Beef Stew', isFavorited: false }),
-      makeLibraryMeal({ id: 2, name: 'Chicken Tikka', isFavorited: true }),
+      makeLibraryMeal({ id: '1', name: 'Beef Stew', isFavorited: false }),
+      makeLibraryMeal({ id: '2', name: 'Chicken Tikka', isFavorited: true }),
     ])
     renderPage()
     await waitFor(() => screen.getAllByRole('heading', { level: 3 }))
