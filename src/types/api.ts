@@ -10,6 +10,7 @@ export interface Household {
   id: string
   name: string
   joinCode: string
+  joinCodeExpiresAt: string
   weekResetDay: string
   goalMealsPerWeek: number | null
   monthlyImageBudget: number | null

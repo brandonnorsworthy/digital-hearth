@@ -104,22 +104,21 @@ backend: api.digitalhearth.zcog.net
 ### after 1.0
 
 - [x] tasks at a glance should show "no current tasks" or something if household has no tasks, instead of just being blank
-- [ ] weekly meal page, in the from your library list should show 10 results max
-- [ ] Household tasks screen should have some content if there are no tasks, instead of just being blank, maybe a button to add a task
-- [ ] from your library on the meal planner page should show a message if there are no meals in the library instead of just being blank, maybe a button to add a meal
-- [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
-- [ ] join code should be longer to make harder to brute force guess
-- [ ] join code invites should expire after 24 hours
+- [x] weekly meal page, in the from your library list should show 10 results max
+- [x] Household tasks screen should have some content if there are no tasks, instead of just being blank, maybe a button to add a task
+- [x] from your library on the meal planner page should show a message if there are no meals in the library instead of just being blank, maybe a button to add a meal
+- [x] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
+- [x] join code should be longer to make harder to brute force guess
+- [x] join code invites should expire after 24 hours
 - [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when
 - [ ] have a few more placeholder (20)+ meal suggestions in the input box for new meals instead of just "marry me chicken"
 - [ ] make a initial agreement pop up that just goes into local storage or something wether it has been shown that says, this is completely a personal project, hosted on my person server, and i do not make any promises about resiliency or data loss.
 - [ ] with auditing push subscriptions, we should track last successful push notification and if its over a month we should automatically delete that subscription from the database
 - [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months
 - [ ] need favicon and pwa icon
-- [ ] remove invite code button above the join code, redundant
 - [ ] join code should be hidden, and when you tap it, it should copy to clipboard and show a toast that says "join code copied to clipboard", it also should somehow indicate join code is only valid for 24 hours and then it expires
 
-# past 2.0
+# after 2.0
 - [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] there should be a responsive screen that when a user seems to be on a desktop, service worker could probably detect it, we should display a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] on the meal library page, underneath the filter the pills next to favorites would be tags of the household, so you can click a add new tag button but it also lists all tags you have to filter by item.

@@ -25,7 +25,7 @@ vi.mock('../../contexts/AuthContext', () => ({
 
 vi.mock('../../contexts/HouseholdContext', () => ({
   useHousehold: () => ({
-    household: { id: '1', name: 'The Smiths', joinCode: 'ABC123', weekResetDay: 'Monday', goalMealsPerWeek: 5 },
+    household: { id: '1', name: 'The Smiths', joinCode: 'ABC123', joinCodeExpiresAt: new Date(Date.now() + 86400000).toISOString(), weekResetDay: 'Monday', goalMealsPerWeek: 5 },
     members: [
       { id: '1', username: 'Sarah', role: 'admin' },
       { id: '2', username: 'John', role: 'member' },
@@ -39,6 +39,7 @@ vi.mock('../../contexts/HouseholdContext', () => ({
 vi.mock('../../services/household', () => ({
   householdService: {
     update: vi.fn().mockResolvedValue({}),
+    regenerateJoinCode: vi.fn().mockResolvedValue({}),
   },
 }))
 

@@ -192,6 +192,23 @@ export default function Settings() {
 
   const { isDark, toggle: toggleDark } = useTheme()
 
+  const isAdmin = members.find(m => m.username === user?.username)?.role === 'admin'
+  const [regeneratingCode, setRegeneratingCode] = useState(false)
+
+  async function handleRegenerateJoinCode() {
+    if (!user?.householdId) return
+    setRegeneratingCode(true)
+    try {
+      await householdService.regenerateJoinCode(user.householdId)
+      reload()
+      toast.success('New invite code generated')
+    } catch {
+      toast.error('Failed to regenerate invite code')
+    } finally {
+      setRegeneratingCode(false)
+    }
+  }
+
   const [changePinOpen, setChangePinOpen] = useState(false)
   const [currentPin, setCurrentPin] = useState('')
   const [newPin, setNewPin] = useState('')
@@ -258,19 +275,39 @@ export default function Settings() {
           </div>
 
           {/* Join code banner */}
-          {household && (
-            <div className="bg-surface-container-low rounded-xl p-4 flex items-center gap-3 border border-outline-variant/10">
-              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
-                vpn_key
-              </span>
-              <div>
-                <p className="text-xs text-on-surface-variant font-medium">Join Code</p>
-                <p className="font-headline font-extrabold text-lg text-primary tracking-widest">
-                  {household.joinCode}
-                </p>
+          {household && (() => {
+            const expiresAt = new Date(household.joinCodeExpiresAt)
+            const isExpired = expiresAt <= new Date()
+            const expiresLabel = isExpired
+              ? 'Expired'
+              : `Expires ${expiresAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${expiresAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+            return (
+              <div className={`rounded-xl p-4 flex items-center gap-3 border ${isExpired ? 'bg-error/5 border-error/20' : 'bg-surface-container-low border-outline-variant/10'}`}>
+                <span className={`material-symbols-outlined ${isExpired ? 'text-error' : 'text-primary'}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                  vpn_key
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-on-surface-variant font-medium">Join Code</p>
+                  <p className={`font-headline font-extrabold text-lg tracking-widest ${isExpired ? 'text-error/60 line-through' : 'text-primary'}`}>
+                    {household.joinCode}
+                  </p>
+                  <p className={`text-xs font-medium mt-0.5 ${isExpired ? 'text-error' : 'text-on-surface-variant'}`}>
+                    {expiresLabel}
+                  </p>
+                </div>
+                {isAdmin && (
+                  <button
+                    onClick={handleRegenerateJoinCode}
+                    disabled={regeneratingCode}
+                    className="shrink-0 flex items-center gap-1 text-xs font-bold text-primary bg-primary-container/30 px-3 py-1.5 rounded-full hover:bg-primary-container/50 transition-colors active:scale-95 disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-sm">refresh</span>
+                    New Code
+                  </button>
+                )}
               </div>
-            </div>
-          )}
+            )
+          })()}
 
           <div className="space-y-3">
             {members.map(member => {

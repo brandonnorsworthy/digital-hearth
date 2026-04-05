@@ -16,4 +16,7 @@ export const householdService = {
 
   join: (data: { username: string; password: string; joinCode: string }) =>
     api.post<{ user: User; household: Household }>('/households/join', data),
+
+  regenerateJoinCode: (id: string) =>
+    api.post<Household>(`/households/${id}/regenerate-join-code`),
 }

@@ -11,6 +11,7 @@ interface AuthContextValue {
   login: (username: string, password: string) => Promise<void>
   logout: () => Promise<void>
   createHousehold: (householdName: string, username: string, password: string) => Promise<void>
+  joinHousehold: (joinCode: string, username: string, password: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -48,8 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(u)
   }
 
+  async function joinHousehold(joinCode: string, username: string, password: string) {
+    const { user: u } = await householdService.join({ joinCode, username, password })
+    setUser(u)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, createHousehold }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, createHousehold, joinHousehold }}>
       {children}
     </AuthContext.Provider>
   )

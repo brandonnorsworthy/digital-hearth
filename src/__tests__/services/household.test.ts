@@ -60,7 +60,7 @@ describe('householdService.members', () => {
 describe('householdService.create', () => {
   it('calls POST /households with the creation data', async () => {
     mockFetch(201, { user: {}, household: {} })
-    await householdService.create({ householdName: 'Test', username: 'Alice', pin: '0000' })
+    await householdService.create({ householdName: 'Test', username: 'Alice', password: 'TestPass1!ab' })
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households'),
       expect.objectContaining({ method: 'POST' }),
@@ -71,9 +71,20 @@ describe('householdService.create', () => {
 describe('householdService.join', () => {
   it('calls POST /households/join', async () => {
     mockFetch(200, { user: {}, household: {} })
-    await householdService.join({ username: 'Bob', pin: '1234', joinCode: 'XYZ' })
+    await householdService.join({ username: 'Bob', password: 'TestPass1!ab', joinCode: 'XYZ123AB' })
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/households/join'),
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+})
+
+describe('householdService.regenerateJoinCode', () => {
+  it('calls POST /households/:id/regenerate-join-code', async () => {
+    mockFetch(200, { id: '1', name: 'The Smiths', joinCode: 'NEWCODE1', joinCodeExpiresAt: new Date().toISOString(), weekResetDay: 'Monday' })
+    await householdService.regenerateJoinCode('1')
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      expect.stringContaining('/households/1/regenerate-join-code'),
       expect.objectContaining({ method: 'POST' }),
     )
   })

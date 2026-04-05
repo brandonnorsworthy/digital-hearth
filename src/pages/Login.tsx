@@ -94,12 +94,20 @@ export default function Login() {
         </form>
       </div>
 
-      <button
-        onClick={() => navigate('/setup')}
-        className="mt-6 text-sm font-semibold text-on-surface-variant"
-      >
-        No account? <span className="text-primary">Create a household</span>
-      </button>
+      <div className="mt-6 flex flex-col items-center gap-2">
+        <button
+          onClick={() => navigate('/setup')}
+          className="text-sm font-semibold text-on-surface-variant"
+        >
+          No account? <span className="text-primary">Create a household</span>
+        </button>
+        <button
+          onClick={() => navigate('/join')}
+          className="text-sm font-semibold text-on-surface-variant"
+        >
+          Have an invite code? <span className="text-primary">Join a household</span>
+        </button>
+      </div>
 
       <p className="mt-8 text-xs text-on-surface-variant/40 font-medium">v{__APP_VERSION__}</p>
     </div>
