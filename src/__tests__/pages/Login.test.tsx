@@ -25,22 +25,22 @@ function renderLogin() {
 }
 
 describe('Login', () => {
-  it('renders username input, PIN input, and Sign In button', () => {
+  it('renders username input, password input, and Sign In button', () => {
     renderLogin()
     expect(screen.getByLabelText('Username')).toBeInTheDocument()
-    expect(screen.getByLabelText('PIN')).toBeInTheDocument()
+    expect(screen.getByLabelText('Password')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
   })
 
-  it('calls login with the typed username and PIN on submit', async () => {
+  it('calls login with the typed username and password on submit', async () => {
     mockLogin.mockResolvedValue(undefined)
     renderLogin()
 
     await user.type(screen.getByLabelText('Username'), 'Sarah')
-    await user.type(screen.getByLabelText('PIN'), '1234')
+    await user.type(screen.getByLabelText('Password'), 'TestPass1!')
     await user.click(screen.getByRole('button', { name: /sign in/i }))
 
-    expect(mockLogin).toHaveBeenCalledWith('Sarah', '1234')
+    expect(mockLogin).toHaveBeenCalledWith('Sarah', 'TestPass1!')
   })
 
   it('shows an error message when login throws', async () => {
@@ -48,11 +48,11 @@ describe('Login', () => {
     renderLogin()
 
     await user.type(screen.getByLabelText('Username'), 'Sarah')
-    await user.type(screen.getByLabelText('PIN'), '0000')
+    await user.type(screen.getByLabelText('Password'), 'wrong')
     await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid username or PIN.')).toBeInTheDocument()
+      expect(screen.getByText('Invalid username or password.')).toBeInTheDocument()
     })
   })
 
@@ -61,17 +61,17 @@ describe('Login', () => {
     renderLogin()
 
     await user.type(screen.getByLabelText('Username'), 'Sarah')
-    await user.type(screen.getByLabelText('PIN'), '0000')
+    await user.type(screen.getByLabelText('Password'), 'wrong')
     await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid username or PIN.')).toBeInTheDocument()
+      expect(screen.getByText('Invalid username or password.')).toBeInTheDocument()
     })
 
     await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
-      expect(screen.queryByText('Invalid username or PIN.')).not.toBeInTheDocument()
+      expect(screen.queryByText('Invalid username or password.')).not.toBeInTheDocument()
     })
   })
 
@@ -82,7 +82,7 @@ describe('Login', () => {
 
     renderLogin()
     await user.type(screen.getByLabelText('Username'), 'Sarah')
-    await user.type(screen.getByLabelText('PIN'), '1234')
+    await user.type(screen.getByLabelText('Password'), 'TestPass1!')
     await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
