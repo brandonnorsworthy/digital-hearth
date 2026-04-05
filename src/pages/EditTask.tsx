@@ -24,7 +24,7 @@ export default function EditTask() {
   useEffect(() => {
     if (isNew || !user?.householdId) return
     taskService.list(user.householdId).then(tasks => {
-      const task = tasks.find(t => t.id === Number(id))
+      const task = tasks.find(t => t.id === id)
       if (task) {
         setName(task.name)
         const { n, unit } = daysToNUnit(task.intervalDays)
@@ -44,7 +44,7 @@ export default function EditTask() {
       if (isNew) {
         await taskService.create(user.householdId, { name: name.trim(), tier, intervalDays })
       } else {
-        await taskService.update(Number(id), { name: name.trim(), tier, intervalDays })
+        await taskService.update(id!, { name: name.trim(), tier, intervalDays })
       }
       navigate(-1)
     } catch {
@@ -56,7 +56,7 @@ export default function EditTask() {
   async function handleDelete() {
     setSaving(true)
     try {
-      await taskService.delete(Number(id))
+      await taskService.delete(id!)
       navigate('/tasks')
     } catch {
       setError('Failed to delete task. Please try again.')

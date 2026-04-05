@@ -32,7 +32,7 @@ export default function Dashboard() {
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [tonightsDinner, setTonightsDinner] = useState<WeeklyMeal | undefined>()
-  const [completedIds, setCompletedIds] = useState<Set<number>>(new Set())
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
 
   async function loadData() {

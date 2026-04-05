@@ -23,7 +23,7 @@ export default function MealPlanner() {
   const [meals, setMeals] = useState<WeeklyMeal[]>([])
   const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [input, setInput] = useState('')
-  const [savingLibraryId, setSavingLibraryId] = useState<number | null>(null)
+  const [savingLibraryId, setSavingLibraryId] = useState<string | null>(null)
   const [weekOffset, setWeekOffset] = useState(0)
   const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<WeeklyMeal | null>(null)
   const [loading, setLoading] = useState(true)
@@ -48,7 +48,7 @@ export default function MealPlanner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.householdId, weekOf])
 
-  async function addMeal(name: string, libraryId?: number) {
+  async function addMeal(name: string, libraryId?: string) {
     if (!name.trim() || !user?.householdId) return
     const payload = libraryId
       ? { weekOf, mealLibraryId: libraryId }
@@ -64,7 +64,7 @@ export default function MealPlanner() {
     }
   }
 
-  async function removeMeal(id: number) {
+  async function removeMeal(id: string) {
     setMeals(prev => prev.filter(m => m.id !== id))
     try {
       await mealService.removeWeekly(id)

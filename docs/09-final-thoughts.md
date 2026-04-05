@@ -89,7 +89,8 @@ backend: api.digitalhearth.zcog.net
 - [x] budget per month for image generation per household
 - [x] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell
 - [x] move image data to a dedicated table for the token, image guid, image data, if it was ai generated, created at, and updated at
-- [ ] upgrade security, database ids, should be uuid instead of int to make it harder to brute force guess ids, especially for things like user ids, and household ids, task ids, meal ids, etc
+- [x] upgrade security, database ids, should be uuid instead of int to make it harder to brute force guess ids, especially for things like user ids, and household ids, task ids, meal ids, etc
+- [ ] dont have an account? create a household button on the login page that takes you to a create household page where you can create an account and household at the same time, this would just be a form with email, password, confirm password, household name, and then it would create the household and account at the same time and log you in.
 - [ ] confirmation are you sure you want to log out
 - [ ] when deleting a task are you sure you want to delete like the meal library delete
 - [ ] text on the setting thing is a little to far left
@@ -98,14 +99,18 @@ backend: api.digitalhearth.zcog.net
 - [ ] more dashboard verbs for larger variety
 - [ ] pin code should be converted to passwords with 1 capital, 1 lowercase, 1 number, 12 characters and 1 special character to make it more secure
 - [ ] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page
+- [ ] if household have no image generation budget per month ex: 0, it should say "Contact Brandon for a image generation budget" or something, instead of Resets on x 1st
 
-#### After everything above
+### After everything above
 
 - [ ] weekly meal page, in the from your library should show 10 results max
 - [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
+- [ ] Household tasks screen should have some content if there are no tasks, instead of just being blank, maybe a button to add a task
+- [ ] from your library on the meal planner page should show a message if there are no meals in the library instead of just being blank, maybe a button to add a meal
+- [ ] tasks at a glance should show "no current tasks" or something if household has no tasks, instead of just being blank
 - [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
-- [ ] join code invites
 - [ ] join code should be longer to make harder to brute force guess
+- [ ] join code invites should expire after 24 hours
 - [ ] user pin codes should be longer to make harder to brute force guess
 - [ ] moved out component files should have acompanying skeleton files for loading states
 - [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
@@ -118,5 +123,4 @@ backend: api.digitalhearth.zcog.net
 - [ ] loading components should have skeletons
 - [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months
 - [ ] on the meal library page, underneath the filter the pills next to favorites would be tags of the household, so you can click a add new tag button but it also lists all tags you have to filter by item.
-- [ ] dont have an account? create a household button on the login page that takes you to a create household page where you can create an account and household at the same time, this would just be a form with email, password, confirm password, household name, and then it would create the household and account at the same time and log you in.
 - [ ] allow users to upload their own images

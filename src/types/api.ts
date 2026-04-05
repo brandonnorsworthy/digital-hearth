@@ -1,13 +1,13 @@
 export type TaskTier = 'short' | 'medium' | 'long'
 
 export interface User {
-  id: number
+  id: string
   username: string
-  householdId: number
+  householdId: string
 }
 
 export interface Household {
-  id: number
+  id: string
   name: string
   joinCode: string
   weekResetDay: string
@@ -17,14 +17,14 @@ export interface Household {
 }
 
 export interface Member {
-  id: number
+  id: string
   username: string
   role: 'admin' | 'member'
 }
 
 export interface Task {
-  id: number
-  householdId: number
+  id: string
+  householdId: string
   name: string
   intervalDays: number
   lastCompletedAt: string | null
@@ -33,25 +33,25 @@ export interface Task {
 }
 
 export interface Completion {
-  id: number
-  taskId: number
+  id: string
+  taskId: string
   completedAt: string
-  userId: number
+  userId: string
   username: string
 }
 
 export interface WeeklyMeal {
-  id: number
+  id: string
   weekOf: string
   name: string
-  mealLibraryId: number | null
+  mealLibraryId: string | null
   isFromLibrary: boolean
   hasImage: boolean
   imageGuid: string | null
 }
 
 export interface LibraryMeal {
-  id: number
+  id: string
   name: string
   createdBy: string
   createdAt: string

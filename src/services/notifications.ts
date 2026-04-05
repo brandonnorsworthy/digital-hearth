@@ -24,13 +24,13 @@ export const notificationService = {
   unsubscribe: () =>
     api.delete('/notifications/subscription'),
 
-  preferences: (householdId: number) =>
-    api.get<{ optedOutTaskIds: number[] }>(`/households/${householdId}/notifications/preferences`),
+  preferences: (householdId: string) =>
+    api.get<{ optedOutTaskIds: string[] }>(`/households/${householdId}/notifications/preferences`),
 
-  optOut: (taskId: number) =>
+  optOut: (taskId: string) =>
     api.post<void>('/notifications/preferences/opt-out', { taskId }),
 
-  optIn: (taskId: number) =>
+  optIn: (taskId: string) =>
     api.delete(`/notifications/preferences/opt-out/${taskId}`),
 
   getUserNotifSettings: () =>

@@ -3,7 +3,7 @@ import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
-import { mealImageUrl } from '../services/api'
+import { mealImageUrl, ApiError } from '../services/api'
 import { getCurrentWeekOf } from '../utils/meals'
 import { useToast } from '../contexts/ToastContext'
 import { MEAL_CARD_COLORS, MEAL_CATEGORIES, MEAL_CATEGORY_TAG_MAP, CATEGORY_ALL, CATEGORY_FAVORITES } from '../constants/meals'
@@ -19,15 +19,15 @@ export default function MealLibrary() {
   const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState(CATEGORY_ALL)
-  const [addingId, setAddingId] = useState<number | null>(null)
+  const [addingId, setAddingId] = useState<string | null>(null)
   const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<LibraryMeal | null>(null)
   const [confirmRegenerateMeal, setConfirmRegenerateMeal] = useState<LibraryMeal | null>(null)
-  const [regeneratingIds, setRegeneratingIds] = useState<Set<number>>(new Set())
+  const [regeneratingIds, setRegeneratingIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [addingNew, setAddingNew] = useState(false)
   const [newMealName, setNewMealName] = useState('')
   const [savingNew, setSavingNew] = useState(false)
-  const tapCountsRef = useRef<Map<number, { count: number; timer: ReturnType<typeof setTimeout> }>>(new Map())
+  const tapCountsRef = useRef<Map<string, { count: number; timer: ReturnType<typeof setTimeout> }>>(new Map())
 
   const weekOf = getCurrentWeekOf()
 
@@ -115,8 +115,8 @@ export default function MealLibrary() {
       const imageGuid = await mealService.regenerateImage(meal.id)
       setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, hasImage: true, imageGuid } : m))
       toast.success(`Image regenerated for ${meal.name}`)
-    } catch {
-      toast.error('Failed to regenerate image.')
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Failed to regenerate image.')
     } finally {
       setRegeneratingIds(prev => { const next = new Set(prev); next.delete(meal.id); return next })
     }

@@ -98,10 +98,10 @@ describe('notificationService.updateUserNotifSettings', () => {
 
 describe('notificationService.preferences', () => {
   it('calls GET /households/:id/notifications/preferences', async () => {
-    mockFetch(200, { optedOutTaskIds: [1, 2] })
-    await notificationService.preferences(42)
+    mockFetch(200, { optedOutTaskIds: ['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002'] })
+    await notificationService.preferences('00000000-0000-0000-0000-000000000042')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      expect.stringContaining('/households/42/notifications/preferences'),
+      expect.stringContaining('/households/00000000-0000-0000-0000-000000000042/notifications/preferences'),
       expect.anything(),
     )
   })
@@ -110,22 +110,24 @@ describe('notificationService.preferences', () => {
 describe('notificationService.optOut', () => {
   it('calls POST /notifications/preferences/opt-out with taskId', async () => {
     mockFetch(204, null)
-    await notificationService.optOut(7)
+    const taskId = '00000000-0000-0000-0000-000000000007'
+    await notificationService.optOut(taskId)
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/notifications/preferences/opt-out'),
       expect.objectContaining({ method: 'POST' }),
     )
     const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
-    expect(body).toEqual({ taskId: 7 })
+    expect(body).toEqual({ taskId })
   })
 })
 
 describe('notificationService.optIn', () => {
   it('calls DELETE /notifications/preferences/opt-out/:taskId', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 204, ok: true, json: () => Promise.resolve(null) }))
-    await notificationService.optIn(7)
+    const taskId = '00000000-0000-0000-0000-000000000007'
+    await notificationService.optIn(taskId)
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      expect.stringContaining('/notifications/preferences/opt-out/7'),
+      expect.stringContaining(`/notifications/preferences/opt-out/${taskId}`),
       expect.objectContaining({ method: 'DELETE' }),
     )
   })

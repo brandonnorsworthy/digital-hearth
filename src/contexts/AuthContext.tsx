@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import { authService } from '../services/auth'
+import { householdService } from '../services/household'
 import { ApiError } from '../services/api'
 import type { User } from '../types/api'
 
@@ -9,6 +10,7 @@ interface AuthContextValue {
   isLoading: boolean
   login: (username: string, pin: string) => Promise<void>
   logout: () => Promise<void>
+  createHousehold: (householdName: string, username: string, pin: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -41,8 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  async function createHousehold(householdName: string, username: string, pin: string) {
+    const { user: u } = await householdService.create({ householdName, username, pin })
+    setUser(u)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, createHousehold }}>
       {children}
     </AuthContext.Provider>
   )
