@@ -174,7 +174,12 @@ export default function Dashboard() {
             <h3 className="font-headline font-bold text-xl tracking-tight">Tasks at a Glance</h3>
           </div>
           <div className="grid gap-3">
-            {glanceTasks.map(task => {
+            {glanceTasks.length === 0 ? (
+              <div className="text-center py-6 text-on-surface-variant">
+                <span className="material-symbols-outlined text-3xl text-primary/30 block mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                <p className="text-sm font-medium">No current tasks</p>
+              </div>
+            ) : glanceTasks.map(task => {
               const { variant, label } = getDueBadge(task)
               return (
                 <div
