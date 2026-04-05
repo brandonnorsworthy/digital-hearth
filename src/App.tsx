@@ -16,6 +16,7 @@ import TaskLibrary from './pages/TaskLibrary'
 import Settings from './pages/Settings'
 import CreateHousehold from './pages/CreateHousehold'
 import JoinHousehold from './pages/JoinHousehold'
+import TaskHistory from './pages/TaskHistory'
 import { notificationService } from './services/notifications'
 
 
@@ -36,6 +37,7 @@ function AppRoutes() {
       <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
       <Route path="/tasks/library" element={<ProtectedRoute><TaskLibrary /></ProtectedRoute>} />
       <Route path="/tasks/:id" element={<ProtectedRoute><EditTask /></ProtectedRoute>} />
+      <Route path="/tasks/:id/history" element={<ProtectedRoute><TaskHistory /></ProtectedRoute>} />
       <Route path="/meals" element={<ProtectedRoute><MealPlanner /></ProtectedRoute>} />
       <Route path="/meals/library" element={<ProtectedRoute><MealLibrary /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />

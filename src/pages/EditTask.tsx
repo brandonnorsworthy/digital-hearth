@@ -7,6 +7,7 @@ import { taskService } from '../services/tasks'
 import { INTERVAL_UNITS, daysToNUnit, nUnitToDays } from '../utils/intervals'
 import { getTierFromDays } from '../utils/task'
 import type { IntervalUnit } from '../utils/intervals'
+import type { Task } from '../types/api'
 
 export default function EditTask() {
   const { id } = useParams<{ id: string }>()
@@ -21,14 +22,16 @@ export default function EditTask() {
   const [error, setError] = useState<string | null>(null)
   const [unitSheetOpen, setUnitSheetOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [task, setTask] = useState<Task | null>(null)
 
   useEffect(() => {
     if (isNew || !user?.householdId) return
     taskService.list(user.householdId).then(tasks => {
-      const task = tasks.find(t => t.id === id)
-      if (task) {
-        setName(task.name)
-        const { n, unit } = daysToNUnit(task.intervalDays)
+      const found = tasks.find(t => t.id === id)
+      if (found) {
+        setTask(found)
+        setName(found.name)
+        const { n, unit } = daysToNUnit(found.intervalDays)
         setIntervalN(n)
         setIntervalUnit(unit)
       }
@@ -146,6 +149,32 @@ export default function EditTask() {
 
           {error && (
             <p className="text-sm text-error font-medium text-center">{error}</p>
+          )}
+
+          {/* Completion history */}
+          {!isNew && (
+            <button
+              onClick={() => navigate(`/tasks/${id}/history`)}
+              className="w-full flex items-center justify-between p-4 bg-surface-container-low rounded-xl border border-outline-variant/10 active:bg-surface-container-high transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-on-surface-variant">history</span>
+                <div className="text-left">
+                  <p className="font-headline font-bold text-on-surface text-sm">Completion History</p>
+                  {task?.lastCompletedBy ? (
+                    <p className="text-xs text-on-surface-variant mt-0.5">
+                      Last completed by <span className="font-semibold">{task.lastCompletedBy}</span>
+                      {task.lastCompletedAt && (
+                        <> · {new Date(task.lastCompletedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-on-surface-variant mt-0.5">Never completed</p>
+                  )}
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-on-surface-variant/40">chevron_right</span>
+            </button>
           )}
 
           {/* Actions */}
