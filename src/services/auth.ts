@@ -2,8 +2,8 @@ import { api } from './api'
 import type { User } from '../types/api'
 
 export const authService = {
-  login: (username: string, pin: string) =>
-    api.post<User>('/auth/login', { username, pin }),
+  login: (username: string, password: string) =>
+    api.post<User>('/auth/login', { username, password }),
 
   logout: () =>
     api.post<void>('/auth/logout'),
@@ -11,6 +11,6 @@ export const authService = {
   me: () =>
     api.get<User>('/auth/me'),
 
-  changePin: (currentPin: string, newPin: string) =>
-    api.post<void>('/auth/change-pin', { currentPin, newPin }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.post<void>('/auth/change-password', { currentPassword, newPassword }),
 }

@@ -97,14 +97,13 @@ backend: api.digitalhearth.zcog.net
 - [x] rounding on stuff like goal meals per week div is too rounded
 - [x] i think the icons on the meal library on top of the image when in dark mode are too light
 - [x] more dashboard verbs for larger variety
-- [ ] pin code should be converted to passwords with 1 capital, 1 lowercase, 1 number, 12 characters and 1 special character to make it more secure
+- [x] pin code should be converted to passwords with 1 capital, 1 lowercase, 1 number, 12 characters and 1 special character to make it more secure
 - [ ] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page
 - [ ] if household have no image generation budget per month ex: 0, it should say "Contact Brandon for a image generation budget" or something, instead of Resets on x 1st
 
 ### After everything above
 
-- [ ] weekly meal page, in the from your library should show 10 results max
-- [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
+- [ ] weekly meal page, in the from your library list should show 10 results max
 - [ ] Household tasks screen should have some content if there are no tasks, instead of just being blank, maybe a button to add a task
 - [ ] from your library on the meal planner page should show a message if there are no meals in the library instead of just being blank, maybe a button to add a meal
 - [ ] tasks at a glance should show "no current tasks" or something if household has no tasks, instead of just being blank
@@ -113,6 +112,7 @@ backend: api.digitalhearth.zcog.net
 - [ ] join code invites should expire after 24 hours
 - [ ] user pin codes should be longer to make harder to brute force guess
 - [ ] moved out component files should have acompanying skeleton files for loading states
+- [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] I want a few variable phrases on the dashboard instead of only "2 things need attention" a few more quips would be fun
 - [ ] opening a task to edit on the task library page should have a section at the bottom saying last completed by with a arrow to open all history on that task, this would be a new page that shows a list of all the completion history for that task, who completed it and when
 - [ ] have a few more placeholder meal suggestions in the input box for new meals instead of just "merry me chicken"

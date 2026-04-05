@@ -8,9 +8,9 @@ import type { User } from '../types/api'
 interface AuthContextValue {
   user: User | null
   isLoading: boolean
-  login: (username: string, pin: string) => Promise<void>
+  login: (username: string, password: string) => Promise<void>
   logout: () => Promise<void>
-  createHousehold: (householdName: string, username: string, pin: string) => Promise<void>
+  createHousehold: (householdName: string, username: string, password: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -33,8 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsLoading(false))
   }, [])
 
-  async function login(username: string, pin: string) {
-    const u = await authService.login(username, pin)
+  async function login(username: string, password: string) {
+    const u = await authService.login(username, password)
     setUser(u)
   }
 
@@ -43,8 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
-  async function createHousehold(householdName: string, username: string, pin: string) {
-    const { user: u } = await householdService.create({ householdName, username, pin })
+  async function createHousehold(householdName: string, username: string, password: string) {
+    const { user: u } = await householdService.create({ householdName, username, password })
     setUser(u)
   }
 

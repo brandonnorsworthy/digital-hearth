@@ -20,24 +20,24 @@ afterEach(() => {
 describe('authService.login', () => {
   it('calls POST /auth/login', async () => {
     mockFetch(200, { id: 1, username: 'Sarah', householdId: 1 })
-    await authService.login('Sarah', '1234')
+    await authService.login('Sarah', 'TestPass1!abc')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       expect.stringContaining('/auth/login'),
       expect.objectContaining({ method: 'POST' }),
     )
   })
 
-  it('sends username and pin in the request body', async () => {
+  it('sends username and password in the request body', async () => {
     mockFetch(200, { id: 1, username: 'Sarah', householdId: 1 })
-    await authService.login('Sarah', '1234')
+    await authService.login('Sarah', 'TestPass1!abc')
     const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
-    expect(body).toEqual({ username: 'Sarah', pin: '1234' })
+    expect(body).toEqual({ username: 'Sarah', password: 'TestPass1!abc' })
   })
 
   it('returns the user object on success', async () => {
     const user = { id: 1, username: 'Sarah', householdId: 1 }
     mockFetch(200, user)
-    const result = await authService.login('Sarah', '1234')
+    const result = await authService.login('Sarah', 'TestPass1!abc')
     expect(result).toEqual(user)
   })
 })
@@ -71,25 +71,25 @@ describe('authService.me', () => {
   })
 })
 
-describe('authService.changePin', () => {
-  it('calls POST /auth/change-pin', async () => {
+describe('authService.changePassword', () => {
+  it('calls POST /auth/change-password', async () => {
     mockFetch(204, null)
-    await authService.changePin('1234', '5678')
+    await authService.changePassword('TestPass1!abc', 'NewPass2!xyz')
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      expect.stringContaining('/auth/change-pin'),
+      expect.stringContaining('/auth/change-password'),
       expect.objectContaining({ method: 'POST' }),
     )
   })
 
-  it('sends currentPin and newPin in the request body', async () => {
+  it('sends currentPassword and newPassword in the request body', async () => {
     mockFetch(204, null)
-    await authService.changePin('1234', '5678')
+    await authService.changePassword('TestPass1!abc', 'NewPass2!xyz')
     const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
-    expect(body).toEqual({ currentPin: '1234', newPin: '5678' })
+    expect(body).toEqual({ currentPassword: 'TestPass1!abc', newPassword: 'NewPass2!xyz' })
   })
 
   it('throws when the server returns 401', async () => {
-    mockFetch(401, { error: 'Current PIN is incorrect' })
-    await expect(authService.changePin('wrong', '5678')).rejects.toThrow()
+    mockFetch(401, { error: 'Current password is incorrect' })
+    await expect(authService.changePassword('wrong', 'NewPass2!xyz')).rejects.toThrow()
   })
 })

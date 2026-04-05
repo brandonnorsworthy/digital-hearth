@@ -10,6 +10,7 @@ import { WEEK_DAYS } from '../constants/household'
 import { notificationService, type UserNotifSettings } from '../services/notifications'
 import { authService } from '../services/auth'
 import { urlBase64ToUint8Array } from '../utils/encoding'
+import { validatePassword } from '../utils/password'
 import { useToast } from '../contexts/ToastContext'
 import { useTheme } from '../contexts/ThemeContext'
 
@@ -209,21 +210,22 @@ export default function Settings() {
   async function handleChangePinSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
     setChangePinError(null)
-    if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-      setChangePinError('New PIN must be exactly 4 digits.')
+    const passwordError = validatePassword(newPin)
+    if (passwordError) {
+      setChangePinError(passwordError)
       return
     }
     if (newPin !== confirmPin) {
-      setChangePinError('PINs do not match.')
+      setChangePinError('Passwords do not match.')
       return
     }
     setChangePinLoading(true)
     try {
-      await authService.changePin(currentPin, newPin)
+      await authService.changePassword(currentPin, newPin)
       setChangePinOpen(false)
-      toast.success('PIN updated successfully')
+      toast.success('Password updated successfully')
     } catch {
-      setChangePinError('Current PIN is incorrect.')
+      setChangePinError('Current password is incorrect.')
     } finally {
       setChangePinLoading(false)
     }
@@ -510,14 +512,14 @@ export default function Settings() {
                 </span>
                 <div>
                   <p className="font-bold text-on-surface">Privacy Lock</p>
-                  <p className="text-sm text-on-surface-variant">Manage your 4-digit household access PIN</p>
+                  <p className="text-sm text-on-surface-variant">Manage your household access password</p>
                 </div>
               </div>
               <button
                 onClick={openChangePinModal}
                 className="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98]"
               >
-                Change Access PIN
+                Change Password
               </button>
             </div>
           </div>
@@ -569,7 +571,7 @@ export default function Settings() {
               <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
             </div>
             <div className="px-8 pt-4 pb-6 flex items-center justify-between">
-              <h3 className="font-headline text-2xl font-bold text-on-surface">Change Access PIN</h3>
+              <h3 className="font-headline text-2xl font-bold text-on-surface">Change Password</h3>
               <button
                 onClick={() => setChangePinOpen(false)}
                 className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors"
@@ -579,43 +581,40 @@ export default function Settings() {
             </div>
             <form onSubmit={handleChangePinSubmit} className="px-8 pb-10 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="current-pin" className="text-sm font-semibold text-on-surface-variant ml-1">Current PIN</label>
+                <label htmlFor="current-pin" className="text-sm font-semibold text-on-surface-variant ml-1">Current Password</label>
                 <input
                   id="current-pin"
                   type="password"
-                  inputMode="numeric"
-                  maxLength={4}
+                  autoComplete="current-password"
                   value={currentPin}
                   onChange={e => setCurrentPin(e.target.value)}
-                  placeholder="••••"
+                  placeholder="••••••••••••"
                   required
                   className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="new-pin" className="text-sm font-semibold text-on-surface-variant ml-1">New PIN</label>
+                <label htmlFor="new-pin" className="text-sm font-semibold text-on-surface-variant ml-1">New Password</label>
                 <input
                   id="new-pin"
                   type="password"
-                  inputMode="numeric"
-                  maxLength={4}
+                  autoComplete="new-password"
                   value={newPin}
                   onChange={e => setNewPin(e.target.value)}
-                  placeholder="••••"
+                  placeholder="••••••••••••"
                   required
                   className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="confirm-pin" className="text-sm font-semibold text-on-surface-variant ml-1">Confirm New PIN</label>
+                <label htmlFor="confirm-pin" className="text-sm font-semibold text-on-surface-variant ml-1">Confirm New Password</label>
                 <input
                   id="confirm-pin"
                   type="password"
-                  inputMode="numeric"
-                  maxLength={4}
+                  autoComplete="new-password"
                   value={confirmPin}
                   onChange={e => setConfirmPin(e.target.value)}
-                  placeholder="••••"
+                  placeholder="••••••••••••"
                   required
                   className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 />
@@ -631,7 +630,7 @@ export default function Settings() {
                 <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   {changePinLoading ? 'progress_activity' : 'lock_reset'}
                 </span>
-                {changePinLoading ? 'Updating…' : 'Update PIN'}
+                {changePinLoading ? 'Updating…' : 'Update Password'}
               </button>
             </form>
           </div>
@@ -652,7 +651,7 @@ export default function Settings() {
             <div className="flex flex-col gap-1 text-center">
               <h3 className="font-headline text-xl font-bold text-on-surface">Sign Out?</h3>
               <p className="text-sm text-on-surface-variant">
-                You'll need your username and PIN to sign back in.
+                You'll need your username and password to sign back in.
               </p>
             </div>
             <div className="flex flex-col gap-3">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { validatePassword } from '../utils/password'
 
 export default function CreateHousehold() {
   const { createHousehold } = useAuth()
@@ -17,12 +18,13 @@ export default function CreateHousehold() {
     e.preventDefault()
     setError(null)
 
-    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
-      setError('PIN must be exactly 4 digits.')
+    const passwordError = validatePassword(pin)
+    if (passwordError) {
+      setError(passwordError)
       return
     }
     if (pin !== confirmPin) {
-      setError('PINs do not match.')
+      setError('Passwords do not match.')
       return
     }
 
@@ -91,36 +93,32 @@ export default function CreateHousehold() {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="pin" className="text-sm font-semibold text-on-surface-variant ml-1">
-              4-Digit PIN
+              Password
             </label>
             <input
               id="pin"
               type="password"
-              inputMode="numeric"
               autoComplete="new-password"
-              maxLength={4}
               value={pin}
-              onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              onChange={e => setPin(e.target.value)}
               required
-              placeholder="••••"
+              placeholder="••••••••••••"
               className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="confirmPin" className="text-sm font-semibold text-on-surface-variant ml-1">
-              Confirm PIN
+              Confirm Password
             </label>
             <input
               id="confirmPin"
               type="password"
-              inputMode="numeric"
               autoComplete="new-password"
-              maxLength={4}
               value={confirmPin}
-              onChange={e => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              onChange={e => setConfirmPin(e.target.value)}
               required
-              placeholder="••••"
+              placeholder="••••••••••••"
               className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>

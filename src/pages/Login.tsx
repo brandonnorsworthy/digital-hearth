@@ -19,7 +19,7 @@ export default function Login() {
       // No navigate() call — auth state change causes ProtectedRoute to
       // re-render in-place, keeping the URL stable and the PWA in standalone mode.
     } catch {
-      setError('Invalid username or PIN.')
+      setError('Invalid username or password.')
     } finally {
       setLoading(false)
     }
@@ -63,17 +63,16 @@ export default function Login() {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="pin" className="text-sm font-semibold text-on-surface-variant ml-1">
-              PIN
+              Password
             </label>
             <input
               id="pin"
               type="password"
-              inputMode="numeric"
               autoComplete="current-password"
               value={pin}
               onChange={e => setPin(e.target.value)}
               required
-              placeholder="••••••"
+              placeholder="••••••••••••"
               className="bg-surface-container-high border-none rounded-xl px-4 py-3.5 text-on-surface font-medium placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
