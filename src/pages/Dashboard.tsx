@@ -147,7 +147,7 @@ export default function Dashboard() {
             <div className="aspect-16/10 w-full">
               {tonightsDinner?.hasImage && tonightsDinner?.mealLibraryId ? (
                 <img
-                  src={mealImageUrl(tonightsDinner.mealLibraryId)}
+                  src={`${mealImageUrl(tonightsDinner.mealLibraryId)}${tonightsDinner.imageToken ? `?v=${tonightsDinner.imageToken}` : ''}`}
                   alt={tonightsDinner.name}
                   className="w-full h-full object-cover"
                   loading="lazy"

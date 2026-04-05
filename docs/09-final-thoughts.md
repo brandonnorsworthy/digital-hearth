@@ -86,17 +86,21 @@ backend: api.digitalhearth.zcog.net
 
 - [x] when in dark mode the example task of the edit task screen is super light and hard to see
 - [x] in the meal library add a new recipe button doesnt work, should support adding a new recipe without adding it to the week. it should be moved to the top of the search results
-- [ ] budget per month for image generation per household
-- [ ] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell
+- [x] budget per month for image generation per household
+- [x] when a image is regenerated there should be a new token with the meal for image token to help bust any caching, this means that creating a image would need to set a image token aswell
+- [x] move image data to a dedicated table for the token, image guid, image data, if it was ai generated, created at, and updated at
 - [ ] confirmation are you sure you want to log out
 - [ ] when deleting a task are you sure you want to delete like the meal library delete
 - [ ] text on the setting thing is a little to far left
 - [ ] rounding on stuff like goal meals per week div is too rounded
 - [ ] i think the icons on the meal library on top of the image when in dark mode are too light
 - [ ] more dashboard verbs for larger variety
+- [ ] pin code should be converted to passwords with 1 capital, 1 lowercase, 1 number, 12 characters and 1 special character to make it more secure
+- [ ] somehow to increment versioning for every commit, version should be visible on login and bottom of settings page
 
 #### After everything above
 
+- [ ] should have a service worker detect non-mobile users, and show a message that says "This app is designed for mobile use, please switch to a mobile device for the best experience" or something like that. There should also be a guide on how to set it up as a pwa on their phone so it can be used as a app
 - [ ] should have a background pill or something to indicate the current week so you dont get lost going forward or backward
 - [ ] join code invites
 - [ ] join code should be longer to make harder to brute force guess
@@ -113,3 +117,4 @@ backend: api.digitalhearth.zcog.net
 - [ ] show all filter toggle that shows all hidden tasks that are hidden because theres no need to show a complete task for 6 months
 - [ ] on the meal library page, underneath the filter the pills next to favorites would be tags of the household, so you can click a add new tag button but it also lists all tags you have to filter by item.
 - [ ] dont have an account? create a household button on the login page that takes you to a create household page where you can create an account and household at the same time, this would just be a form with email, password, confirm password, household name, and then it would create the household and account at the same time and log you in.
+- [ ] allow users to upload their own images

@@ -12,6 +12,8 @@ export interface Household {
   joinCode: string
   weekResetDay: string
   goalMealsPerWeek: number | null
+  monthlyImageBudget: number | null
+  imageGenThisMonth: number
 }
 
 export interface Member {
@@ -45,6 +47,7 @@ export interface WeeklyMeal {
   mealLibraryId: number | null
   isFromLibrary: boolean
   hasImage: boolean
+  imageToken: string | null
 }
 
 export interface LibraryMeal {
@@ -55,4 +58,5 @@ export interface LibraryMeal {
   tags: string[]
   hasImage: boolean
   isFavorited: boolean
+  imageToken: string | null
 }

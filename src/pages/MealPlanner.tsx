@@ -202,7 +202,7 @@ export default function MealPlanner() {
                   <div className={`w-12 h-12 rounded-xl overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
                     {meal.isFromLibrary ? (
                       meal.hasImage && meal.mealLibraryId ? (
-                        <img src={mealImageUrl(meal.mealLibraryId)} alt={meal.name} className="w-full h-full object-cover" loading="lazy" crossOrigin="use-credentials" />
+                        <img src={`${mealImageUrl(meal.mealLibraryId)}${meal.imageToken ? `?v=${meal.imageToken}` : ''}`} alt={meal.name} className="w-full h-full object-cover" loading="lazy" crossOrigin="use-credentials" />
                       ) : (
                         <span className="font-headline font-black text-on-surface/40 text-xl">
                           {meal.name[0]}
@@ -276,7 +276,7 @@ export default function MealPlanner() {
               >
                 <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
                   {item.hasImage ? (
-                    <img src={mealImageUrl(item.id)} alt={item.name} className="w-full h-full object-cover" loading="lazy" crossOrigin="use-credentials" />
+                    <img src={`${mealImageUrl(item.id)}${item.imageToken ? `?v=${item.imageToken}` : ''}`} alt={item.name} className="w-full h-full object-cover" loading="lazy" crossOrigin="use-credentials" />
                   ) : (
                     <span className="font-headline font-black text-on-surface/40 text-xl">
                       {item.name[0]}

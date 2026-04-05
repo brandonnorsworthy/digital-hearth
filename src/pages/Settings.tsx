@@ -303,8 +303,8 @@ export default function Settings() {
 
         {/* Household Settings */}
         <section className="space-y-4">
-          <h2 className="font-headline font-bold text-xl text-on-surface">Household Settings</h2>
-          <div className="bg-surface-container rounded-xl overflow-hidden">
+          <h2 className="font-headline font-bold text-lg text-on-surface">Household Settings</h2>
+          <div className="bg-surface-container rounded-lg overflow-hidden">
             <button
               onClick={() => setWeekDaySheetOpen(true)}
               className="w-full p-4 flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer border-b border-outline-variant/10"
@@ -335,6 +335,45 @@ export default function Settings() {
               />
             </div>
           </div>
+
+          {/* Image generation usage meter */}
+          {household && (
+            <div className="bg-surface-container rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary text-base">auto_awesome</span>
+                  <span className="font-medium text-sm">Image Generation This Month</span>
+                </div>
+                <span className="text-sm font-bold text-on-surface">
+                  {household.monthlyImageBudget != null ? `${household.imageGenThisMonth} / ${household.monthlyImageBudget}` : `${household.imageGenThisMonth} / ∞`}
+                </span>
+              </div>
+              {household.monthlyImageBudget != null ? (
+                <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      household.imageGenThisMonth >= household.monthlyImageBudget
+                        ? 'bg-error'
+                        : household.imageGenThisMonth / household.monthlyImageBudget > 0.8
+                          ? 'bg-tertiary'
+                          : 'bg-primary'
+                    }`}
+                    style={{ width: `${Math.min(100, (household.imageGenThisMonth / household.monthlyImageBudget) * 100)}%` }}
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                  <div className="h-full w-full bg-primary/20 rounded-full" />
+                </div>
+              )}
+              <p className="text-xs text-on-surface-variant">
+                {household.monthlyImageBudget != null
+                  ? `Resets on ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+                  : `Unlimited — resets on ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+                }
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Personal Preferences */}
@@ -343,7 +382,7 @@ export default function Settings() {
 
           {/* Dark mode toggle */}
           <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-xl">
-            <div className="flex flex-col">
+            <div className="flex flex-col pl-2">
               <span className="font-bold text-on-surface">Dark Mode</span>
               <span className="text-xs text-on-surface-variant">Switch to a darker color scheme</span>
             </div>
@@ -360,7 +399,7 @@ export default function Settings() {
               <Toggle checked={pushEnabled} onChange={handlePushToggle} />
             </div>
           ) : (
-            <div className="flex items-start gap-3 p-4 bg-secondary-container/40 rounded-xl border border-outline-variant/20">
+            <div className="flex items-center gap-3 p-4 bg-secondary-container/40 rounded-xl border border-outline-variant/20">
               <span className="material-symbols-outlined text-secondary shrink-0 mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>
                 install_mobile
               </span>
@@ -374,7 +413,7 @@ export default function Settings() {
           )}
 
           {/* Reminder time + medium term days */}
-          <div className="bg-surface-container rounded-xl overflow-hidden">
+          <div className="bg-surface-container rounded-lg overflow-hidden">
             <div className="p-4 flex items-center justify-between border-b border-outline-variant/10">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">schedule</span>
@@ -445,7 +484,7 @@ export default function Settings() {
                 key={item.key}
                 className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl transition-opacity ${!notifSettings[item.key] ? 'opacity-60' : ''}`}
               >
-                <div className="flex flex-col">
+                <div className="flex flex-col pl-2">
                   <span className="font-bold text-on-surface">{item.label}</span>
                   <span className="text-xs text-on-surface-variant">{item.sub}</span>
                 </div>
@@ -461,7 +500,7 @@ export default function Settings() {
         {/* Security */}
         <section className="space-y-4">
           <h2 className="font-headline font-bold text-xl text-on-surface">Security</h2>
-          <div className="bg-surface-container-high rounded-xl p-6 relative overflow-hidden">
+          <div className="bg-surface-container-high rounded-lg p-6 relative overflow-hidden">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
             <div className="relative z-10 flex flex-col gap-4">
               <div className="flex items-center gap-3">

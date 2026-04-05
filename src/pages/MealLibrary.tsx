@@ -23,7 +23,6 @@ export default function MealLibrary() {
   const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<LibraryMeal | null>(null)
   const [confirmRegenerateMeal, setConfirmRegenerateMeal] = useState<LibraryMeal | null>(null)
   const [regeneratingIds, setRegeneratingIds] = useState<Set<number>>(new Set())
-  const [imageVersions, setImageVersions] = useState<Record<number, number>>({})
   const [loading, setLoading] = useState(true)
   const [addingNew, setAddingNew] = useState(false)
   const [newMealName, setNewMealName] = useState('')
@@ -113,9 +112,8 @@ export default function MealLibrary() {
     setConfirmRegenerateMeal(null)
     setRegeneratingIds(prev => new Set(prev).add(meal.id))
     try {
-      await mealService.regenerateImage(meal.id)
-      setImageVersions(prev => ({ ...prev, [meal.id]: (prev[meal.id] ?? 0) + 1 }))
-      setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, hasImage: true } : m))
+      const token = await mealService.regenerateImage(meal.id)
+      setLibrary(prev => prev.map(m => m.id === meal.id ? { ...m, hasImage: true, imageToken: token } : m))
       toast.success(`Image regenerated for ${meal.name}`)
     } catch {
       toast.error('Failed to regenerate image.')
@@ -298,7 +296,7 @@ export default function MealLibrary() {
                 <div className="h-48 relative overflow-hidden" onClick={() => handleImageTap(meal)}>
                   {meal.hasImage ? (
                     <img
-                      src={`${mealImageUrl(meal.id)}${imageVersions[meal.id] ? `?v=${imageVersions[meal.id]}` : ''}`}
+                      src={`${mealImageUrl(meal.id)}${meal.imageToken ? `?v=${meal.imageToken}` : ''}`}
                       alt={meal.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
