@@ -33,6 +33,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     householdId: '1',
     name: 'Clean gutters',
     intervalDays: 90,
+    isOneTime: false,
     lastCompletedAt: null,
     lastCompletedBy: null,
     nextDueAt: new Date(Date.now() + 30 * 86_400_000).toISOString(),

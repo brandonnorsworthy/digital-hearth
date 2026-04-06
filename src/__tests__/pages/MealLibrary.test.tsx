@@ -50,7 +50,7 @@ function renderPage() {
 beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(mealService.library).mockResolvedValue([])
-  vi.mocked(mealService.addWeekly).mockResolvedValue({ id: '1', weekOf: '2026-04-07', name: 'Chicken Tikka', mealLibraryId: null, isFromLibrary: true, hasImage: false, imageGuid: null })
+  vi.mocked(mealService.addWeekly).mockResolvedValue({ id: '1', weekOf: '2026-04-07', name: 'Chicken Tikka', mealLibraryId: null, isFromLibrary: true, isCooked: false, hasImage: false, imageGuid: null })
   vi.mocked(mealService.removeFromLibrary).mockResolvedValue(undefined)
   vi.mocked(mealService.favoriteMeal).mockResolvedValue(undefined)
   vi.mocked(mealService.unfavoriteMeal).mockResolvedValue(undefined)
@@ -89,7 +89,7 @@ describe('MealLibrary', () => {
 
   it('calls mealService.addWeekly when "Add to Week" is clicked', async () => {
     vi.mocked(mealService.library).mockResolvedValue([makeLibraryMeal({ id: '5', name: 'Chicken Tikka' })])
-    vi.mocked(mealService.addWeekly).mockResolvedValue({ id: '1', weekOf: '2026-04-07', name: 'Chicken Tikka', mealLibraryId: null, isFromLibrary: true, hasImage: false, imageGuid: null })
+    vi.mocked(mealService.addWeekly).mockResolvedValue({ id: '1', weekOf: '2026-04-07', name: 'Chicken Tikka', mealLibraryId: null, isFromLibrary: true, isCooked: false, hasImage: false, imageGuid: null })
     renderPage()
     await waitFor(() => screen.getByRole('button', { name: /add to week/i }))
     await userEvent.click(screen.getByRole('button', { name: /add to week/i }))

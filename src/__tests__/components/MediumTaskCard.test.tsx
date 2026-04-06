@@ -18,6 +18,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     householdId: '1',
     name: 'Deep clean bathroom',
     intervalDays: 14,
+    isOneTime: false,
     lastCompletedAt: null,
     lastCompletedBy: null,
     nextDueAt: new Date(Date.now() + 5 * 86_400_000).toISOString(),

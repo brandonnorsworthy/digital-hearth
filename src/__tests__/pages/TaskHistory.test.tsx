@@ -26,7 +26,7 @@ vi.mock('../../services/tasks', () => ({
 
 const mockTask = {
   id: 'task-1', householdId: '1', name: 'Clean Kitchen',
-  intervalDays: 7, lastCompletedAt: null, lastCompletedBy: null, nextDueAt: new Date().toISOString(),
+  intervalDays: 7, isOneTime: false, lastCompletedAt: null, lastCompletedBy: null, nextDueAt: new Date().toISOString(),
 }
 
 const mockHistory = [

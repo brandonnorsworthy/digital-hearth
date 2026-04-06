@@ -21,5 +21,5 @@ export const householdService = {
     api.post<Household>(`/households/${id}/regenerate-join-code`),
 
   kickMember: (householdId: string, memberId: string) =>
-    api.delete<void>(`/households/${householdId}/members/${memberId}`),
+    api.delete(`/households/${householdId}/members/${memberId}`),
 }
