@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
+import { useHousehold } from '../contexts/HouseholdContext'
 import { taskService } from '../services/tasks'
 import { mealService } from '../services/meals'
 import { mealImageUrl } from '../services/api'
@@ -16,6 +17,7 @@ import { getGreeting, getHeadline } from '../utils/dashboard'
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const { household } = useHousehold()
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -28,13 +30,13 @@ export default function Dashboard() {
     if (!user?.householdId) return
     const [taskData, mealData] = await Promise.all([
       taskService.list(user.householdId),
-      mealService.weeklyList(user.householdId, getCurrentWeekOf()),
+      mealService.weeklyList(user.householdId, getCurrentWeekOf(household?.weekResetDay)),
     ])
     setTasks(taskData)
     setCompletedIds(new Set(taskData.filter(isTaskDone).map(t => t.id)))
     if (mealData.length) setTonightsDinner(mealData[Math.floor(Math.random() * mealData.length)])
     setLoading(false)
-  }, [user])
+  }, [user, household])
 
   useEffect(() => {
     loadData().catch(console.error)
