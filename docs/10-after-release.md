@@ -4,7 +4,7 @@
 - [x] If you try to remove a meal after a week has already started there should be a confirmation popup that says "This week has already started, are you sure you want to remove this meal?"
 - [x] height of the current week pill indicator should be consistent with previous and future week pills, currently its a little shorter than the other pills which makes ui jump
 - [x] On a add new task screen, add a checkbox to indicate one time task, turn frequency schedule into just a due date selector if its a one time task, if its not a one time task then show the frequency schedule options like normal
-- [ ] One time tasks should not have a completetion history when editing
+- [x] One time tasks should not have a completetion history when editing
 - [ ] editing a task should include the same one time task checkbox and logic as creating a new task
 - [ ] bug: current start day is sunday but the week view shows sunday as the end day of the week
 - [ ] when opening meal library from a future week you should beable to add the meal to the week selected

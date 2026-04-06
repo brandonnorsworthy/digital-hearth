@@ -202,7 +202,7 @@ export default function EditTask() {
           )}
 
           {/* Completion history */}
-          {!isNew && (
+          {!isNew && !isOneTime && (
             <button
               onClick={() => navigate(`/tasks/${id}/history`)}
               className="w-full flex items-center justify-between p-4 bg-surface-container-low rounded-xl border border-outline-variant/10 active:bg-surface-container-high transition-colors"
