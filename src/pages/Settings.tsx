@@ -83,7 +83,7 @@ export default function Settings() {
       } catch (err) {
         setWeekResetDay(null)
         if (err instanceof ApiError && err.status === 403) {
-          toast.error('Only household admins can change this setting')
+          toast.error('Only Household Admins can change this setting')
         }
       }
     }
@@ -140,7 +140,7 @@ export default function Settings() {
       reload()
     } catch (err) {
       if (err instanceof ApiError && err.status === 403) {
-        toast.error('Only household admins can change this setting')
+        toast.error('Only Household Admins can change this setting')
       }
     }
   }
@@ -375,34 +375,56 @@ export default function Settings() {
         <section className="space-y-4">
           <h2 className="font-headline font-bold text-lg text-on-surface">Household Settings</h2>
           <div className="bg-surface-container rounded-lg overflow-hidden">
-            <button
-              onClick={() => setWeekDaySheetOpen(true)}
-              className="w-full p-4 flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer border-b border-outline-variant/10"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">calendar_month</span>
-                <span className="font-medium">Week Start Day</span>
-              </div>
-              <div className="flex items-center gap-2">
+            {isAdmin ? (
+              <button
+                onClick={() => setWeekDaySheetOpen(true)}
+                className="w-full p-4 flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer border-b border-outline-variant/10"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary">calendar_month</span>
+                  <span className="font-medium">Week Start Day</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-on-surface-variant text-sm">{currentWeekDay}</span>
+                  <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+                </div>
+              </button>
+            ) : (
+              <div
+                onClick={() => toast.error('Only Household Admins can change this setting')}
+                className="w-full p-4 flex items-center justify-between border-b border-outline-variant/10 cursor-default"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary">calendar_month</span>
+                  <span className="font-medium">Week Start Day</span>
+                </div>
                 <span className="text-on-surface-variant text-sm">{currentWeekDay}</span>
-                <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
               </div>
-            </button>
-            <div className="w-full p-4 flex items-center justify-between">
+            )}
+            <div
+              onClick={!isAdmin ? () => toast.error('Only Household Admins can change this setting') : undefined}
+              className={`w-full p-4 flex items-center justify-between${!isAdmin ? ' cursor-default' : ''}`}
+            >
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">restaurant</span>
                 <span className="font-medium">Goal Meals Per Week</span>
               </div>
-              <input
-                type="number"
-                min={1}
-                max={14}
-                value={goalMeals}
-                onChange={e => setGoalMeals(e.target.value)}
-                onBlur={handleGoalMealsBlur}
-                placeholder="—"
-                className="w-16 text-right bg-surface-container-high rounded-lg px-3 py-1.5 text-on-surface font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-              />
+              {isAdmin ? (
+                <input
+                  type="number"
+                  min={1}
+                  max={14}
+                  value={goalMeals}
+                  onChange={e => setGoalMeals(e.target.value)}
+                  onBlur={handleGoalMealsBlur}
+                  placeholder="—"
+                  className="w-16 text-right bg-surface-container-high rounded-lg px-3 py-1.5 text-on-surface font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                />
+              ) : (
+                <span className="text-on-surface-variant text-sm font-medium">
+                  {household?.goalMealsPerWeek ?? '—'}
+                </span>
+              )}
             </div>
           </div>
 

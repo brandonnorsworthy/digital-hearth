@@ -36,7 +36,7 @@ export default function JoinHousehold() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : ''
       if (msg.toLowerCase().includes('expired')) {
-        setError('This invite code has expired. Ask a household admin to generate a new one.')
+        setError('This invite code has expired. Ask a Household Admin to generate a new one.')
       } else if (msg.toLowerCase().includes('not found')) {
         setError('Invite code not found. Check the code and try again.')
       } else if (msg.toLowerCase().includes('username')) {
