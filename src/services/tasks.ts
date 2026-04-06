@@ -5,10 +5,10 @@ export const taskService = {
   list: (householdId: string) =>
     api.get<Task[]>(`/households/${householdId}/tasks`),
 
-  create: (householdId: string, data: { name: string; tier: TaskTier; intervalDays: number }) =>
+  create: (householdId: string, data: { name: string; tier: TaskTier; intervalDays: number; isOneTime?: boolean }) =>
     api.post<Task>(`/households/${householdId}/tasks`, data),
 
-  update: (id: string, data: Partial<{ name: string; tier: TaskTier; intervalDays: number }>) =>
+  update: (id: string, data: Partial<{ name: string; tier: TaskTier; intervalDays: number; isOneTime: boolean }>) =>
     api.put<Task>(`/tasks/${id}`, data),
 
   delete: (id: string) =>

@@ -13,8 +13,10 @@ export default function TaskCard({ task, onComplete, completing }: { task: Task;
         <div className="flex-1">
           <h3 className="font-headline font-bold text-lg text-on-surface">{task.name}</h3>
           <p className="text-sm text-on-surface-variant flex items-center gap-1 mt-1">
-            <span className="material-symbols-outlined text-sm">event_repeat</span>
-            Every {daysToLabel(task.intervalDays)}
+            <span className="material-symbols-outlined text-sm">{task.isOneTime ? 'event' : 'event_repeat'}</span>
+            {task.isOneTime
+              ? `Due ${new Date(task.nextDueAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+              : `Every ${daysToLabel(task.intervalDays)}`}
           </p>
         </div>
         {!completing && (

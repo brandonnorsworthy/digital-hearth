@@ -16,8 +16,10 @@ export default function MediumTaskCard({ task, onComplete, completing }: { task:
         <div className="flex-1">
           <h3 className="font-headline font-bold text-lg text-on-surface">{task.name}</h3>
           <p className="text-sm text-on-surface-variant flex items-center gap-1 mt-1">
-            <span className="material-symbols-outlined text-sm">calendar_month</span>
-            Every {daysToLabel(task.intervalDays)}
+            <span className="material-symbols-outlined text-sm">{task.isOneTime ? 'event' : 'calendar_month'}</span>
+            {task.isOneTime
+              ? `Due ${new Date(task.nextDueAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+              : `Every ${daysToLabel(task.intervalDays)}`}
           </p>
         </div>
         {!completing && (

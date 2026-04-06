@@ -28,6 +28,7 @@ export interface Task {
   householdId: string
   name: string
   intervalDays: number
+  isOneTime: boolean
   lastCompletedAt: string | null
   lastCompletedBy: string | null
   nextDueAt: string

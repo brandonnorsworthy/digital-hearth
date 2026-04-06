@@ -9,6 +9,9 @@ import { daysToNUnit } from '../utils/intervals'
 import type { Task } from '../types/api'
 
 function intervalLabel(task: Task): string {
+  if (task.isOneTime) {
+    return `Due ${new Date(task.nextDueAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+  }
   const { n, unit } = daysToNUnit(task.intervalDays)
   return `Every ${n} ${unit}${n !== 1 ? 's' : ''}`
 }
