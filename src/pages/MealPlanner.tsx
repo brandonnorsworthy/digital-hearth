@@ -184,13 +184,13 @@ export default function MealPlanner() {
         {/* Week indicator */}
         <div className="flex justify-center mb-2">
           {weekOffset === 0 ? (
-            <span className="bg-primary-container text-on-primary-container text-xs font-bold px-3 py-1 rounded-full">
+            <span className="bg-primary-container text-on-primary-container text-xs font-bold px-3 rounded-full inline-flex items-center h-8">
               Current Week
             </span>
           ) : (
             <button
               onClick={() => setWeekOffset(0)}
-              className="bg-surface-container text-primary text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 active:scale-95 transition-transform"
+              className="bg-surface-container text-primary text-xs font-bold px-3 rounded-full flex items-center gap-1 h-8 active:scale-95 transition-transform"
             >
               {weekOffset < 0 ? (
                 <>
@@ -304,8 +304,10 @@ export default function MealPlanner() {
                     onClick={() => {
                       if (weekOffset === 0) {
                         setConfirmRemoveStartedWeekMeal(meal)
+                      } else if (meal.isFromLibrary) {
+                        removeMeal(meal.id)
                       } else {
-                        meal.isFromLibrary ? removeMeal(meal.id) : setConfirmDeleteMeal(meal)
+                        setConfirmDeleteMeal(meal)
                       }
                     }}
                     className="p-2 text-outline-variant hover:text-error transition-colors rounded-full hover:bg-error-container/10 active:scale-95"
