@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
 import { mealService } from '../services/meals'
 import { mealImageUrl, ApiError } from '../services/api'
-import { getCurrentWeekOf } from '../utils/meals'
+import { getCurrentWeekOf, formatWeekRange } from '../utils/meals'
 import { useToast } from '../contexts/ToastContext'
 import { MEAL_CARD_COLORS, MEAL_CATEGORIES, MEAL_CATEGORY_TAG_MAP, CATEGORY_ALL, CATEGORY_FAVORITES } from '../constants/meals'
 import type { LibraryMeal } from '../types/api'
@@ -15,6 +16,7 @@ const IMAGE_REGEN_TAP_RESET_MS = 1000
 export default function MealLibrary() {
   const { user } = useAuth()
   const toast = useToast()
+  const location = useLocation()
 
   const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [search, setSearch] = useState('')
@@ -29,7 +31,8 @@ export default function MealLibrary() {
   const [savingNew, setSavingNew] = useState(false)
   const tapCountsRef = useRef<Map<string, { count: number; timer: ReturnType<typeof setTimeout> }>>(new Map())
 
-  const weekOf = getCurrentWeekOf()
+  const weekOf: string = (location.state as { weekOf?: string } | null)?.weekOf ?? getCurrentWeekOf()
+  const isCurrentWeek = weekOf === getCurrentWeekOf()
 
   const loadData = useCallback(async () => {
     if (!user?.householdId) return
@@ -182,7 +185,9 @@ export default function MealLibrary() {
             What's for dinner?
           </h2>
           <p className="text-on-surface-variant mb-6">
-            Browse your family's saved meals and add them to this week.
+            {isCurrentWeek
+              ? "Browse your family's saved meals and add them to this week."
+              : `Browse your family's saved meals and add them to the week of ${formatWeekRange(weekOf)}.`}
           </p>
           <div className="relative group">
             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">

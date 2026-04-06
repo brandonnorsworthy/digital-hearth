@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
@@ -35,7 +35,12 @@ export default function MealPlanner() {
   const [library, setLibrary] = useState<LibraryMeal[]>([])
   const [input, setInput] = useState('')
   const [savingLibraryId, setSavingLibraryId] = useState<string | null>(null)
-  const [weekOffset, setWeekOffset] = useState(0)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const weekOffset = Number(searchParams.get('week') ?? 0)
+  function setWeekOffset(updater: number | ((prev: number) => number)) {
+    const next = typeof updater === 'function' ? updater(weekOffset) : updater
+    setSearchParams(next === 0 ? {} : { week: String(next) }, { replace: true })
+  }
   const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<WeeklyMeal | null>(null)
   const [confirmCookMeal, setConfirmCookMeal] = useState<WeeklyMeal | null>(null)
   const [confirmRemoveStartedWeekMeal, setConfirmRemoveStartedWeekMeal] = useState<WeeklyMeal | null>(null)
@@ -341,7 +346,7 @@ export default function MealPlanner() {
           <div className="flex items-center justify-between">
             <h3 className="font-headline font-bold text-base text-on-surface">From Your Library</h3>
             <button
-              onClick={() => navigate('/meals/library')}
+              onClick={() => navigate('/meals/library', { state: { weekOf } })}
               className="text-xs font-bold text-primary flex items-center gap-1"
             >
               View all <span className="material-symbols-outlined text-xs">arrow_forward</span>
