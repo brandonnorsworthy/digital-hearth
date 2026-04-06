@@ -9,7 +9,7 @@
 - [x] bug: current start day is sunday but the week view shows sunday as the end day of the week
 - [x] when opening meal library from a future week you should beable to add the meal to the week selected
 - [x] if you are the household admin you should beable to kick a member, this would soft delete that persons account
-- [ ] editing goal meals per week as member not admin still leaves the input as the input put in instead of resetting to previous, probably just change this to readonly for members and only show the current goal meals per week without the ability to edit it, since its not something they can change anyway
+- [x] editing goal meals per week as member not admin still leaves the input as the input put in instead of resetting to previous, probably just change this to readonly for members and only show the current goal meals per week without the ability to edit it, since its not something they can change anyway
 
 # 2.0 features
 
