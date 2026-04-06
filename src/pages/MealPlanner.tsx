@@ -35,6 +35,8 @@ export default function MealPlanner() {
   const [savingLibraryId, setSavingLibraryId] = useState<string | null>(null)
   const [weekOffset, setWeekOffset] = useState(0)
   const [confirmDeleteMeal, setConfirmDeleteMeal] = useState<WeeklyMeal | null>(null)
+  const [confirmCookMeal, setConfirmCookMeal] = useState<WeeklyMeal | null>(null)
+  const [confirmRemoveStartedWeekMeal, setConfirmRemoveStartedWeekMeal] = useState<WeeklyMeal | null>(null)
   const [loading, setLoading] = useState(true)
 
   const currentWeekOf = getCurrentWeekOf()
@@ -82,6 +84,16 @@ export default function MealPlanner() {
     } catch {
       mealService.weeklyList(user!.householdId, weekOf).then(setMeals).catch(console.error)
       toast.error('Failed to remove meal. Please try again.')
+    }
+  }
+
+  async function toggleCooked(meal: WeeklyMeal, isCooked: boolean) {
+    setMeals(prev => prev.map(m => m.id === meal.id ? { ...m, isCooked } : m))
+    try {
+      await mealService.markCooked(meal.id, isCooked)
+    } catch {
+      setMeals(prev => prev.map(m => m.id === meal.id ? { ...m, isCooked: !isCooked } : m))
+      toast.error('Failed to update meal. Please try again.')
     }
   }
 
@@ -168,9 +180,9 @@ export default function MealPlanner() {
       headerLeft={navButton(-1)}
       headerRight={navButton(1)}
     >
-      <div className="pt-6 px-6 max-w-2xl mx-auto space-y-8 pb-4">
+      <div className="mt-2 px-6 max-w-2xl mx-auto space-y-8">
         {/* Week indicator */}
-        <div className="flex justify-center -mt-2">
+        <div className="flex justify-center mb-2">
           {weekOffset === 0 ? (
             <span className="bg-primary-container text-on-primary-container text-xs font-bold px-3 py-1 rounded-full">
               Current Week
@@ -232,13 +244,17 @@ export default function MealPlanner() {
             {meals.map((meal, i) => (
               <div
                 key={meal.id}
-                className="bg-surface-container-lowest rounded-xl p-4 flex items-center justify-between shadow-sm border border-outline-variant/5 group"
+                className={`rounded-xl p-4 flex items-center justify-between shadow-sm border group transition-all ${
+                  meal.isCooked
+                    ? 'bg-surface-container/40 border-outline-variant/5 opacity-60'
+                    : 'bg-surface-container-lowest border-outline-variant/5'
+                }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl overflow-hidden ${mealColor(i)} flex items-center justify-center`}>
+                  <div className={`w-12 h-12 rounded-xl overflow-hidden ${mealColor(i)} flex items-center justify-center relative`}>
                     {meal.isFromLibrary ? (
                       meal.hasImage && meal.mealLibraryId ? (
-                        <img src={meal.imageGuid ? mealImageUrl(meal.mealLibraryId, meal.imageGuid) : ''} alt={meal.name} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={meal.imageGuid ? mealImageUrl(meal.mealLibraryId, meal.imageGuid) : ''} alt={meal.name} className={`w-full h-full object-cover ${meal.isCooked ? 'grayscale' : ''}`} loading="lazy" />
                       ) : (
                         <span className="font-headline font-black text-on-surface/40 text-xl">
                           {meal.name[0]}
@@ -247,15 +263,33 @@ export default function MealPlanner() {
                     ) : (
                       <span className="material-symbols-outlined text-on-surface-variant/40">dinner_dining</span>
                     )}
+                    {meal.isCooked && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-surface/50 rounded-xl">
+                        <span className="material-symbols-outlined text-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                      </div>
+                    )}
                   </div>
                   <div>
-                    <p className="font-headline font-bold text-on-surface">{meal.name}</p>
+                    <p className={`font-headline font-bold ${meal.isCooked ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>{meal.name}</p>
                     <p className="text-xs text-on-surface-variant capitalize">
-                      {meal.isFromLibrary ? 'From library' : 'Manual entry'}
+                      {meal.isCooked ? 'Cooked' : meal.isFromLibrary ? 'From library' : 'Manual entry'}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
+                  {weekOffset <= 0 && (
+                    <button
+                      onClick={() => meal.isCooked ? toggleCooked(meal, false) : setConfirmCookMeal(meal)}
+                      className={`p-2 transition-colors rounded-full active:scale-95 ${
+                        meal.isCooked
+                          ? 'text-primary hover:text-on-surface-variant hover:bg-surface-container'
+                          : 'text-outline-variant hover:text-primary hover:bg-primary-container/30'
+                      }`}
+                      title={meal.isCooked ? 'Mark as uncooked' : 'Mark as cooked'}
+                    >
+                      <span className="material-symbols-outlined text-lg" style={meal.isCooked ? { fontVariationSettings: "'FILL' 1" } : {}}>check_circle</span>
+                    </button>
+                  )}
                   {!meal.isFromLibrary && (
                     <button
                       onClick={() => saveToLibrary(meal)}
@@ -267,7 +301,13 @@ export default function MealPlanner() {
                     </button>
                   )}
                   <button
-                    onClick={() => meal.isFromLibrary ? removeMeal(meal.id) : setConfirmDeleteMeal(meal)}
+                    onClick={() => {
+                      if (weekOffset === 0) {
+                        setConfirmRemoveStartedWeekMeal(meal)
+                      } else {
+                        meal.isFromLibrary ? removeMeal(meal.id) : setConfirmDeleteMeal(meal)
+                      }
+                    }}
                     className="p-2 text-outline-variant hover:text-error transition-colors rounded-full hover:bg-error-container/10 active:scale-95"
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -339,6 +379,78 @@ export default function MealPlanner() {
         </section>
 
       </div>
+
+      {confirmCookMeal && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmCookMeal(null)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Mark as Cooked?</h3>
+              <p className="text-sm text-on-surface-variant">
+                Mark <span className="font-semibold text-on-surface">"{confirmCookMeal.name}"</span> as cooked for this week?
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => { toggleCooked(confirmCookMeal, true); setConfirmCookMeal(null) }}
+                className="w-full py-3.5 rounded-xl bg-primary text-on-primary font-bold active:scale-[0.98] transition-all"
+              >
+                Mark as Cooked
+              </button>
+              <button
+                onClick={() => setConfirmCookMeal(null)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmRemoveStartedWeekMeal && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmRemoveStartedWeekMeal(null)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Week Already Started</h3>
+              <p className="text-sm text-on-surface-variant">
+                This week has already started. Are you sure you want to remove <span className="font-semibold text-on-surface">"{confirmRemoveStartedWeekMeal.name}"</span>?
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => { removeMeal(confirmRemoveStartedWeekMeal.id); setConfirmRemoveStartedWeekMeal(null) }}
+                className="w-full py-3.5 rounded-xl bg-error text-on-error font-bold active:scale-[0.98] transition-all"
+              >
+                Remove
+              </button>
+              <button
+                onClick={() => setConfirmRemoveStartedWeekMeal(null)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {confirmDeleteMeal && (
         <div

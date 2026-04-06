@@ -49,6 +49,7 @@ export interface WeeklyMeal {
   isFromLibrary: boolean
   hasImage: boolean
   imageGuid: string | null
+  isCooked: boolean
 }
 
 export interface LibraryMeal {

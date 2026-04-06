@@ -441,7 +441,7 @@ export default function Settings() {
           {/* Push toggle */}
           {isPwa ? (
             <div className={`flex items-center justify-between p-4 bg-surface-container-low rounded-xl ${pushPending ? 'opacity-60' : ''}`}>
-              <div className="flex flex-col">
+              <div className="flex flex-col pl-2">
                 <span className="font-bold text-on-surface">Push Notifications</span>
                 <span className="text-xs text-on-surface-variant">Allow alerts on this device</span>
               </div>

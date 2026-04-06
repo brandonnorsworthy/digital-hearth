@@ -18,6 +18,9 @@ export const mealService = {
   removeWeekly: (id: string) =>
     api.delete(`/meals/weekly/${id}`),
 
+  markCooked: (id: string, isCooked: boolean) =>
+    api.patch<WeeklyMeal>(`/meals/weekly/${id}/cooked`, { isCooked }),
+
   library: (householdId: string) =>
     api.get<LibraryMeal[]>(`/households/${householdId}/meals/library`),
 

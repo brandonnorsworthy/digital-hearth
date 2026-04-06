@@ -40,6 +40,7 @@ function makeWeeklyMeal(overrides: Partial<WeeklyMeal> = {}): WeeklyMeal {
     isFromLibrary: false,
     hasImage: false,
     imageGuid: null,
+    isCooked: false,
     ...overrides,
   }
 }
@@ -117,7 +118,7 @@ describe('MealPlanner', () => {
     )!
     await userEvent.click(deleteBtn)
 
-    expect(screen.getByRole('heading', { name: 'Remove Meal?' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Week Already Started' })).toBeInTheDocument()
     expect(screen.getByText(/"Pasta"/)).toBeInTheDocument()
     expect(mealService.removeWeekly).not.toHaveBeenCalled()
   })
@@ -154,7 +155,7 @@ describe('MealPlanner', () => {
     expect(mealService.removeWeekly).not.toHaveBeenCalled()
   })
 
-  it('calls mealService.removeWeekly directly (no modal) when close button is clicked on a library meal', async () => {
+  it('shows "Week Already Started" confirmation modal when close button is clicked on a library meal in the current week', async () => {
     vi.mocked(mealService.weeklyList).mockResolvedValue([makeWeeklyMeal({ id: '6', name: 'Chicken Curry', isFromLibrary: true, mealLibraryId: '10' })])
     vi.mocked(mealService.removeWeekly).mockResolvedValue(undefined)
     renderPage()
@@ -166,8 +167,8 @@ describe('MealPlanner', () => {
     )!
     await userEvent.click(closeBtn)
 
-    expect(screen.queryByRole('heading', { name: 'Remove Meal?' })).not.toBeInTheDocument()
-    expect(mealService.removeWeekly).toHaveBeenCalledWith('6')
+    expect(screen.getByRole('heading', { name: 'Week Already Started' })).toBeInTheDocument()
+    expect(mealService.removeWeekly).not.toHaveBeenCalled()
   })
 
   it('calls mealService.addWeekly with libraryId when a library shortcut is clicked', async () => {
