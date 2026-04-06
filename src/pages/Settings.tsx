@@ -200,6 +200,20 @@ export default function Settings() {
 
   const isAdmin = members.find(m => m.username === user?.username)?.role === 'admin'
   const [regeneratingCode, setRegeneratingCode] = useState(false)
+  const [confirmKickMember, setConfirmKickMember] = useState<{ id: string; username: string } | null>(null)
+
+  async function handleKickMember() {
+    if (!user?.householdId || !confirmKickMember) return
+    try {
+      await householdService.kickMember(user.householdId, confirmKickMember.id)
+      toast.success(`${confirmKickMember.username} has been removed`)
+      reload()
+    } catch {
+      toast.error('Failed to remove member. Please try again.')
+    } finally {
+      setConfirmKickMember(null)
+    }
+  }
 
   async function handleRegenerateJoinCode() {
     if (!user?.householdId) return
@@ -318,6 +332,7 @@ export default function Settings() {
           <div className="space-y-3">
             {members.map(member => {
               const isMe = member.username === user?.username
+              const canKick = isAdmin && !isMe && member.role !== 'admin'
               return (
                 <div
                   key={member.id}
@@ -340,6 +355,15 @@ export default function Settings() {
                     <span className="text-xs font-bold px-2 py-1 bg-primary-container text-on-primary-container rounded-md">
                       YOU
                     </span>
+                  )}
+                  {canKick && (
+                    <button
+                      onClick={() => setConfirmKickMember({ id: member.id, username: member.username })}
+                      className="p-2 text-outline-variant hover:text-error transition-colors rounded-full hover:bg-error-container/10 active:scale-95"
+                      title="Remove member"
+                    >
+                      <span className="material-symbols-outlined text-lg">person_remove</span>
+                    </button>
                   )}
                 </div>
               )
@@ -684,6 +708,41 @@ export default function Settings() {
                 {changePinLoading ? 'Updating…' : 'Update Password'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {confirmKickMember && (
+        <div
+          className="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-60 flex items-end justify-center"
+          onClick={() => setConfirmKickMember(null)}
+        >
+          <div
+            className="bg-surface rounded-t-xl w-full max-w-xl shadow-2xl p-8 flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1 text-center">
+              <h3 className="font-headline text-xl font-bold text-on-surface">Remove Member?</h3>
+              <p className="text-sm text-on-surface-variant">
+                This will permanently delete <span className="font-semibold text-on-surface">{confirmKickMember.username}</span>'s account. They will need a new invite to rejoin.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleKickMember}
+                className="w-full py-3.5 rounded-xl bg-error text-on-error font-bold active:scale-[0.98] transition-all"
+              >
+                Remove
+              </button>
+              <button
+                onClick={() => setConfirmKickMember(null)}
+                className="w-full py-3.5 rounded-xl bg-surface-container font-bold text-on-surface active:scale-[0.98] transition-all"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
