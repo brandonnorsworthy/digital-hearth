@@ -1,11 +1,17 @@
-/** Returns the ISO date string (YYYY-MM-DD) for the Monday of the current week. */
-export function getCurrentWeekOf(): string {
+const DAY_INDEX: Record<string, number> = {
+  Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3,
+  Thursday: 4, Friday: 5, Saturday: 6,
+}
+
+/** Returns the ISO date string (YYYY-MM-DD) for the start of the current week based on the household's reset day. */
+export function getCurrentWeekOf(weekResetDay = 'Monday'): string {
+  const startIndex = DAY_INDEX[weekResetDay] ?? 1
   const now = new Date()
-  const diff = (now.getDay() + 6) % 7 // days since Monday (Mon=0 … Sun=6)
-  const monday = new Date(now)
-  monday.setDate(now.getDate() - diff)
-  monday.setHours(0, 0, 0, 0)
-  return monday.toISOString().split('T')[0]
+  const diff = (now.getDay() - startIndex + 7) % 7 // days since reset day
+  const start = new Date(now)
+  start.setDate(now.getDate() - diff)
+  start.setHours(0, 0, 0, 0)
+  return start.toISOString().split('T')[0]
 }
 
 /** Returns a new weekOf string shifted by n weeks from the given weekOf. */

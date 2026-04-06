@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Skeleton from '../components/Skeleton'
 import { useAuth } from '../contexts/AuthContext'
+import { useHousehold } from '../contexts/HouseholdContext'
 import { mealService } from '../services/meals'
 import { mealImageUrl } from '../services/api'
 import { getCurrentWeekOf, shiftWeek, formatWeekRange } from '../utils/meals'
@@ -26,6 +27,7 @@ function mealColor(index: number) {
 
 export default function MealPlanner() {
   const { user } = useAuth()
+  const { household } = useHousehold()
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -39,7 +41,7 @@ export default function MealPlanner() {
   const [confirmRemoveStartedWeekMeal, setConfirmRemoveStartedWeekMeal] = useState<WeeklyMeal | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const currentWeekOf = getCurrentWeekOf()
+  const currentWeekOf = getCurrentWeekOf(household?.weekResetDay)
   const weekOf = weekOffset === 0 ? currentWeekOf : shiftWeek(currentWeekOf, weekOffset)
   const inputRef = useRef<HTMLInputElement>(null)
   const placeholder = useMemo(() => MEAL_PLACEHOLDERS[Math.floor(Math.random() * MEAL_PLACEHOLDERS.length)], [])

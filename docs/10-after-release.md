@@ -6,9 +6,10 @@
 - [x] On a add new task screen, add a checkbox to indicate one time task, turn frequency schedule into just a due date selector if its a one time task, if its not a one time task then show the frequency schedule options like normal
 - [x] One time tasks should not have a completetion history when editing
 - [x] editing a task should include the same one time task checkbox and logic as creating a new task
-- [ ] bug: current start day is sunday but the week view shows sunday as the end day of the week
+- [x] bug: current start day is sunday but the week view shows sunday as the end day of the week
 - [ ] when opening meal library from a future week you should beable to add the meal to the week selected
 - [ ] if you are the household admin you should beable to kick a member, this would delete that persons account
+- [ ] editing goal meals per week as member not admin still leaves the input as the input put in instead of resetting to previous, probably just change this to readonly for members and only show the current goal meals per week without the ability to edit it, since its not something they can change anyway
 
 # 2.0 features
 

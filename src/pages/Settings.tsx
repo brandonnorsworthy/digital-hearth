@@ -6,6 +6,7 @@ import Toggle from '../components/Toggle'
 import { useAuth } from '../contexts/AuthContext'
 import { useHousehold } from '../contexts/HouseholdContext'
 import { householdService } from '../services/household'
+import { ApiError } from '../services/api'
 import { WEEK_DAYS } from '../constants/household'
 import { notificationService, type UserNotifSettings } from '../services/notifications'
 import { authService } from '../services/auth'
@@ -80,8 +81,10 @@ export default function Settings() {
         await householdService.update(user.householdId, { weekResetDay: day })
         reload()
       } catch (err) {
-        console.error('Failed to update week reset day', err)
         setWeekResetDay(null)
+        if (err instanceof ApiError && err.status === 403) {
+          toast.error('Only household admins can change this setting')
+        }
       }
     }
   }
@@ -136,7 +139,9 @@ export default function Settings() {
       await householdService.update(user.householdId, { goalMealsPerWeek: parsed })
       reload()
     } catch (err) {
-      console.error('Failed to update goal meals per week', err)
+      if (err instanceof ApiError && err.status === 403) {
+        toast.error('Only household admins can change this setting')
+      }
     }
   }
 

@@ -12,6 +12,10 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
+vi.mock('../../contexts/HouseholdContext', () => ({
+  useHousehold: () => ({ household: { weekResetDay: 'Monday' }, members: [], isLoading: false, error: null, reload: vi.fn() }),
+}))
+
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => ({ user: { id: '1', username: 'Sarah', householdId: '1' }, isLoading: false, logout: vi.fn() }),
 }))
